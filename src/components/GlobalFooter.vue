@@ -2,10 +2,7 @@
   <a-layout-footer class="footer">
     <div class="footer-content">
       <p class="copyright">
-        <span
-        >
-          项目仅供参考学习，禁止商用
-        </span>
+        <span>项目仅用于学习参考，严禁商用</span>
       </p>
     </div>
   </a-layout-footer>
@@ -17,17 +14,23 @@
 
 <style scoped>
 .footer {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  background: transparent;
   text-align: center;
-  padding: 20px;
-  margin-top: 40px;
-  border-top: 1px solid rgba(102, 126, 234, 0.1);
+  padding: 0 20px 28px;
+  margin-top: 24px;
+}
+
+.footer-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-top: 18px;
+  border-top: 1px solid var(--ai-border);
 }
 
 .copyright {
   margin: 0;
-  color: #666;
-  font-size: 14px;
+  color: var(--ai-muted);
+  font-size: 12px;
+  line-height: 1.6;
 }
 </style>
