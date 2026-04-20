@@ -2,14 +2,10 @@
   <a-layout-footer class="footer">
     <div class="footer-content">
       <p class="copyright">
-        <a
-          href="https://www.codefather.cn"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="author-link"
+        <span
         >
-          编程导航原创项目 by 程序员鱼皮
-        </a>
+          项目仅供参考学习，禁止商用
+        </span>
       </p>
     </div>
   </a-layout-footer>
