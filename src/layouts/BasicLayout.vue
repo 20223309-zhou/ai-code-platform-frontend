@@ -18,13 +18,15 @@ import GlobalFooter from '@/components/GlobalFooter.vue'
 
 <style scoped>
 .basic-layout {
-  background: none;
+  min-height: 100vh;
+  background: var(--ai-bg);
 }
 
 .main-content {
   width: 100%;
-  padding: 0;
-  background: none;
+  padding-top: 64px;
+  background: transparent;
   margin: 0;
+  min-height: calc(100vh - 64px);
 }
 </style>

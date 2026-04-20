@@ -132,6 +132,7 @@
             />
             <div class="input-actions">
               <a-button
+                  class="send-button"
                   type="primary"
                   @click="sendMessage"
                   :loading="isGenerating"
@@ -177,8 +178,8 @@
             <p>网站文件生成完成后将在这里展示</p>
           </div>
           <div v-else-if="isGenerating" class="preview-loading">
-            <a-spin size="large" />
-            <p>正在生成网站...</p>
+            <a-spin size="large" class="preview-spinner" />
+            <p class="preview-loading-text">正在生成网站</p>
           </div>
           <iframe
               v-else
@@ -910,6 +911,17 @@ onUnmounted(() => {
   right: 8px;
 }
 
+.send-button :deep(.ant-btn-loading-icon .anticon) {
+  display: inline-flex;
+  color: rgba(255, 255, 255, 0.95);
+  animation: spin-ring 0.9s linear infinite;
+}
+
+.send-button :deep(.ant-btn-loading-icon .anticon svg) {
+  width: 14px;
+  height: 14px;
+}
+
 /* 右侧预览区域 */
 .preview-section {
   flex: 3;
@@ -966,17 +978,66 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #666;
+  color: #64748b;
 }
 
-.preview-loading p {
-  margin-top: 16px;
+.preview-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 1px solid rgba(67, 97, 238, 0.18);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.98), rgba(241, 245, 255, 0.92)),
+    linear-gradient(135deg, rgba(67, 97, 238, 0.08), rgba(0, 245, 212, 0.1));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+    0 14px 30px rgba(67, 97, 238, 0.12);
+}
+
+.preview-spinner :deep(.ant-spin-dot) {
+  width: 34px;
+  height: 34px;
+  animation: spin-ring 1s linear infinite;
+}
+
+.preview-spinner :deep(.ant-spin-dot-item) {
+  width: 13px;
+  height: 13px;
+  background: linear-gradient(135deg, #5f78ff, var(--ai-accent));
+  box-shadow: 0 0 12px rgba(67, 97, 238, 0.28);
+}
+
+.preview-loading-text {
+  margin-top: 18px;
+  color: #334155;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.preview-loading-text::after {
+  content: '...';
+  display: inline-block;
+  margin-left: 2px;
+  animation: loading-dots 1.1s steps(4, end) infinite;
 }
 
 .preview-iframe {
   width: 100%;
   height: 100%;
   border: none;
+}
+
+@keyframes loading-dots {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 1.5em;
+  }
 }
 
 .selected-element-alert {
