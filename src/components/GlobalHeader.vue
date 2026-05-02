@@ -1,12 +1,12 @@
 <template>
-  <a-layout-header class="header">
+  <a-layout-header class="header" :class="{ 'header--scrolled': isScrolled }">
     <div class="header-inner">
       <RouterLink to="/" class="brand-link">
         <div class="header-left">
           <div class="logo-shell">
             <img class="logo" src="@/assets/logo.png" alt="Logo" />
           </div>
-          <h1 class="site-title">iCodePlay AI应用生成平台</h1>
+          <h1 class="site-title">iCodeAI</h1>
         </div>
       </RouterLink>
 
@@ -25,12 +25,17 @@
         <div v-if="loginUserStore.loginUser.id">
           <a-dropdown>
             <div class="user-trigger">
-              <a-avatar :src="loginUserStore.loginUser.userAvatar" :size="36" />
+              <a-avatar :src="loginUserStore.loginUser.userAvatar" :size="30" />
               <span class="user-name">{{ loginUserStore.loginUser.userName ?? '无名' }}</span>
               <DownOutlined class="user-arrow" />
             </div>
             <template #overlay>
               <a-menu class="user-menu">
+                <a-menu-item @click="router.push('/user/profile')">
+                  <UserOutlined />
+                  个人信息
+                </a-menu-item>
+                <a-menu-divider />
                 <a-menu-item @click="doLogout">
                   <LogoutOutlined />
                   退出登录
@@ -48,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, ref, watch } from 'vue'
+import { computed, h, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
@@ -56,6 +61,7 @@ import { userLogout } from '@/api/userController.ts'
 import {
   HomeOutlined,
   LogoutOutlined,
+  UserOutlined,
   AppstoreOutlined,
   TeamOutlined,
   DownOutlined,
@@ -131,6 +137,21 @@ const doLogout = async () => {
     message.error('退出登录失败，' + res.data.message)
   }
 }
+
+const isScrolled = ref(false)
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 60
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  handleScroll()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style scoped>
@@ -142,10 +163,20 @@ const doLogout = async () => {
   z-index: 100;
   height: 64px;
   line-height: normal;
-  padding: 0 20px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--ai-border);
+  padding: 0 24px;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    backdrop-filter 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.header--scrolled {
+  background: rgba(14, 16, 24, 0.82);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .header-inner {
@@ -155,7 +186,7 @@ const doLogout = async () => {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 18px;
+  gap: 24px;
 }
 
 .brand-link {
@@ -168,32 +199,34 @@ const doLogout = async () => {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .logo-shell {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(67, 97, 238, 0.16), rgba(0, 245, 212, 0.1));
-  box-shadow: inset 0 0 0 1px rgba(67, 97, 238, 0.12);
+  color: var(--ai-primary);
+  background: rgba(79, 124, 255, 0.08);
+  animation: breathe 3s ease-in-out infinite;
 }
 
 .logo {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
+  filter: brightness(1.3);
 }
 
 .site-title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--ai-primary);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ai-title);
   white-space: nowrap;
 }
 
@@ -213,29 +246,32 @@ const doLogout = async () => {
 
 :deep(.nav-menu .ant-menu-overflow) {
   justify-content: center;
-  gap: 8px;
+  gap: 2px;
 }
 
 :deep(.nav-menu .ant-menu-item) {
   top: 0;
-  height: 40px;
-  line-height: 40px;
+  height: 34px;
+  line-height: 34px;
   margin: 0 !important;
-  padding: 0 16px !important;
-  border-radius: 8px;
-  color: var(--ai-text);
-  font-weight: 500;
+  padding: 0 12px !important;
+  border-radius: 6px;
+  color: var(--ai-muted);
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :deep(.nav-menu .ant-menu-item:hover) {
-  color: var(--ai-primary-deep) !important;
-  background: var(--ai-bg) !important;
+  color: var(--ai-title) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
 }
 
 :deep(.nav-menu .ant-menu-item-selected) {
-  color: var(--ai-primary) !important;
-  font-weight: 700;
-  background: #f0f5ff !important;
+  color: var(--ai-title) !important;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.04) !important;
 }
 
 :deep(.nav-menu .ant-menu-item::after) {
@@ -260,70 +296,68 @@ const doLogout = async () => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 44px;
-  padding: 4px 12px 4px 6px;
-  border-radius: 14px;
-  border: 1px solid rgba(67, 97, 238, 0.22);
-  background: linear-gradient(135deg, rgba(67, 97, 238, 0.08), rgba(0, 245, 212, 0.06));
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  height: 38px;
+  padding: 3px 10px 3px 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
-.user-trigger :deep(.anticon) {
-  display: inline-flex;
-  align-items: center;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .user-trigger:hover {
-  border-color: rgba(67, 97, 238, 0.38);
-  box-shadow: 0 12px 24px rgba(67, 97, 238, 0.16);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .user-trigger :deep(.ant-avatar) {
-  border: 2px solid rgba(255, 255, 255, 0.92);
-  box-shadow: 0 6px 14px rgba(67, 97, 238, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .user-name {
   color: var(--ai-title);
-  font-weight: 600;
-  max-width: 120px;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  max-width: 90px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .user-arrow {
-  font-size: 12px;
-  color: var(--ai-subtle);
+  font-size: 10px;
+  color: var(--ai-muted);
 }
 
 .login-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  padding: 0 18px;
+  height: 34px;
+  padding: 0 16px;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   line-height: 1;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--ai-primary), #5e7cff);
-  box-shadow: 0 10px 24px rgba(67, 97, 238, 0.18);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #4f7cff, #2d4fc7);
+  box-shadow: 0 6px 20px rgba(79, 124, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .login-button:hover,
 .login-button:focus {
-  background: linear-gradient(135deg, var(--ai-primary-deep), var(--ai-primary)) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(58, 12, 163, 0.18);
+  background: linear-gradient(135deg, #5f8cff, #3d5fd7) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(79, 124, 255, 0.3);
 }
 
 @media (max-width: 768px) {
   .header {
-    padding: 0 14px;
+    padding: 0 16px;
   }
 
   .header-inner {
@@ -343,7 +377,7 @@ const doLogout = async () => {
   }
 
   .site-title {
-    font-size: 17px;
+    font-size: 16px;
   }
 
   .user-name {

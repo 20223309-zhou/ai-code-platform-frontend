@@ -77,54 +77,38 @@ const handleViewWork = () => {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: var(--ai-card-radius);
-  box-shadow: var(--ai-shadow);
+  background: rgba(21, 23, 32, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   cursor: pointer;
-  transition: var(--ai-transition);
-}
-
-.app-card::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, var(--ai-primary), var(--ai-accent));
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: var(--ai-transition);
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .app-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--ai-shadow-hover);
-}
-
-.app-card:hover::after {
-  transform: scaleX(1);
+  transform: translateY(-3px);
+  border-color: rgba(79, 124, 255, 0.12);
+  box-shadow: 0 16px 48px rgba(79, 124, 255, 0.06);
 }
 
 .app-card--featured:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(-3px) scale(1.015);
 }
 
 .app-preview {
   position: relative;
-  height: 172px;
-  padding: 10px;
-  background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+  height: 160px;
+  padding: 8px;
+  background: rgba(79, 124, 255, 0.03);
   overflow: hidden;
 }
 
 .app-preview img {
   width: 100%;
   height: 100%;
-  border-radius: 12px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
   object-fit: cover;
 }
 
@@ -134,9 +118,9 @@ const handleViewWork = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.015);
 }
 
 .placeholder-illustration {
@@ -146,51 +130,54 @@ const handleViewWork = () => {
 
 .line {
   fill: none;
-  stroke-width: 1.5;
+  stroke-width: 1.2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .panel {
-  stroke: rgba(67, 97, 238, 0.22);
-  fill: rgba(255, 255, 255, 0.72);
+  stroke: rgba(79, 124, 255, 0.12);
+  fill: rgba(255, 255, 255, 0.02);
 }
 
 .soft {
-  stroke: rgba(148, 163, 184, 0.75);
+  stroke: rgba(255, 255, 255, 0.1);
 }
 
 .accent {
-  stroke: rgba(67, 97, 238, 0.85);
+  stroke: rgba(79, 124, 255, 0.4);
 }
 
 .dot {
-  fill: rgba(0, 245, 212, 0.9);
+  fill: rgba(125, 211, 252, 0.55);
 }
 
 .app-badge {
   position: absolute;
   top: 12px;
   left: 12px;
-  padding: 4px 10px;
+  padding: 2px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: rgba(14, 16, 24, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   color: var(--ai-primary);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  backdrop-filter: blur(6px);
 }
 
 .app-overlay {
   position: absolute;
-  inset: 10px;
+  inset: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.14), rgba(15, 23, 42, 0.58));
+  border-radius: 8px;
+  background: rgba(14, 16, 24, 0.6);
+  backdrop-filter: blur(8px);
   opacity: 0;
-  transition: var(--ai-transition);
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .app-card:hover .app-overlay {
@@ -198,16 +185,25 @@ const handleViewWork = () => {
 }
 
 .overlay-button {
-  height: 36px;
+  height: 32px;
   border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  background: linear-gradient(135deg, var(--ai-primary), #5e7cff);
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 13px;
+  background: linear-gradient(135deg, #4f7cff, #2d4fc7);
+  box-shadow: 0 4px 14px rgba(79, 124, 255, 0.2);
 }
 
 .overlay-button--ghost {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--ai-title);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.overlay-button--ghost:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .app-info {
@@ -215,23 +211,25 @@ const handleViewWork = () => {
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
-  gap: 14px;
-  padding: 16px 16px 18px;
+  gap: 10px;
+  padding: 12px 14px 14px;
 }
 
 .app-title {
   margin: 0;
   color: var(--ai-title);
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 500;
   line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 
 .app-description {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   color: var(--ai-text);
   font-size: 13px;
   line-height: 1.6;
+  letter-spacing: 0.01em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -241,16 +239,17 @@ const handleViewWork = () => {
 .app-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .author-avatar {
-  border: 2px solid rgba(67, 97, 238, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .app-author {
   color: var(--ai-muted);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 </style>

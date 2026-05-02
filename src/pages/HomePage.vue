@@ -173,7 +173,7 @@ onUnmounted(() => {
     <div class="page-shell">
       <section class="hero-section fade-section is-visible">
         <div class="hero-badge">智能生成 · 低代码 · 未来体验</div>
-        <h1 class="hero-title">AI零代码应用生成平台</h1>
+        <h1 class="hero-title">iCodeAI 应用生成平台</h1>
         <p class="hero-description">一句自然语言，快速生成完整应用原型与交互体验。</p>
       </section>
 
@@ -192,6 +192,7 @@ onUnmounted(() => {
             :rows="4"
             :maxlength="1000"
             class="prompt-input"
+            @keydown.enter.prevent="createApp"
           />
           <button class="generate-button" type="button" @click="createApp" :disabled="creating">
             <span v-if="!creating" class="generate-arrow">&#8594;</span>
@@ -236,23 +237,23 @@ onUnmounted(() => {
         </div>
 
         <div v-else class="empty-state">
-          <svg viewBox="0 0 240 180" class="empty-robot" aria-hidden="true">
-            <rect x="74" y="42" width="92" height="72" rx="20" class="robot-line robot-body" />
-            <circle cx="103" cy="78" r="7" class="robot-line" />
-            <circle cx="137" cy="78" r="7" class="robot-line" />
-            <path d="M96 96 C108 108, 132 108, 144 96" class="robot-line" />
-            <path d="M120 20 L120 42" class="robot-line" />
-            <circle cx="120" cy="16" r="8" class="robot-core" />
-            <path d="M52 58 L74 68" class="robot-line" />
-            <path d="M188 58 L166 68" class="robot-line" />
-            <path d="M90 114 L78 138" class="robot-line" />
-            <path d="M150 114 L162 138" class="robot-line" />
-            <path d="M28 138 C58 102, 64 102, 88 138" class="circuit-line" />
-            <path d="M152 138 C176 102, 182 102, 212 138" class="circuit-line" />
-            <circle cx="28" cy="138" r="4" class="circuit-dot" />
-            <circle cx="88" cy="138" r="4" class="circuit-dot" />
-            <circle cx="152" cy="138" r="4" class="circuit-dot" />
-            <circle cx="212" cy="138" r="4" class="circuit-dot" />
+          <svg viewBox="0 0 200 160" class="empty-robot" aria-hidden="true">
+            <rect x="56" y="32" width="88" height="68" rx="16" class="robot-line robot-body" />
+            <circle cx="84" cy="66" r="6" class="robot-line" />
+            <circle cx="116" cy="66" r="6" class="robot-line" />
+            <path d="M80 88 C94 98, 106 98, 120 88" class="robot-line" />
+            <path d="M100 14 L100 32" class="robot-line" />
+            <circle cx="100" cy="11" r="6" class="robot-core" />
+            <path d="M36 66 L56 70" class="robot-line" />
+            <path d="M144 70 L164 66" class="robot-line" />
+            <path d="M68 100 L56 122" class="robot-line" />
+            <path d="M132 100 L144 122" class="robot-line" />
+            <path d="M18 122 C48 86, 54 90, 74 122" class="circuit-line" />
+            <path d="M126 122 C146 90, 152 86, 182 122" class="circuit-line" />
+            <circle cx="18" cy="122" r="3" class="circuit-dot" />
+            <circle cx="74" cy="122" r="3" class="circuit-dot" />
+            <circle cx="126" cy="122" r="3" class="circuit-dot" />
+            <circle cx="182" cy="122" r="3" class="circuit-dot" />
           </svg>
           <h3 class="empty-title">还没有生成作品</h3>
           <p class="empty-desc">从上方模板开始，或直接输入你的需求，让 AI 为你搭建第一个应用。</p>
@@ -307,55 +308,42 @@ onUnmounted(() => {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  background:
-    radial-gradient(circle at top left, rgba(67, 97, 238, 0.1), transparent 24%),
-    radial-gradient(circle at 85% 10%, rgba(0, 245, 212, 0.12), transparent 20%),
-    linear-gradient(180deg, #f8fafc 0%, #f3f7ff 45%, #f8fafc 100%);
+  background: transparent;
 }
 
-#homePage::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(67, 97, 238, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(67, 97, 238, 0.05) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 88%);
-  pointer-events: none;
-}
-
+/* 鼠标跟随光晕 — 最上层 */
 #homePage::after {
   content: '';
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    520px circle at var(--mouse-x, 50%) var(--mouse-y, 18%),
-    rgba(67, 97, 238, 0.12),
-    transparent 72%
+    640px circle at var(--mouse-x, 50%) var(--mouse-y, 18%),
+    rgba(79, 124, 255, 0.06),
+    transparent 68%
   );
   pointer-events: none;
+  z-index: 2;
 }
 
 .page-shell {
   position: relative;
   z-index: 1;
-  max-width: 1240px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 44px 20px 56px;
+  padding: 56px 20px 64px;
 }
 
 .fade-section {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(20px);
 }
 
 .fade-section.is-visible {
-  animation: fade-up 0.7s ease forwards;
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .hero-section {
-  padding: 32px 0 28px;
+  padding: 56px 0 36px;
   text-align: center;
 }
 
@@ -363,124 +351,133 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 7px 14px;
-  border: 1px solid rgba(67, 97, 238, 0.14);
+  padding: 5px 14px;
+  border: 1px solid rgba(79, 124, 255, 0.15);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.75);
-  box-shadow: var(--ai-shadow);
+  background: rgba(79, 124, 255, 0.06);
   color: var(--ai-primary);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
 }
 
 .hero-title {
-  margin: 18px 0 12px;
+  margin: 22px 0 14px;
   color: var(--ai-title);
-  font-size: clamp(36px, 6vw, 56px);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.04em;
+  font-size: clamp(34px, 5.5vw, 52px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
 }
 
 .hero-description {
-  max-width: 620px;
+  max-width: 520px;
   margin: 0 auto;
-  color: var(--ai-text);
-  font-size: 18px;
+  color: var(--ai-muted);
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
 }
 
 .generator-panel {
-  max-width: 860px;
-  margin: 0 auto 56px;
-  padding: 32px;
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  border-radius: 20px;
-  background: linear-gradient(135deg, #ffffff 0%, #f0f5ff 100%);
-  box-shadow: 0 20px 60px rgba(67, 97, 238, 0.08);
+  max-width: 800px;
+  margin: 0 auto 60px;
+  padding: 28px 28px 32px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(21, 23, 32, 0.65);
+  backdrop-filter: blur(36px);
+  -webkit-backdrop-filter: blur(36px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.32);
 }
 
 .generator-header {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .panel-title {
   margin: 0;
   color: var(--ai-title);
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .panel-subtitle {
-  margin: 8px 0 0;
-  color: var(--ai-text);
+  margin: 6px 0 0;
+  color: var(--ai-muted);
   font-size: 14px;
+  letter-spacing: 0.01em;
 }
 
 .input-shell {
   position: relative;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 :deep(.prompt-input.ant-input) {
-  min-height: 164px;
-  padding: 18px 78px 18px 18px;
-  border: 1px solid var(--ai-border);
+  min-height: 144px;
+  padding: 16px 72px 16px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--ai-control-radius);
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: inset 0 1px 2px rgba(148, 163, 184, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
   color: var(--ai-title);
-  font-size: 15px;
+  font-size: 14px;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
   resize: none;
+  caret-color: var(--ai-primary);
+  transition: border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              background 0.3s ease;
 }
 
 :deep(.prompt-input.ant-input:focus),
 :deep(.prompt-input.ant-input-focused) {
-  border-color: var(--ai-primary);
+  border-color: rgba(79, 124, 255, 0.25);
+  background: rgba(255, 255, 255, 0.03);
   box-shadow:
-    inset 0 0 0 3px rgba(67, 97, 238, 0.12),
-    0 10px 24px rgba(67, 97, 238, 0.08);
+    inset 0 0 0 1px rgba(79, 124, 255, 0.08),
+    0 0 24px rgba(79, 124, 255, 0.04);
+  animation: breathe-subtle 3s ease-in-out infinite;
 }
 
 :deep(.prompt-input.ant-input::placeholder) {
-  color: #94a3b8;
+  color: var(--ai-muted);
   font-style: italic;
+  letter-spacing: 0.01em;
 }
 
 .generate-button {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
-  width: 48px;
-  height: 48px;
+  right: 10px;
+  bottom: 10px;
+  width: 42px;
+  height: 42px;
   border: none;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--ai-primary), #5f78ff);
+  background: linear-gradient(135deg, #4f7cff, #2d4fc7);
   color: #fff;
-  box-shadow: 0 12px 24px rgba(67, 97, 238, 0.24);
+  box-shadow: 0 6px 20px rgba(79, 124, 255, 0.25);
   cursor: pointer;
-  transition: var(--ai-transition);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .generate-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 30px rgba(67, 97, 238, 0.28);
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 10px 28px rgba(79, 124, 255, 0.35);
 }
 
 .generate-button:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 
-.generate-button:active::after,
-.input-shell.is-creating .generate-button::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 2px solid rgba(0, 245, 212, 0.45);
-  animation: pulse-ring 1.2s ease-out infinite;
+.input-shell.is-creating .generate-button {
+  animation: breathe 2.4s ease-in-out infinite;
 }
 
 .generate-button:disabled {
@@ -488,116 +485,121 @@ onUnmounted(() => {
 }
 
 .generate-arrow {
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1;
 }
 
 .generate-loader {
   position: relative;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .loader-ring {
-  width: 32px;
-  height: 32px;
-  animation: spin-ring 1.1s linear infinite;
+  width: 28px;
+  height: 28px;
+  animation: spin-ring 1.2s linear infinite;
 }
 
 .loader-ring-track,
 .loader-ring-path {
   fill: none;
-  stroke-width: 3;
+  stroke-width: 2.5;
 }
 
 .loader-ring-track {
-  stroke: rgba(255, 255, 255, 0.22);
+  stroke: rgba(255, 255, 255, 0.15);
 }
 
 .loader-ring-path {
-  stroke: var(--ai-accent);
+  stroke: #7dd3fc;
   stroke-linecap: round;
-  stroke-dasharray: 72;
-  stroke-dashoffset: 24;
+  stroke-dasharray: 64;
+  stroke-dashoffset: 20;
 }
 
 .loader-pulse {
   position: absolute;
-  inset: 6px;
+  inset: 4px;
   border-radius: 50%;
-  background: rgba(0, 245, 212, 0.2);
-  filter: blur(6px);
-  animation: pulse-ring 1.5s ease-out infinite;
+  background: rgba(125, 211, 252, 0.1);
+  filter: blur(4px);
+  animation: pulse-ring 1.8s ease-out infinite;
 }
 
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .template-chip {
-  min-height: 44px;
-  padding: 10px 14px;
-  border: 1px solid var(--ai-border);
-  border-radius: 10px;
-  background: #f8fafc;
-  color: var(--ai-text);
-  font-size: 14px;
-  font-weight: 500;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--ai-muted);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: var(--ai-transition);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .template-chip:hover {
-  border-color: rgba(67, 97, 238, 0.28);
-  color: var(--ai-primary-deep);
+  border-color: rgba(79, 124, 255, 0.15);
+  color: var(--ai-title);
+  background: rgba(79, 124, 255, 0.04);
   transform: translateY(-1px);
 }
 
 .template-chip.is-active {
-  background: #e6edff;
-  color: var(--ai-primary-deep);
-  border-color: rgba(67, 97, 238, 0.24);
-  font-weight: 700;
+  background: rgba(79, 124, 255, 0.08);
+  color: var(--ai-primary);
+  border-color: rgba(79, 124, 255, 0.2);
+  font-weight: 500;
 }
 
 .section {
-  margin-bottom: 52px;
+  margin-bottom: 56px;
 }
 
 .section-heading {
   display: flex;
   align-items: end;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 22px;
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
 .section-title {
   margin: 0;
   color: var(--ai-title);
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .section-desc {
   margin: 0;
-  max-width: 560px;
-  color: var(--ai-text);
+  max-width: 440px;
+  color: var(--ai-muted);
   font-size: 14px;
   text-align: right;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
 }
 
 .app-grid,
 .featured-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 360px));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 340px));
   justify-content: flex-start;
-  gap: 20px;
+  gap: 18px;
 }
 
 .empty-state {
@@ -605,18 +607,18 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 34px 24px;
-  border: 1px dashed rgba(67, 97, 238, 0.22);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: var(--ai-shadow);
+  padding: 44px 24px 40px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.015);
   text-align: center;
 }
 
 .empty-robot {
-  width: 240px;
+  width: 180px;
   max-width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
+  opacity: 0.5;
 }
 
 .robot-line,
@@ -627,60 +629,45 @@ onUnmounted(() => {
 }
 
 .robot-line {
-  stroke: rgba(67, 97, 238, 0.92);
-  stroke-width: 3;
+  stroke: rgba(79, 124, 255, 0.35);
+  stroke-width: 2;
 }
 
 .robot-body {
-  fill: rgba(255, 255, 255, 0.82);
+  fill: rgba(255, 255, 255, 0.02);
 }
 
 .robot-core,
 .circuit-dot {
-  fill: rgba(0, 245, 212, 0.95);
+  fill: rgba(125, 211, 252, 0.5);
 }
 
 .circuit-line {
-  stroke: rgba(148, 163, 184, 0.82);
-  stroke-width: 2.5;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1.5;
 }
 
 .empty-title {
   margin: 4px 0 8px;
   color: var(--ai-title);
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .empty-desc {
-  max-width: 420px;
+  max-width: 380px;
   margin: 0;
-  color: var(--ai-text);
+  color: var(--ai-muted);
   font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
 }
 
 .pagination-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 24px;
-}
-
-:deep(.ant-pagination .ant-pagination-item),
-:deep(.ant-pagination .ant-pagination-prev),
-:deep(.ant-pagination .ant-pagination-next) {
-  border-color: var(--ai-border);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.92);
-}
-
-:deep(.ant-pagination .ant-pagination-item-active) {
-  border-color: var(--ai-primary);
-  background: #f0f5ff;
-}
-
-:deep(.ant-pagination .ant-pagination-item-active a) {
-  color: var(--ai-primary);
-  font-weight: 700;
+  margin-top: 28px;
 }
 
 @media (max-width: 1024px) {
@@ -691,7 +678,7 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .page-shell {
-    padding: 28px 16px 40px;
+    padding: 36px 16px 48px;
   }
 
   .generator-panel {
@@ -714,22 +701,17 @@ onUnmounted(() => {
   }
 
   .hero-description {
-    font-size: 16px;
+    font-size: 15px;
   }
 }
 
 @media (max-width: 640px) {
   .generator-panel {
-    border-radius: 18px;
     max-width: 100%;
   }
 
-  .panel-title {
-    font-size: 22px;
-  }
-
   :deep(.prompt-input.ant-input) {
-    min-height: 180px;
+    min-height: 160px;
   }
 }
 </style>

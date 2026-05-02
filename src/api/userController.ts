@@ -125,3 +125,22 @@ export async function updateUser(body: API.UserUpdateRequest, options?: { [key: 
     ...(options || {}),
   })
 }
+
+/** 修改用户信息（用户自己）POST /user/update/my */
+export async function updateUserBySelf(
+  body: API.UserUpdateRequest,
+  file?: File,
+  options?: { [key: string]: any }
+) {
+  const formData = new FormData()
+  formData.append('id', String(body.id))
+  if (body.userName != null) formData.append('userName', body.userName)
+  if (body.userProfile != null) formData.append('userProfile', body.userProfile)
+  if (file) formData.append('file', file)
+
+  return request<API.BaseResponseBoolean>('/user/update/my', {
+    method: 'POST',
+    data: formData,
+    ...(options || {}),
+  })
+}
