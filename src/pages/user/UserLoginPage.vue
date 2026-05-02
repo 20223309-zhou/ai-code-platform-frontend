@@ -66,48 +66,62 @@ const handleSubmit = async (values: any) => {
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
+  background: var(--ai-bg);
+  position: relative;
+}
+
+.auth-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   background:
-    radial-gradient(circle at top left, rgba(67, 97, 238, 0.12), transparent 24%),
-    radial-gradient(circle at 80% 20%, rgba(0, 245, 212, 0.14), transparent 18%),
-    linear-gradient(180deg, #f8fafc 0%, #f2f7ff 100%);
+    radial-gradient(ellipse 50% 35% at 30% 20%, rgba(108, 125, 255, 0.08), transparent),
+    radial-gradient(ellipse 40% 30% at 70% 80%, rgba(0, 245, 212, 0.04), transparent);
+  pointer-events: none;
 }
 
 .auth-card {
+  position: relative;
   width: 100%;
-  max-width: 420px;
-  padding: 40px 24px 28px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 24px;
-  background: rgba(248, 250, 252, 0.92);
-  box-shadow: 0 24px 60px rgba(67, 97, 238, 0.12);
-  animation: fade-up 0.7s ease;
+  max-width: 400px;
+  padding: 36px 24px 26px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  background: rgba(21, 23, 32, 0.6);
+  backdrop-filter: blur(36px);
+  -webkit-backdrop-filter: blur(36px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .auth-badge {
   width: fit-content;
-  margin: 0 auto 16px;
-  padding: 6px 12px;
+  margin: 0 auto 14px;
+  padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(67, 97, 238, 0.08);
+  background: rgba(79, 124, 255, 0.08);
   color: var(--ai-primary);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
 }
 
 .title {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   text-align: center;
   color: var(--ai-title);
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 600;
   line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 
 .desc {
-  margin-bottom: 28px;
+  margin-bottom: 26px;
   text-align: center;
   color: var(--ai-muted);
   font-size: 14px;
+  letter-spacing: 0.01em;
 }
 
 .auth-form {
@@ -121,16 +135,19 @@ const handleSubmit = async (values: any) => {
 
 #userLoginPage :deep(.ant-input),
 #userLoginPage :deep(.ant-input-affix-wrapper) {
-  height: 52px;
+  height: 48px;
   padding: 0 14px;
-  border: 1px solid var(--ai-border);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: inset 0 1px 2px rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  color: var(--ai-title);
+  caret-color: var(--ai-primary);
 }
 
 #userLoginPage :deep(.ant-input) {
-  line-height: 52px;
+  line-height: 48px;
+  letter-spacing: 0.02em;
 }
 
 #userLoginPage :deep(.ant-input-affix-wrapper .ant-input) {
@@ -144,7 +161,7 @@ const handleSubmit = async (values: any) => {
 }
 
 #userLoginPage :deep(.ant-input-affix-wrapper:hover) {
-  border-color: var(--ai-border);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 #userLoginPage :deep(.ant-input-affix-wrapper .ant-input-suffix) {
@@ -154,8 +171,13 @@ const handleSubmit = async (values: any) => {
 
 #userLoginPage :deep(.ant-input:focus),
 #userLoginPage :deep(.ant-input-affix-wrapper-focused) {
-  border-color: var(--ai-primary);
-  box-shadow: inset 0 0 0 3px rgba(67, 97, 238, 0.12);
+  border-color: rgba(79, 124, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 0 0 1px rgba(79, 124, 255, 0.08), 0 0 16px rgba(79, 124, 255, 0.03);
+}
+
+#userLoginPage :deep(.ant-input-affix-wrapper input) {
+  color: var(--ai-title);
 }
 
 #userLoginPage :deep(.ant-input-password-icon) {
@@ -188,33 +210,27 @@ const handleSubmit = async (values: any) => {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 52px;
+  height: 48px;
   padding: 0 20px;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
+  border-radius: 10px;
+  font-size: 15px;
   line-height: 1;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--ai-primary), #5f78ff);
-  box-shadow: 0 12px 24px rgba(67, 97, 238, 0.2);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #4f7cff, #2d4fc7);
+  box-shadow: 0 6px 20px rgba(79, 124, 255, 0.2);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .submit-button:hover,
 .submit-button:focus {
-  background: linear-gradient(135deg, var(--ai-primary-deep), var(--ai-primary)) !important;
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #5f8cff, #3d5fd7) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(79, 124, 255, 0.3);
 }
 
 .submit-button:active {
   transform: scale(0.98);
-}
-
-.submit-button:active::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 14px;
-  border: 2px solid rgba(0, 245, 212, 0.4);
-  animation: pulse-ring 0.9s ease-out;
 }
 </style>

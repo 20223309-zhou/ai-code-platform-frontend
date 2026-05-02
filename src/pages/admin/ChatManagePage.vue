@@ -199,8 +199,14 @@ const deleteMessage = async (id: number | undefined) => {
 <style scoped>
 #chatManagePage {
   padding: 24px;
-  background: white;
+  background: var(--ai-surface);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
   margin-top: 16px;
+}
+
+#chatManagePage :deep(.ant-form-item-label > label) {
+  color: var(--ai-text) !important;
 }
 
 .message-text {
