@@ -64,6 +64,8 @@ import {
   UserOutlined,
   AppstoreOutlined,
   TeamOutlined,
+  OrderedListOutlined,
+  BarChartOutlined,
   DownOutlined,
 } from '@ant-design/icons-vue'
 
@@ -100,6 +102,18 @@ const originItems = [
     label: '应用管理',
     title: '应用管理',
   },
+  {
+    key: '/admin/logManage',
+    icon: () => h(OrderedListOutlined),
+    label: '日志管理',
+    title: '日志管理',
+  },
+  {
+    key: '/admin/statistics',
+    icon: () => h(BarChartOutlined),
+    label: '数据统计',
+    title: '数据统计',
+  },
 ]
 
 const filterMenus = (menus = [] as MenuProps['items']) => {
@@ -131,7 +145,7 @@ const doLogout = async () => {
     loginUserStore.setLoginUser({
       userName: '未登录',
     })
-    message.success('退出登录成功')
+    message.success('退出登录成功', 1)
     await router.push('/user/login')
   } else {
     message.error('退出登录失败，' + res.data.message)

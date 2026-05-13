@@ -48,7 +48,7 @@ const handleSubmit = async (values: any) => {
   const res = await userLogin(values)
   if (res.data.code === 0 && res.data.data) {
     await loginUserStore.fetchLoginUser()
-    message.success('登录成功')
+    message.success('登录成功',1)
     router.push({
       path: '/',
       replace: true,

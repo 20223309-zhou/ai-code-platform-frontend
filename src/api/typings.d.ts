@@ -212,6 +212,81 @@ declare namespace API {
     deployKey: string
   }
 
+  type SysOperationLog = {
+    id?: number
+    userId?: number
+    username?: string
+    ipAddress?: string
+    requestUri?: string
+    requestMethod?: string
+    methodName?: string
+    requestParams?: string
+    operation?: string
+    durationMs?: number
+    status?: string
+    startTime?: string
+    endTime?: string
+    createTime?: string
+  }
+
+  type BaseResponseListSysOperationLog = {
+    code?: number
+    data?: SysOperationLog[]
+    message?: string
+  }
+
+  type LogQueryRequest = {
+    pageNum?: number
+    pageSize?: number
+    sortField?: string
+    sortOrder?: string
+    id?: number
+    userId?: number
+    username?: string
+    ipAddress?: string
+    requestUri?: string
+    requestMethod?: string
+    methodName?: string
+    requestParams?: string
+    createTime?: string
+  }
+
+  type LogDeleteRequest = {
+    ids?: number[]
+  }
+
+  type PageSysOperationLog = {
+    records?: SysOperationLog[]
+    pageNumber?: number
+    pageSize?: number
+    totalPage?: number
+    totalRow?: number
+    optimizeCountQuery?: boolean
+  }
+
+  type BaseResponsePageSysOperationLog = {
+    code?: number
+    data?: PageSysOperationLog
+    message?: string
+  }
+
+  type StatisticsVO = {
+    todayCount?: number
+    weekCount?: number
+    monthCount?: number
+    totalCount?: number
+    successRate?: number
+    avgDurationMs?: number
+    activeUserCount?: number
+    totalUserCount?: number
+  }
+
+  type BaseResponseStatisticsVO = {
+    code?: number
+    data?: StatisticsVO
+    message?: string
+  }
+
   type User = {
     id?: number
     userAccount?: string
