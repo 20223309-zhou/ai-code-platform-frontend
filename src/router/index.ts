@@ -8,6 +8,8 @@ import AppManagePage from '@/pages/admin/AppManagePage.vue'
 import AppChatPage from '@/pages/app/AppChatPage.vue'
 import AppEditPage from '@/pages/app/AppEditPage.vue'
 import ChatManagePage from "@/pages/admin/ChatManagePage.vue";
+import LogManagePage from '@/pages/admin/LogManagePage.vue'
+import StatisticsPage from '@/pages/admin/StatisticsPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,6 +48,16 @@ const router = createRouter({
       path: '/admin/chatManage',
       name: '对话管理',
       component: ChatManagePage,
+    },
+    {
+      path: '/admin/logManage',
+      name: '日志管理',
+      component: LogManagePage,
+    },
+    {
+      path: '/admin/statistics',
+      name: '数据统计',
+      component: StatisticsPage,
     },
     {
       path: '/app/chat/:id',
