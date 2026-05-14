@@ -80,6 +80,7 @@ const columns = [
   },
   { title: '用户ID', dataIndex: 'userId', width: 80 },
   { title: '用户名', dataIndex: 'username', width: 120 },
+  { title: '应用Id', dataIndex: 'appId', width: 100 },
   { title: 'IP地址', dataIndex: 'ipAddress', width: 140 },
   { title: '请求方式', dataIndex: 'requestMethod', width: 100 },
   { title: '操作说明', dataIndex: 'operation', width: 200, ellipsis: true },

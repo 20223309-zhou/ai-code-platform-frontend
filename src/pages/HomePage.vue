@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, reactive } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
-import { addApp, listMyAppVoByPage, listGoodAppVoByPage } from '@/api/appController'
+import { addApp, listMyAppVoByPage } from '@/api/appController'
 import { getDeployUrl } from '@/config/env'
 import AppCard from '@/components/AppCard.vue'
+import {
+  CHAT_UPLOAD_ACCEPT,
+  CHAT_UPLOAD_MAX_SIZE_MB,
+  collectValidChatUploads,
+  summarizeUploadedFiles,
+} from '@/utils/chatUploads'
+import { collectPastedImageFiles } from '@/utils/clipboardUploads'
+import { setPendingAppAttachments } from '@/utils/pendingAppAttachments'
+import { CloudUploadOutlined, CloseOutlined } from '@ant-design/icons-vue'
 
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
@@ -14,16 +23,19 @@ let handleMouseMove: ((e: MouseEvent) => void) | null = null
 const userPrompt = ref('')
 const creating = ref(false)
 const activeTemplate = ref('')
+const uploadedFiles = ref<File[]>([])
+
+const platformSkills = [
+  { name: '✔ form-validation-patterns', desc: '智能表单校验：联动规则、动态表单项、实时反馈' },
+  { name: '✔ table-list-patterns', desc: '高效列表页：搜索分页、批量操作、数据表格' },
+  { name: '✔ api-call-pattern', desc: '标准API封装：loading/error/empty 三态处理' },
+  { name: '✔ responsive-breakpoints', desc: '响应式布局：导航折叠、断点适配' },
+  { name: '✔ design-tokens', desc: '设计Token体系：CSS变量、暗色模式、间距节奏' },
+  { name: '✔ micro-interactions', desc: '微交互：骨架屏、空状态、过渡动画、操作反馈' },
+]
 
 const myApps = ref<API.AppVO[]>([])
 const myAppsPage = reactive({
-  current: 1,
-  pageSize: 6,
-  total: 0,
-})
-
-const featuredApps = ref<API.AppVO[]>([])
-const featuredAppsPage = reactive({
   current: 1,
   pageSize: 6,
   total: 0,
@@ -53,10 +65,41 @@ const templates = [
 ]
 
 const hasMyApps = computed(() => myApps.value.length > 0)
+const uploadHint = computed(
+  () => `支持图片和文本文件，单个文件不超过 ${CHAT_UPLOAD_MAX_SIZE_MB}MB`,
+)
 
 const setPrompt = (prompt: string, label: string) => {
   userPrompt.value = prompt
   activeTemplate.value = label
+}
+
+const onFileChange = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (!input.files) {
+    return
+  }
+
+  const result = collectValidChatUploads(Array.from(input.files), uploadedFiles.value)
+  uploadedFiles.value = result.files
+  result.errors.forEach((error) => message.error(error))
+  input.value = ''
+}
+
+const removeFile = (index: number) => {
+  uploadedFiles.value.splice(index, 1)
+}
+
+const onPromptPaste = (event: ClipboardEvent) => {
+  const pastedFiles = collectPastedImageFiles(event)
+  if (pastedFiles.length === 0) {
+    return
+  }
+
+  event.preventDefault()
+  const result = collectValidChatUploads(pastedFiles, uploadedFiles.value)
+  uploadedFiles.value = result.files
+  result.errors.forEach((error) => message.error(error))
 }
 
 const createApp = async () => {
@@ -80,6 +123,8 @@ const createApp = async () => {
     if (res.data.code === 0 && res.data.data) {
       message.success('应用创建成功')
       const appId = String(res.data.data)
+      setPendingAppAttachments(appId, uploadedFiles.value)
+      uploadedFiles.value = []
       await router.push(`/app/chat/${appId}`)
     } else {
       message.error('创建失败：' + res.data.message)
@@ -114,24 +159,6 @@ const loadMyApps = async () => {
   }
 }
 
-const loadFeaturedApps = async () => {
-  try {
-    const res = await listGoodAppVoByPage({
-      pageNum: featuredAppsPage.current,
-      pageSize: featuredAppsPage.pageSize,
-      sortField: 'createTime',
-      sortOrder: 'desc',
-    })
-
-    if (res.data.code === 0 && res.data.data) {
-      featuredApps.value = res.data.data.records || []
-      featuredAppsPage.total = res.data.data.totalRow || 0
-    }
-  } catch (error) {
-    console.error('加载精选应用失败：', error)
-  }
-}
-
 const viewChat = (appId: string | number | undefined) => {
   if (appId) {
     router.push(`/app/chat/${appId}?view=1`)
@@ -147,7 +174,6 @@ const viewWork = (app: API.AppVO) => {
 
 onMounted(async () => {
   loadMyApps()
-  loadFeaturedApps()
 
   handleMouseMove = (e: MouseEvent) => {
     const { clientX, clientY } = e
@@ -193,6 +219,7 @@ onUnmounted(() => {
             :maxlength="1000"
             class="prompt-input"
             @keydown.enter.prevent="createApp"
+            @paste="onPromptPaste"
           />
           <button class="generate-button" type="button" @click="createApp" :disabled="creating">
             <span v-if="!creating" class="generate-arrow">&#8594;</span>
@@ -204,6 +231,58 @@ onUnmounted(() => {
               <span class="loader-pulse"></span>
             </span>
           </button>
+        </div>
+
+        <div class="composer-tools">
+          <div class="upload-panel">
+            <label class="upload-trigger" :class="{ 'is-disabled': creating }">
+              <CloudUploadOutlined />
+              <span>上传附件</span>
+              <input
+                type="file"
+                :accept="CHAT_UPLOAD_ACCEPT"
+                multiple
+                :disabled="creating"
+                @change="onFileChange"
+              />
+            </label>
+            <a-popover placement="topLeft" trigger="hover" :mouseEnterDelay="0.1">
+              <template #content>
+                <div class="skills-popover">
+                  <div class="skills-title">平台 AI Skills</div>
+                  <div v-for="skill in platformSkills" :key="skill.name" class="skill-item">
+                    <div class="skill-name">{{ skill.name }}</div>
+                    <div class="skill-desc">{{ skill.desc }}</div>
+                  </div>
+                </div>
+              </template>
+              <label class="skills-trigger" :class="{ 'is-disabled': creating }">
+                <span class="skills-icon">⚡</span>
+                <span>AI Skills</span>
+              </label>
+            </a-popover>
+            <p class="upload-hint">{{ uploadHint }}</p>
+          </div>
+          <div v-if="uploadedFiles.length > 0" class="upload-preview">
+            <div class="upload-summary">已选择 {{ summarizeUploadedFiles(uploadedFiles) }}</div>
+            <div class="upload-list">
+              <div
+                v-for="(file, index) in uploadedFiles"
+                :key="`${file.name}-${file.lastModified}`"
+                class="upload-chip"
+              >
+                <span class="upload-chip-name">{{ file.name }}</span>
+                <button
+                  type="button"
+                  class="upload-chip-remove"
+                  :disabled="creating"
+                  @click="removeFile(index)"
+                >
+                  <CloseOutlined />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="quick-actions" role="list">
@@ -237,23 +316,18 @@ onUnmounted(() => {
         </div>
 
         <div v-else class="empty-state">
-          <svg viewBox="0 0 200 160" class="empty-robot" aria-hidden="true">
-            <rect x="56" y="32" width="88" height="68" rx="16" class="robot-line robot-body" />
-            <circle cx="84" cy="66" r="6" class="robot-line" />
-            <circle cx="116" cy="66" r="6" class="robot-line" />
-            <path d="M80 88 C94 98, 106 98, 120 88" class="robot-line" />
-            <path d="M100 14 L100 32" class="robot-line" />
-            <circle cx="100" cy="11" r="6" class="robot-core" />
-            <path d="M36 66 L56 70" class="robot-line" />
-            <path d="M144 70 L164 66" class="robot-line" />
-            <path d="M68 100 L56 122" class="robot-line" />
-            <path d="M132 100 L144 122" class="robot-line" />
-            <path d="M18 122 C48 86, 54 90, 74 122" class="circuit-line" />
-            <path d="M126 122 C146 90, 152 86, 182 122" class="circuit-line" />
-            <circle cx="18" cy="122" r="3" class="circuit-dot" />
-            <circle cx="74" cy="122" r="3" class="circuit-dot" />
-            <circle cx="126" cy="122" r="3" class="circuit-dot" />
-            <circle cx="182" cy="122" r="3" class="circuit-dot" />
+          <svg viewBox="0 0 160 140" class="empty-illustration" aria-hidden="true">
+            <rect x="24" y="14" width="112" height="84" rx="10" class="illu-window" />
+            <rect x="32" y="22" width="16" height="16" rx="5" class="illu-accent" />
+            <rect x="52" y="22" width="80" height="4" rx="2" class="illu-bar" />
+            <rect x="52" y="30" width="60" height="4" rx="2" class="illu-bar" />
+            <rect x="52" y="38" width="40" height="4" rx="2" class="illu-bar" />
+            <rect x="32" y="52" width="96" height="38" rx="6" class="illu-card" />
+            <circle cx="48" cy="66" r="5" class="illu-accent" />
+            <rect x="58" y="62" width="62" height="3" rx="1.5" class="illu-bar" />
+            <rect x="58" y="70" width="42" height="3" rx="1.5" class="illu-bar" />
+            <rect x="58" y="78" width="28" height="3" rx="1.5" class="illu-bar" />
+            <path d="M128 98 L136 98 L134 108 L130 108 Z" class="illu-cursor" />
           </svg>
           <h3 class="empty-title">还没有生成作品</h3>
           <p class="empty-desc">从上方模板开始，或直接输入你的需求，让 AI 为你搭建第一个应用。</p>
@@ -267,35 +341,6 @@ onUnmounted(() => {
             :show-size-changer="false"
             :show-total="(total: number) => `共 ${total} 个应用`"
             @change="loadMyApps"
-          />
-        </div>
-      </section>
-
-      <section class="section fade-section is-visible">
-        <div class="section-heading">
-          <h2 class="section-title">精选案例</h2>
-          <p class="section-desc">聚焦更完整的 AI 生成体验，展示具有代表性的应用样例。</p>
-        </div>
-
-        <div class="featured-grid">
-          <AppCard
-            v-for="app in featuredApps"
-            :key="app.id"
-            :app="app"
-            :featured="true"
-            @view-chat="viewChat"
-            @view-work="viewWork"
-          />
-        </div>
-
-        <div class="pagination-wrapper">
-          <a-pagination
-            v-model:current="featuredAppsPage.current"
-            v-model:page-size="featuredAppsPage.pageSize"
-            :total="featuredAppsPage.total"
-            :show-size-changer="false"
-            :show-total="(total: number) => `共 ${total} 个案例`"
-            @change="loadFeaturedApps"
           />
         </div>
       </section>
@@ -484,6 +529,193 @@ onUnmounted(() => {
   cursor: default;
 }
 
+.composer-tools {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.upload-panel {
+  min-width: 0;
+}
+
+.upload-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(79, 124, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(79, 124, 255, 0.06);
+  color: var(--ai-title);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: var(--ai-transition);
+}
+
+.upload-trigger:hover {
+  transform: translateY(-1px);
+  border-color: rgba(79, 124, 255, 0.22);
+  background: rgba(79, 124, 255, 0.09);
+  box-shadow: 0 10px 28px rgba(79, 124, 255, 0.12);
+}
+
+.upload-trigger.is-disabled {
+  cursor: default;
+  opacity: 0.65;
+  box-shadow: none;
+  transform: none;
+}
+
+.upload-trigger input {
+  display: none;
+}
+
+.skills-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: 999px;
+  background: rgba(79, 124, 255, 0.06);
+  color: rgba(232, 233, 234, 0.9);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: var(--ai-transition);
+}
+
+.skills-trigger:hover {
+  transform: translateY(-1px);
+  border-color: rgba(125, 211, 252, 0.3);
+  background: rgba(125, 211, 252, 0.1);
+  box-shadow: 0 10px 28px rgba(125, 211, 252, 0.12);
+}
+
+.skills-trigger.is-disabled {
+  cursor: default;
+  opacity: 0.65;
+  box-shadow: none;
+  transform: none;
+}
+
+.skills-trigger .skills-icon {
+  font-size: 14px;
+}
+
+.skills-popover {
+  max-width: 320px;
+}
+
+.skills-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ai-title);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.skill-item {
+  padding: 6px 0;
+}
+
+.skill-item + .skill-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.skill-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ai-title);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+.skill-desc {
+  font-size: 12px;
+  color: var(--ai-muted);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+.upload-hint {
+  margin: 8px 0 0;
+  color: var(--ai-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.upload-preview {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.upload-summary {
+  margin-bottom: 10px;
+  color: var(--ai-title);
+  font-size: 13px;
+}
+
+.upload-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.upload-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ai-text);
+  font-size: 12px;
+}
+
+.upload-chip-name {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ai-muted);
+  cursor: pointer;
+  transition: var(--ai-transition);
+}
+
+.upload-chip-remove:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ai-title);
+}
+
+.upload-chip-remove:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
 .generate-arrow {
   font-size: 18px;
   line-height: 1;
@@ -614,37 +846,35 @@ onUnmounted(() => {
   text-align: center;
 }
 
-.empty-robot {
-  width: 180px;
+.empty-illustration {
+  width: 160px;
   max-width: 100%;
   margin-bottom: 14px;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
-.robot-line,
-.circuit-line {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.robot-line {
-  stroke: rgba(79, 124, 255, 0.35);
-  stroke-width: 2;
-}
-
-.robot-body {
-  fill: rgba(255, 255, 255, 0.02);
-}
-
-.robot-core,
-.circuit-dot {
-  fill: rgba(125, 211, 252, 0.5);
-}
-
-.circuit-line {
-  stroke: rgba(255, 255, 255, 0.08);
+.illu-window {
+  fill: rgba(255, 255, 255, 0.015);
+  stroke: rgba(79, 124, 255, 0.2);
   stroke-width: 1.5;
+}
+
+.illu-accent {
+  fill: rgba(79, 124, 255, 0.3);
+}
+
+.illu-card {
+  fill: rgba(255, 255, 255, 0.02);
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 1;
+}
+
+.illu-bar {
+  fill: rgba(255, 255, 255, 0.08);
+}
+
+.illu-cursor {
+  fill: rgba(125, 211, 252, 0.5);
 }
 
 .empty-title {
@@ -671,6 +901,14 @@ onUnmounted(() => {
 }
 
 @media (max-width: 1024px) {
+  .composer-tools {
+    flex-direction: column;
+  }
+
+  .upload-preview {
+    width: 100%;
+  }
+
   .quick-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -683,6 +921,11 @@ onUnmounted(() => {
 
   .generator-panel {
     padding: 22px;
+  }
+
+  .upload-trigger {
+    width: 100%;
+    justify-content: center;
   }
 
   .section-heading {
@@ -712,6 +955,10 @@ onUnmounted(() => {
 
   :deep(.prompt-input.ant-input) {
     min-height: 160px;
+  }
+
+  .upload-chip-name {
+    max-width: 170px;
   }
 }
 </style>
