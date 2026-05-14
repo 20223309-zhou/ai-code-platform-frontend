@@ -12,8 +12,8 @@ import BasicLayout from '@/layouts/BasicLayout.vue'
   --ai-primary: #4f7cff;
   --ai-primary-glow: rgba(79, 124, 255, 0.28);
   --ai-accent: #7dd3fc;
-  --ai-bg: #0e1018;
-  --ai-surface: #151720;
+  --ai-bg: #12141e;
+  --ai-surface: #181a24;
   --ai-card-bg: rgba(21, 23, 32, 0.7);
   --ai-glass: rgba(255, 255, 255, 0.03);
   --ai-glass-border: rgba(255, 255, 255, 0.06);
@@ -466,5 +466,19 @@ textarea::placeholder,
 /* Preview iframe */
 iframe.preview-iframe {
   background: #0e1018 !important;
+}
+
+/* Popover */
+.ant-popover-inner {
+  background: var(--ai-surface) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+}
+.ant-popover-arrow-content {
+  background: var(--ai-surface) !important;
+}
+.ant-popover-arrow-content::before {
+  background: var(--ai-surface) !important;
 }
 </style>

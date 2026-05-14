@@ -180,3 +180,15 @@ export async function updateApp(body: API.AppUpdateRequest, options?: { [key: st
     ...(options || {}),
   })
 }
+
+/** 此处后端没有提供注释 POST /app/template/fork */
+export async function forkTemplate(
+  params: { templateId: number },
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseLong>('/app/template/fork', {
+    method: 'POST',
+    params: { ...params },
+    ...(options || {}),
+  })
+}

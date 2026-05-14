@@ -63,6 +63,7 @@ import {
   LogoutOutlined,
   UserOutlined,
   AppstoreOutlined,
+  BlockOutlined,
   TeamOutlined,
   OrderedListOutlined,
   BarChartOutlined,
@@ -89,6 +90,12 @@ const originItems = [
     icon: () => h(HomeOutlined),
     label: '主页',
     title: '主页',
+  },
+  {
+    key: '/templates',
+    icon: () => h(BlockOutlined),
+    label: '模板广场',
+    title: '模板广场',
   },
   {
     key: '/admin/userManage',

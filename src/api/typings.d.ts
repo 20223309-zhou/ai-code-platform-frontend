@@ -8,6 +8,7 @@ declare namespace API {
     appName?: string
     cover?: string
     priority?: number
+    category?: string
   }
 
   type AppDeployRequest = {
@@ -27,6 +28,7 @@ declare namespace API {
     deployKey?: string
     priority?: number
     userId?: number
+    category?: string
   }
 
   type AppUpdateRequest = {
@@ -47,6 +49,7 @@ declare namespace API {
     createTime?: string
     updateTime?: string
     user?: UserVO
+    category?: string
   }
 
   type BaseResponseAppVO = {
@@ -215,6 +218,7 @@ declare namespace API {
   type SysOperationLog = {
     id?: number
     userId?: number
+    appId?: number
     username?: string
     ipAddress?: string
     requestUri?: string

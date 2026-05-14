@@ -48,6 +48,19 @@
             />
           </a-form-item>
 
+          <a-form-item v-if="isAdmin" label="应用分类" name="category" extra="设置分类后在模板广场可按分类筛选">
+            <a-select v-model:value="formData.category" placeholder="选择分类（可选）" allow-clear style="width: 300px">
+              <a-select-option value="blog">个人博客</a-select-option>
+              <a-select-option value="corporate">企业官网</a-select-option>
+              <a-select-option value="mall">在线商城</a-select-option>
+              <a-select-option value="portfolio">作品集</a-select-option>
+              <a-select-option value="tool">工具</a-select-option>
+              <a-select-option value="dashboard">仪表盘</a-select-option>
+              <a-select-option value="admin">管理后台</a-select-option>
+              <a-select-option value="landing">落地页</a-select-option>
+            </a-select>
+          </a-form-item>
+
           <a-form-item label="初始提示词" name="initPrompt">
             <a-textarea
               v-model:value="formData.initPrompt"
@@ -146,6 +159,7 @@ const formData = reactive({
   initPrompt: '',
   codeGenType: '',
   deployKey: '',
+  category: '',
 })
 
 // 是否为管理员
@@ -192,6 +206,7 @@ const fetchAppInfo = async () => {
       formData.initPrompt = appInfo.value.initPrompt || ''
       formData.codeGenType = appInfo.value.codeGenType || ''
       formData.deployKey = appInfo.value.deployKey || ''
+      formData.category = appInfo.value.category || ''
     } else {
       message.error('获取应用信息失败')
       router.push('/')
@@ -219,6 +234,7 @@ const handleSubmit = async () => {
         appName: formData.appName,
         cover: formData.cover,
         priority: formData.priority,
+        category: formData.category || undefined,
       })
     } else {
       // 普通用户只能修改应用名称
@@ -230,8 +246,7 @@ const handleSubmit = async () => {
 
     if (res.data.code === 0) {
       message.success('修改成功')
-      // 重新获取应用信息
-      await fetchAppInfo()
+      router.push('/admin/appManage')
     } else {
       message.error('修改失败：' + res.data.message)
     }
@@ -249,6 +264,7 @@ const resetForm = () => {
     formData.appName = appInfo.value.appName || ''
     formData.cover = appInfo.value.cover || ''
     formData.priority = appInfo.value.priority || 0
+    formData.category = appInfo.value.category || ''
   }
   formRef.value?.clearValidate()
 }
@@ -290,34 +306,80 @@ onMounted(() => {
 
 .page-header h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
+  color: var(--ai-title);
 }
 
 .edit-container {
-  border-radius: 8px;
+  border-radius: var(--ai-card-radius);
 }
 
 .cover-preview {
   margin-top: 12px;
   padding: 12px;
-  border: 1px solid #e8e8e8;
-  border-radius: 6px;
-  background: #fafafa;
+  border: 1px solid var(--ai-border);
+  border-radius: var(--ai-control-radius);
+  background: rgba(255, 255, 255, 0.015);
 }
 
 .form-tip {
   font-size: 12px;
-  color: #999;
+  color: var(--ai-muted);
   margin-top: 4px;
 }
 
+:deep(.ant-card) {
+  background: var(--ai-surface);
+  border: 1px solid var(--ai-border);
+  border-radius: var(--ai-card-radius);
+  box-shadow: var(--ai-shadow);
+}
+
 :deep(.ant-card-head) {
-  background: #fafafa;
+  background: transparent;
+  border-bottom: 1px solid var(--ai-border);
+  color: var(--ai-title);
+  font-weight: 600;
+}
+
+:deep(.ant-card-body) {
+  color: var(--ai-text);
+}
+
+:deep(.ant-form-item-extra) {
+  color: var(--ai-muted) !important;
+  font-size: 12px;
+}
+
+:deep(.ant-form-item-label > label) {
+  color: var(--ai-text);
+}
+
+:deep(.ant-descriptions) {
+  background: transparent;
+}
+
+:deep(.ant-descriptions-view) {
+  border: 1px solid var(--ai-border) !important;
+  border-radius: var(--ai-control-radius);
+  overflow: hidden;
 }
 
 :deep(.ant-descriptions-item-label) {
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: var(--ai-text-secondary, var(--ai-text)) !important;
   font-weight: 500;
+  border-color: var(--ai-border) !important;
+}
+
+:deep(.ant-descriptions-item-content) {
+  background: transparent !important;
+  color: var(--ai-title) !important;
+  border-color: var(--ai-border) !important;
+}
+
+:deep(.ant-form-item-label > label) {
+  color: var(--ai-text);
 }
 </style>
