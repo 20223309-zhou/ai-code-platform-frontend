@@ -17,6 +17,24 @@
         >
           <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" size="large" />
         </a-form-item>
+        <div class="captcha-row">
+          <a-form-item
+            class="captcha-input-item"
+            name="captchaCode"
+            :rules="[{ required: true, message: '请输入验证码' }]"
+          >
+            <a-input
+              v-model:value="formState.captchaCode"
+              placeholder="请输入验证码"
+              size="large"
+            />
+          </a-form-item>
+          <button type="button" class="captcha-card" @click="handleRefreshCaptcha">
+            <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image" />
+            <span v-else class="captcha-placeholder">加载中...</span>
+          </button>
+        </div>
+        <div class="captcha-hint">点击验证码可重新生成</div>
         <div class="tips">
           没有账号？
           <RouterLink to="/user/register">去注册</RouterLink>
@@ -30,8 +48,8 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive } from 'vue'
-import { userLogin } from '@/api/userController.ts'
+import { onMounted, reactive, ref } from 'vue'
+import { getCaptcha, userLogin } from '@/api/userController.ts'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
@@ -39,13 +57,32 @@ import { message } from 'ant-design-vue'
 const formState = reactive<API.UserLoginRequest>({
   userAccount: '',
   userPassword: '',
+  captchaKey: '',
+  captchaCode: '',
 })
+const captchaImage = ref('')
 
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
 
-const handleSubmit = async (values: any) => {
-  const res = await userLogin(values)
+const handleRefreshCaptcha = async () => {
+  try {
+    const res = await getCaptcha(formState.captchaKey || undefined)
+    if (res.data.code === 0 && res.data.data) {
+      formState.captchaKey = res.data.data.captchaKey || ''
+      formState.captchaCode = ''
+      captchaImage.value = res.data.data.captchaImage || ''
+    } else {
+      message.error('验证码加载失败：' + res.data.message)
+    }
+  } catch (error) {
+    console.error('加载验证码失败：', error)
+    message.error('验证码加载失败，请重试')
+  }
+}
+
+const handleSubmit = async () => {
+  const res = await userLogin({ ...formState })
   if (res.data.code === 0 && res.data.data) {
     await loginUserStore.fetchLoginUser()
     message.success('登录成功',1)
@@ -57,6 +94,10 @@ const handleSubmit = async (values: any) => {
     message.error('登录失败，' + res.data.message)
   }
 }
+
+onMounted(() => {
+  handleRefreshCaptcha()
+})
 </script>
 
 <style scoped>
@@ -131,6 +172,55 @@ const handleSubmit = async (values: any) => {
 
 #userLoginPage :deep(.ant-form-item) {
   margin-bottom: 18px;
+}
+
+.captcha-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.captcha-input-item {
+  flex: 1;
+}
+
+.captcha-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 132px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  overflow: hidden;
+  transition: var(--ai-transition);
+}
+
+.captcha-card:hover {
+  border-color: rgba(79, 124, 255, 0.2);
+  box-shadow: 0 8px 22px rgba(79, 124, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.captcha-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.captcha-placeholder {
+  color: var(--ai-muted);
+  font-size: 12px;
+}
+
+.captcha-hint {
+  margin: -4px 0 18px;
+  color: var(--ai-muted);
+  font-size: 12px;
+  text-align: right;
 }
 
 #userLoginPage :deep(.ant-input),
@@ -232,5 +322,15 @@ const handleSubmit = async (values: any) => {
 
 .submit-button:active {
   transform: scale(0.98);
+}
+
+@media (max-width: 520px) {
+  .captcha-row {
+    flex-direction: column;
+  }
+
+  .captcha-card {
+    width: 100%;
+  }
 }
 </style>

@@ -254,6 +254,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import {
+  cancelAppGeneration,
   getAppVoById,
   deployApp as deployAppApi,
   deleteApp as deleteAppApi,
@@ -652,16 +653,16 @@ const generateCode = async (formData: FormData, aiMessageIndex: number) => {
 }
 
 // 停止生成
-const stopGeneration = () => {
+const stopGeneration = async () => {
   if (abortController.value) {
     abortController.value.abort()
   }
-  // 通知后端取消生成
   if (appId.value) {
-    fetch(`${request.defaults.baseURL || API_BASE_URL}/app/chat/cancel?appId=${appId.value}`, {
-      method: 'POST',
-      credentials: 'include',
-    }).catch(() => {})
+    try {
+      await cancelAppGeneration({ appId: String(appId.value) })
+    } catch (error) {
+      console.error('取消生成失败：', error)
+    }
   }
   isGenerating.value = false
 }
@@ -686,7 +687,7 @@ const fetchAppInfo = async () => {
   appId.value = id
 
   try {
-    const res = await getAppVoById({ id: id as unknown as number })
+    const res = await getAppVoById({ id })
     if (res.data.code === 0 && res.data.data) {
       appInfo.value = res.data.data
 
@@ -833,7 +834,7 @@ const deployApp = async () => {
   deploying.value = true
   try {
     const res = await deployAppApi({
-      appId: appId.value as unknown as number,
+      appId: String(appId.value),
     })
 
     if (res.data.code === 0 && res.data.data) {

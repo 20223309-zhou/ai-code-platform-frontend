@@ -94,7 +94,7 @@ const columns = [
 const data = ref<API.SysOperationLog[]>([])
 const total = ref(0)
 const loading = ref(false)
-const selectedRowIds = ref<number[]>([])
+const selectedRowIds = ref<string[]>([])
 
 const searchParams = reactive({
   pageNum: 1,
@@ -146,11 +146,11 @@ const doReset = () => {
   fetchData()
 }
 
-const onSelectionChange = (keys: number[]) => {
+const onSelectionChange = (keys: string[]) => {
   selectedRowIds.value = keys
 }
 
-const doDelete = async (id?: number) => {
+const doDelete = async (id?: string) => {
   if (!id) return
   const res = await deleteOperationLog({ ids: [id] })
   if (res.data.code === 0) {
