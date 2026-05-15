@@ -132,7 +132,7 @@ const doSearch = () => {
 }
 
 // 删除数据
-const doDelete = async (id: number | undefined) => {
+const doDelete = async (id: string | undefined) => {
   if (!id) {
     return
   }

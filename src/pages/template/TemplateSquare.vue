@@ -164,7 +164,7 @@ const forkTemplate = async (app: API.AppVO) => {
   if (!app.id) return
   forkingId.value = app.id
   try {
-    const res = await forkTemplateApi({ templateId: app.id as unknown as number })
+    const res = await forkTemplateApi({ templateId: String(app.id) })
     if (res.data.code === 0 && res.data.data) {
       message.success('模板使用成功，正在跳转...')
       router.push(`/app/chat/${res.data.data}?view=1`)
