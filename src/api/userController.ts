@@ -32,7 +32,9 @@ export async function getCaptcha(captchaKey?: string, options?: { [key: string]:
     headers: {
       'Content-Type': 'application/json',
     },
-    data: JSON.stringify(captchaKey ?? null),
+    params: {
+      captchaKey: captchaKey || undefined,
+    },
     ...(options || {}),
   })
 }
