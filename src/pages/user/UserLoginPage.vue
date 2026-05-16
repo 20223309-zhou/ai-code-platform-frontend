@@ -1,13 +1,15 @@
-<template>
+﻿<template>
   <div class="auth-page">
     <div id="userLoginPage" class="auth-card">
       <div class="auth-badge">AI 工作流入口</div>
-      <h2 class="title"> AI 应用生成 - 用户登录</h2>
-      <div class="desc">不写一行代码，生成完整应用</div>
+      <h2 class="title">AI 应用生成 - 用户登录</h2>
+      <div class="desc">输入账号密码后完成登录</div>
+
       <a-form :model="formState" name="basic" autocomplete="off" class="auth-form" @finish="handleSubmit">
         <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
           <a-input v-model:value="formState.userAccount" placeholder="请输入账号" size="large" />
         </a-form-item>
+
         <a-form-item
           name="userPassword"
           :rules="[
@@ -17,28 +19,27 @@
         >
           <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" size="large" />
         </a-form-item>
+
         <div class="captcha-row">
           <a-form-item
             class="captcha-input-item"
             name="captchaCode"
             :rules="[{ required: true, message: '请输入验证码' }]"
           >
-            <a-input
-              v-model:value="formState.captchaCode"
-              placeholder="请输入验证码"
-              size="large"
-            />
+            <a-input v-model:value="formState.captchaCode" placeholder="请输入验证码" size="large" />
           </a-form-item>
+
           <button type="button" class="captcha-card" @click="handleRefreshCaptcha">
             <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image" />
             <span v-else class="captcha-placeholder">加载中...</span>
           </button>
         </div>
-        <div class="captcha-hint">点击验证码可重新生成</div>
+
+
         <div class="tips">
-          没有账号？
-          <RouterLink to="/user/register">去注册</RouterLink>
+          没有账号？<RouterLink to="/user/register">去注册</RouterLink>
         </div>
+
         <a-form-item>
           <a-button type="primary" html-type="submit" class="submit-button">登录</a-button>
         </a-form-item>
@@ -47,12 +48,15 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { getCaptcha, userLogin } from '@/api/userController.ts'
-import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { useLoginUserStore } from '@/stores/loginUser.ts'
+import { getCaptcha, userLogin } from '@/api/userController.ts'
+
+const router = useRouter()
+const loginUserStore = useLoginUserStore()
 
 const formState = reactive<API.UserLoginRequest>({
   userAccount: '',
@@ -60,10 +64,10 @@ const formState = reactive<API.UserLoginRequest>({
   captchaKey: '',
   captchaCode: '',
 })
+
 const captchaImage = ref('')
 
-const router = useRouter()
-const loginUserStore = useLoginUserStore()
+const isCaptchaError = (errorMessage: string) => /验证码|过期|captcha/i.test(errorMessage)
 
 const handleRefreshCaptcha = async () => {
   try {
@@ -73,7 +77,7 @@ const handleRefreshCaptcha = async () => {
       formState.captchaCode = ''
       captchaImage.value = res.data.data.captchaImage || ''
     } else {
-      message.error('验证码加载失败：' + res.data.message)
+      message.error('验证码加载失败：' + (res.data.message || '未知错误'))
     }
   } catch (error) {
     console.error('加载验证码失败：', error)
@@ -85,13 +89,18 @@ const handleSubmit = async () => {
   const res = await userLogin({ ...formState })
   if (res.data.code === 0 && res.data.data) {
     await loginUserStore.fetchLoginUser()
-    message.success('登录成功',1)
-    router.push({
+    message.success('登录成功')
+    await router.push({
       path: '/',
       replace: true,
     })
-  } else {
-    message.error('登录失败，' + res.data.message)
+    return
+  }
+
+  const errorMessage = res.data.message || '登录失败'
+  message.error('登录失败：' + errorMessage)
+  if (isCaptchaError(errorMessage)) {
+    await handleRefreshCaptcha()
   }
 }
 

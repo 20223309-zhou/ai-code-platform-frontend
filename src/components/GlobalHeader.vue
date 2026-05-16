@@ -63,6 +63,7 @@ import {
   LogoutOutlined,
   UserOutlined,
   AppstoreOutlined,
+  GithubOutlined,
   BlockOutlined,
   TeamOutlined,
   OrderedListOutlined,
@@ -121,6 +122,12 @@ const originItems = [
     label: '数据统计',
     title: '数据统计',
   },
+  {
+    key: 'github',
+    icon: () => h(GithubOutlined),
+    label: 'GitHub',
+    title: 'GitHub',
+  }
 ]
 
 const filterMenus = (menus = [] as MenuProps['items']) => {
@@ -140,6 +147,10 @@ const menuItems = computed<MenuProps['items']>(() => filterMenus(originItems))
 
 const handleMenuClick: MenuProps['onClick'] = (e) => {
   const key = e.key as string
+  if (key === 'github') {
+    window.open('https://github.com/20223309-zhou/ai-code-platform-backend', '_blank')
+    return
+  }
   selectedKeys.value = [key]
   if (key.startsWith('/')) {
     router.push(key)
@@ -406,3 +417,4 @@ onUnmounted(() => {
   }
 }
 </style>
+
