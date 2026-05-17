@@ -12,7 +12,7 @@
 
       <div class="nav-shell">
         <a-menu
-          v-model:selectedKeys="selectedKeys"
+          :selectedKeys="selectedKeys"
           mode="horizontal"
           :items="menuItems"
           :disabledOverflow="true"
