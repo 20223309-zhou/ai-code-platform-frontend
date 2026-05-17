@@ -2,7 +2,7 @@
   <a-layout-footer class="footer">
     <div class="footer-content">
       <p class="copyright">
-        <span>项目仅用于学习参考，严禁商用</span> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <span>该项目仅用于学习参考</span> &nbsp;&nbsp;|&nbsp;&nbsp;
         <a href="https://beian.miit.gov.cn/" target="_blank">渝ICP备2026006352号-2</a>
       </p>
     </div>
