@@ -151,6 +151,7 @@ declare namespace API {
   type chatToGenCodeParams = {
     appId: IdType
     message: string
+    useRag?: boolean
   }
 
   type DeleteRequest = {
@@ -190,6 +191,8 @@ declare namespace API {
     userAvatar?: string
     userProfile?: string
     userRole?: string
+    vipLevel?: number
+    quota?: number
     createTime?: string
     updateTime?: string
   }
@@ -342,6 +345,7 @@ declare namespace API {
     userAccount?: string
     userProfile?: string
     userRole?: string
+    vipLevel?: number
   }
 
   type UserRegisterRequest = {
@@ -356,6 +360,8 @@ declare namespace API {
     userAvatar?: string
     userProfile?: string
     userRole?: string
+    vipLevel?: number
+    quota?: number
   }
 
   type UserVO = {
@@ -365,6 +371,8 @@ declare namespace API {
     userAvatar?: string
     userProfile?: string
     userRole?: string
+    vipLevel?: number
+    quota?: number
     createTime?: string
   }
 }

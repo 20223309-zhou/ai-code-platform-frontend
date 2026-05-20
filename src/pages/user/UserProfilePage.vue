@@ -5,6 +5,20 @@
       <h2 class="title">个人资料</h2>
       <div class="desc">修改你的头像、用户名和简介</div>
 
+      <!-- 会员信息卡片 -->
+      <div class="vip-info-card">
+        <div class="vip-info-left">
+          <span class="vip-info-label">会员等级</span>
+          <span class="vip-info-value" :class="'vip-level-' + (vipLevel || 0)">
+            {{ vipLevelText }}
+          </span>
+        </div>
+        <div class="vip-info-right">
+          <span class="vip-info-label">剩余额度</span>
+          <span class="vip-info-value">{{ quota }} 次</span>
+        </div>
+      </div>
+
       <a-form :model="formState" layout="vertical" class="auth-form" @finish="handleSubmit">
         <a-form-item label="头像">
           <div class="avatar-upload">
@@ -49,7 +63,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
@@ -61,6 +75,15 @@ const loginUserStore = useLoginUserStore()
 const submitting = ref(false)
 const avatarFile = ref<File | undefined>(undefined)
 const previewUrl = ref<string | undefined>(undefined)
+
+const vipLevel = computed(() => loginUserStore.loginUser.vipLevel ?? 0)
+const quota = computed(() => loginUserStore.loginUser.quota ?? 0)
+const vipLevelText = computed(() => {
+  const level = vipLevel.value
+  if (level >= 2) return 'SVIP 会员'
+  if (level >= 1) return 'VIP 会员'
+  return '普通用户'
+})
 
 const formState = reactive<API.UserUpdateRequest>({
   id: undefined,
@@ -269,6 +292,42 @@ const handleSubmit = async () => {
 #userProfilePage :deep(.ant-input-textarea-show-count::after) {
   color: var(--ai-muted);
   font-size: 12px;
+}
+
+/* ───── VIP 信息卡片 ───── */
+.vip-info-card {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.vip-info-left,
+.vip-info-right {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vip-info-label {
+  font-size: 12px;
+  color: var(--ai-muted);
+  letter-spacing: 0.02em;
+}
+.vip-info-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ai-title);
+}
+.vip-level-0 {
+  color: var(--ai-muted);
+}
+.vip-level-1 {
+  color: #34d399;
+}
+.vip-level-2 {
+  color: #f97316;
 }
 
 .submit-button {

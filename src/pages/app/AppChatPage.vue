@@ -158,6 +158,17 @@
                     @change="onFileChange"
                 />
               </label>
+              <div class="input-actions-center">
+                <a-tooltip title="RAG:开启后 AI 会从已部署的模板库中检索风格相似的代码块作为参考，应用生成的成功率会更高">
+                  <label class="glass-toggle" :class="{ active: useRag }">
+                    <input type="checkbox" v-model="useRag" style="display: none" />
+                    <span class="glass-toggle-track">
+                      <span class="glass-toggle-knob">R</span>
+                    </span>
+                  </label>
+                </a-tooltip>
+              </div>
+              <div class="input-actions-end">
               <a-button
                   v-if="isGenerating"
                   class="stop-button"
@@ -180,6 +191,7 @@
                   <SendOutlined />
                 </template>
               </a-button>
+            </div>
             </div>
           </div>
         </div>
@@ -337,6 +349,9 @@ const deployUrl = ref('')
 // 上传文件相关
 const uploadedFiles = ref<File[]>([])
 
+// RAG 知识库开关
+const useRag = ref(true)
+
 // 初始化应用ID
 appId.value = route.params.id
 
@@ -391,6 +406,7 @@ const buildFormData = (messageText: string, files: File[] = []) => {
   const formData = new FormData()
   formData.append('appId', String(appId.value))
   formData.append('message', messageText)
+  formData.append('useRag', String(useRag.value))
   files.forEach((file) => formData.append('files', file))
   return formData
 }
@@ -533,7 +549,12 @@ const generateCode = async (formData: FormData, aiMessageIndex: number) => {
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`请求失败: ${response.status} ${errorText}`)
+      let errMsg = "请求失败: " + response.status
+      try {
+        const errJson = JSON.parse(errorText)
+        if (errJson.message) errMsg = errJson.message
+      } catch { /* ignore */ }
+      throw new Error(errMsg)
     }
 
     const reader = response.body!.getReader()
@@ -572,6 +593,12 @@ const generateCode = async (formData: FormData, aiMessageIndex: number) => {
             }
 
             const parsed = JSON.parse(data)
+            // 检查是否是业务错误
+            if (parsed.error) {
+              isGenerating.value = false
+              handleError(new Error(parsed.message || "业务错误"), aiMessageIndex)
+              return
+            }
             const content = parsed.d
 
             // 拼接内容
@@ -669,10 +696,11 @@ const stopGeneration = async () => {
 
 // 错误处理函数
 const handleError = (error: unknown, aiMessageIndex: number) => {
-  console.error('生成代码失败：', error)
-  messages.value[aiMessageIndex].content = '抱歉，生成过程中出现了错误，请重试。'
+  const msg = error instanceof Error ? error.message : '生成失败，请重试'
+  console.error('生成代码失败：', msg)
+  messages.value[aiMessageIndex].content = '抱歉，' + msg
   messages.value[aiMessageIndex].loading = false
-  message.error('生成失败，请重试')
+  message.error(msg)
   isGenerating.value = false
 }
 
@@ -1209,6 +1237,65 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   pointer-events: none;
+}
+
+.input-actions-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.glass-toggle {
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+}
+.glass-toggle-track {
+  position: relative;
+  width: 60px;
+  height: 28px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.glass-toggle.active .glass-toggle-track {
+  background: rgba(79, 124, 255, 0.2);
+  border-color: rgba(79, 124, 255, 0.3);
+  box-shadow: 0 0 12px rgba(79, 124, 255, 0.12);
+}
+.glass-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ai-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.glass-toggle.active .glass-toggle-knob {
+  left: 35px;
+  background: #4f7cff;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(79, 124, 255, 0.35);
+}
+
+.input-actions-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
 }
 
 .upload-label {

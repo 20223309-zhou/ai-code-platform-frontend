@@ -27,15 +27,20 @@
             <div class="user-trigger">
               <a-avatar :src="loginUserStore.loginUser.userAvatar" :size="30" />
               <span class="user-name">{{ loginUserStore.loginUser.userName ?? '无名' }}</span>
+              <span v-if="vipLevel > 0" class="vip-badge">V{{ vipLevel }}</span>
               <DownOutlined class="user-arrow" />
             </div>
             <template #overlay>
               <a-menu class="user-menu">
+                <a-menu-item disabled class="user-quota-item">
+                  <span class="quota-text">
+                    剩余额度：<br/> <strong>{{ quota }} 次</strong>
+                  </span>
+                </a-menu-item>
                 <a-menu-item @click="router.push('/user/profile')">
                   <UserOutlined />
                   个人信息
                 </a-menu-item>
-                <a-menu-divider />
                 <a-menu-item @click="doLogout">
                   <LogoutOutlined />
                   退出登录
@@ -171,6 +176,9 @@ const doLogout = async () => {
 }
 
 const isScrolled = ref(false)
+
+const vipLevel = computed(() => loginUserStore.loginUser.vipLevel ?? 0)
+const quota = computed(() => loginUserStore.loginUser.quota ?? 0)
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 60
@@ -361,6 +369,38 @@ onUnmounted(() => {
 .user-arrow {
   font-size: 10px;
   color: var(--ai-muted);
+}
+
+.vip-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #1a1a2e;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.user-quota-item {
+  cursor: default !important;
+  opacity: 1 !important;
+}
+.user-quota-item:hover {
+  background: transparent !important;
+}
+.quota-text {
+  color: var(--ai-muted);
+  font-size: 13px;
+}
+.quota-text strong {
+  color: var(--ai-primary);
+  font-weight: 600;
 }
 
 .login-button {
