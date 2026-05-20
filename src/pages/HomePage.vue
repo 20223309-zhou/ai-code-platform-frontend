@@ -22,6 +22,7 @@ let handleMouseMove: ((e: MouseEvent) => void) | null = null
 
 const userPrompt = ref('')
 const creating = ref(false)
+const useRag = ref(true)
 const activeTemplate = ref('')
 const uploadedFiles = ref<File[]>([])
 
@@ -263,6 +264,14 @@ onUnmounted(() => {
             </a-popover>
             <p class="upload-hint">{{ uploadHint }}</p>
           </div>
+          <a-tooltip title="RAG:开启后 AI 会从已部署的模板库中检索风格相似的代码块作为参考，应用生成的成功率会更高">
+            <label class="glass-toggle" :class="{ active: useRag }">
+              <input type="checkbox" v-model="useRag" style="display: none" />
+              <span class="glass-toggle-track">
+                <span class="glass-toggle-knob">R</span>
+              </span>
+            </label>
+          </a-tooltip>
           <div v-if="uploadedFiles.length > 0" class="upload-preview">
             <div class="upload-summary">已选择 {{ summarizeUploadedFiles(uploadedFiles) }}</div>
             <div class="upload-list">
@@ -572,6 +581,52 @@ onUnmounted(() => {
 
 .upload-trigger input {
   display: none;
+}
+
+.glass-toggle {
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+.glass-toggle-track {
+  position: relative;
+  width: 60px;
+  height: 28px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.glass-toggle.active .glass-toggle-track {
+  background: rgba(79, 124, 255, 0.2);
+  border-color: rgba(79, 124, 255, 0.3);
+  box-shadow: 0 0 12px rgba(79, 124, 255, 0.12);
+}
+.glass-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ai-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.glass-toggle.active .glass-toggle-knob {
+  left: 35px;
+  background: #4f7cff;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(79, 124, 255, 0.35);
 }
 
 .skills-trigger {

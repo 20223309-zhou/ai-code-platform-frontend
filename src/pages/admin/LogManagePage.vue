@@ -43,10 +43,10 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'requestMethod'">
-          <a-tag :color="methodColor(record.requestMethod)">{{ record.requestMethod }}</a-tag>
+          <span :class="['method-tag', 'method-' + (record.requestMethod || '').toLowerCase()]">{{ record.requestMethod }}</span>
         </template>
         <template v-else-if="column.dataIndex === 'status'">
-          <a-tag :color="record.status === 'SUCCESS' ? 'green' : 'red'">{{ record.status === 'SUCCESS' ? '成功' : '失败' }}</a-tag>
+          <span :class="['status-tag', record.status === 'SUCCESS' ? 'status-success' : 'status-fail']">{{ record.status === 'SUCCESS' ? '成功' : '失败' }}</span>
         </template>
         <template v-else-if="column.dataIndex === 'createTime'">
           {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') }}
@@ -173,13 +173,6 @@ const doBatchDelete = async () => {
   }
 }
 
-const methodColor = (method?: string) => {
-  const map: Record<string, string> = {
-    GET: 'blue', POST: 'green', PUT: 'orange', DELETE: 'red',
-  }
-  return map[method ?? ''] || 'default'
-}
-
 onMounted(() => {
   fetchData()
 })
@@ -202,4 +195,53 @@ onMounted(() => {
   margin: 12px 0;
 }
 
+/* 自定义方法标签 */
+.method-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.method-get {
+  color: #5f8cff;
+  background: rgba(79,124,255,0.08);
+  border-color: rgba(79,124,255,0.15);
+}
+.method-post {
+  color: #34d399;
+  background: rgba(52,211,153,0.08);
+  border-color: rgba(52,211,153,0.15);
+}
+.method-put {
+  color: #fbbf24;
+  background: rgba(251,191,36,0.08);
+  border-color: rgba(251,191,36,0.15);
+}
+.method-delete {
+  color: #f87171;
+  background: rgba(248,113,113,0.08);
+  border-color: rgba(248,113,113,0.15);
+}
+
+/* 自定义状态标签 */
+.status-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+.status-success {
+  color: #34d399;
+  background: rgba(52,211,153,0.08);
+  border-color: rgba(52,211,153,0.15);
+}
+.status-fail {
+  color: #f87171;
+  background: rgba(248,113,113,0.08);
+  border-color: rgba(248,113,113,0.15);
+}
 </style>
