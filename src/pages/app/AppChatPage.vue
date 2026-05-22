@@ -41,7 +41,7 @@
       <!-- 左侧对话区域 -->
       <div class="chat-section">
         <!-- 消息区域 -->
-        <div class="messages-container" ref="messagesContainer">
+        <div class="messages-container" ref="messagesContainer" @scroll="onMessagesScroll">
           <!-- 加载更多按钮 -->
           <div v-if="hasMoreHistory" class="load-more-container">
             <a-button type="link" @click="loadMoreHistory" :loading="loadingHistory" size="small">
@@ -79,6 +79,12 @@
             </div>
           </div>
         </div>
+        <!-- 滚动到底部按钮 -->
+        <transition name="fade">
+          <button v-if="showScrollDown" class="scroll-down-btn" @click="scrollToBottom">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </transition>
 
         <!-- 选中元素信息展示 -->
         <a-alert
@@ -265,6 +271,7 @@ import { ref, onMounted, nextTick, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
+import { getLoginUser } from '@/api/userController'
 import {
   cancelAppGeneration,
   getAppVoById,
@@ -587,6 +594,7 @@ const generateCode = async (formData: FormData, aiMessageIndex: number) => {
 
               setTimeout(async () => {
                 await fetchAppInfo()
+                refreshUserInfo()
                 updatePreview()
               }, 1000)
               return
@@ -606,7 +614,14 @@ const generateCode = async (formData: FormData, aiMessageIndex: number) => {
               // 尝试解析内部 JSON（VUE_PROJECT 格式）
               try {
                 const inner = JSON.parse(content)
-                if (inner.type === 'thinking') {
+                // 当 content 是纯数字/字符串时，JSON.parse 会得到基本类型而非对象
+                // 此时 inner.type 为 undefined，需要回退到纯文本拼接
+                if (typeof inner !== 'object' || inner === null) {
+                  fullContent += content
+                  messages.value[aiMessageIndex].content = fullContent
+                  messages.value[aiMessageIndex].loading = false
+                  autoScrollIfNearBottom()
+                } else if (inner.type === 'thinking') {
                   // 推理过程：单独累积，不混入回答内容
                   if (!messages.value[aiMessageIndex].thinking) {
                     messages.value[aiMessageIndex].thinking = ''
@@ -618,14 +633,14 @@ const generateCode = async (formData: FormData, aiMessageIndex: number) => {
                   fullContent += inner.data || ''
                   messages.value[aiMessageIndex].content = fullContent
                   messages.value[aiMessageIndex].loading = false
-                  scrollToBottom()
+                  autoScrollIfNearBottom()
                 }
               } catch {
                 // HTML/MULTI_FILE 类型：直接拼接纯文本
                 fullContent += content
                 messages.value[aiMessageIndex].content = fullContent
                 messages.value[aiMessageIndex].loading = false
-                scrollToBottom()
+                  autoScrollIfNearBottom()
               }
             }
           } catch {
@@ -635,6 +650,7 @@ const generateCode = async (formData: FormData, aiMessageIndex: number) => {
               isGenerating.value = false
               setTimeout(async () => {
                 await fetchAppInfo()
+                refreshUserInfo()
                 updatePreview()
               }, 1000)
               return
@@ -691,6 +707,7 @@ const stopGeneration = async () => {
       console.error('取消生成失败：', error)
     }
   }
+  refreshUserInfo()
   isGenerating.value = false
 }
 
@@ -723,10 +740,16 @@ const fetchAppInfo = async () => {
         // 查看已有对话 → 加载聊天历史
         await loadInitialHistory(id)
       } else if (appInfo.value.initPrompt && !initialMessageSent.value) {
-        // 新建的应用，发送初始消息
-        initialMessageSent.value = true
-        const pendingFiles = takePendingAppAttachments(id)
-        await sendInitialMessage(appInfo.value.initPrompt, pendingFiles)
+        // 回退回来先检查是否已有对话历史，有则加载不重新生成
+        const historyRes = await listAppChatHistory({ appId: id as any, pageSize: 1 })
+        if (historyRes.data.data?.records?.length > 0) {
+          await loadInitialHistory(id)
+        } else {
+          // 真正的新应用才发送初始消息
+          initialMessageSent.value = true
+          const pendingFiles = takePendingAppAttachments(id)
+          await sendInitialMessage(appInfo.value.initPrompt, pendingFiles)
+        }
       }
     } else {
       message.error('获取应用信息失败：' + res.data.message)
@@ -797,6 +820,16 @@ const loadMoreHistory = async () => {
   }
 }
 
+// 刷新用户信息（用于更新剩余额度）
+const refreshUserInfo = async () => {
+  try {
+    const res = await getLoginUser()
+    if (res.data.code === 0 && res.data.data) {
+      loginUserStore.setLoginUser(res.data.data)
+    }
+  } catch { /* ignore */ }
+}
+
 // 更新预览
 const updatePreview = () => {
   if (appId.value) {
@@ -811,6 +844,33 @@ const updatePreview = () => {
 const scrollToBottom = () => {
   if (messagesContainer.value) {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    showScrollDown.value = false
+  }
+}
+
+// 用户是否在底部附近（100px 阈值）
+const isNearBottom = () => {
+  const el = messagesContainer.value
+  if (!el) return true
+  return el.scrollHeight - el.scrollTop - el.clientHeight < 100
+}
+
+// 是否显示"滚动到底部"按钮
+const showScrollDown = ref(false)
+
+// 消息区域滚动事件
+const onMessagesScroll = () => {
+  if (isNearBottom()) {
+    showScrollDown.value = false
+  } else {
+    showScrollDown.value = true
+  }
+}
+
+// 改良版：只有用户在底部时才自动滚动
+const autoScrollIfNearBottom = () => {
+  if (isNearBottom()) {
+    scrollToBottom()
   }
 }
 
@@ -1036,6 +1096,7 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.04);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   overflow: hidden;
+  position: relative;
 }
 
 .messages-container {
@@ -1043,6 +1104,7 @@ onUnmounted(() => {
   padding: 14px;
   overflow-y: auto;
   scroll-behavior: smooth;
+  position: relative;
 }
 
 .message-item {
@@ -1461,6 +1523,42 @@ onUnmounted(() => {
 
 .selected-element-alert {
   margin: 0 16px;
+}
+
+/* ───── 滚动到底部按钮 ───── */
+.scroll-down-btn {
+  position: absolute;
+  bottom: 160px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 23, 32, 0.85);
+  backdrop-filter: blur(16px);
+  color: var(--ai-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s;
+}
+.scroll-down-btn:hover {
+  background: rgba(79, 124, 255, 0.15);
+  border-color: rgba(79, 124, 255, 0.3);
+  color: var(--ai-primary);
+  box-shadow: 0 6px 24px rgba(79, 124, 255, 0.15);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 @media (max-width: 1024px) {
