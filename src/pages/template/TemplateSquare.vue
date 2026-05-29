@@ -7,18 +7,32 @@
       </div>
     </div>
 
-    <div class="category-tabs">
-      <a-tabs v-model:activeKey="activeCategory" @change="onCategoryChange">
-        <a-tab-pane key="" tab="全部" />
-        <a-tab-pane key="blog" tab="个人博客" />
-        <a-tab-pane key="corporate" tab="企业官网" />
-        <a-tab-pane key="mall" tab="在线商城" />
-        <a-tab-pane key="portfolio" tab="作品集" />
-        <a-tab-pane key="tool" tab="工具" />
-        <a-tab-pane key="dashboard" tab="仪表盘" />
-        <a-tab-pane key="admin" tab="管理后台" />
-        <a-tab-pane key="landing" tab="落地页" />
-      </a-tabs>
+    <div class="toolbar">
+      <div class="category-tabs">
+        <a-tabs v-model:activeKey="activeCategory" @change="onCategoryChange">
+          <a-tab-pane key="" tab="全部" />
+          <a-tab-pane key="blog" tab="个人博客" />
+          <a-tab-pane key="corporate" tab="企业官网" />
+          <a-tab-pane key="mall" tab="在线商城" />
+          <a-tab-pane key="portfolio" tab="作品集" />
+          <a-tab-pane key="tool" tab="工具" />
+          <a-tab-pane key="dashboard" tab="仪表盘" />
+          <a-tab-pane key="admin" tab="管理后台" />
+          <a-tab-pane key="landing" tab="落地页" />
+        </a-tabs>
+      </div>
+      <a-input
+        v-model:value="searchText"
+        placeholder="搜索模板名称..."
+        allow-clear
+        class="search-input"
+        @change="onSearchChange"
+        @keydown.enter="onSearchChange"
+      >
+        <template #prefix>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </template>
+      </a-input>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -81,14 +95,16 @@
         </div>
       </div>
 
-      <div v-if="pagination.total > pagination.pageSize" class="pagination-wrapper">
+      <div class="pagination-wrapper">
         <a-pagination
           v-model:current="pagination.current"
           v-model:page-size="pagination.pageSize"
           :total="pagination.total"
-          :show-size-changer="false"
+          :show-size-changer="true"
+          :page-size-options="['12', '24', '48']"
           :show-total="(total: number) => `共 ${total} 个模板`"
           @change="loadTemplates"
+          @showSizeChange="loadTemplates"
         />
       </div>
     </template>
@@ -110,12 +126,18 @@ const templates = ref<API.AppVO[]>([])
 const loading = ref(false)
 const forkingId = ref<string | number | null>(null)
 const activeCategory = ref('')
+const searchText = ref('')
 
 const pagination = reactive({
   current: 1,
   pageSize: 12,
   total: 0,
 })
+
+const onSearchChange = () => {
+  pagination.current = 1
+  loadTemplates()
+}
 
 const loadTemplates = async () => {
   loading.value = true
@@ -125,6 +147,7 @@ const loadTemplates = async () => {
       pageSize: pagination.pageSize,
       sortField: 'createTime',
       sortOrder: 'desc',
+      appName: searchText.value || undefined,
     }
     if (activeCategory.value) {
       params.category = activeCategory.value
@@ -190,7 +213,7 @@ onMounted(loadTemplates)
 }
 
 .page-header {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .page-header-text {
@@ -198,9 +221,9 @@ onMounted(loadTemplates)
 }
 
 .page-title {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   color: var(--ai-title);
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 600;
 }
 
@@ -208,7 +231,27 @@ onMounted(loadTemplates)
   margin: 0;
   color: var(--ai-muted);
   font-size: 14px;
-  line-height: 1.6;
+}
+
+/* ───── 工具栏 ───── */
+.toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.category-tabs {
+  flex: 1;
+  min-width: 0;
+}
+.search-input {
+  width: 220px;
+  flex-shrink: 0;
+}
+.search-input :deep(.ant-input) {
+  height: 36px;
+  border-radius: 8px;
 }
 
 .loading-container {
@@ -223,29 +266,27 @@ onMounted(loadTemplates)
   align-items: center;
   padding: 60px 24px;
   border: 1px solid var(--ai-border);
-  border-radius: var(--ai-card-radius);
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.015);
   text-align: center;
 }
 
 .empty-illustration {
-  width: 140px;
-  margin-bottom: 14px;
+  width: 120px;
+  margin-bottom: 12px;
   opacity: 0.4;
 }
-
 .illu-window { fill: rgba(255, 255, 255, 0.015); stroke: rgba(79, 124, 255, 0.2); stroke-width: 1.5; }
 .illu-accent { fill: rgba(79, 124, 255, 0.3); }
 .illu-card { fill: rgba(255, 255, 255, 0.02); stroke: rgba(255, 255, 255, 0.06); stroke-width: 1; }
 .illu-bar { fill: rgba(255, 255, 255, 0.08); }
 
 .empty-title {
-  margin: 4px 0 8px;
+  margin: 4px 0 6px;
   color: var(--ai-title);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 500;
 }
-
 .empty-desc {
   max-width: 380px;
   margin: 0;
@@ -253,129 +294,99 @@ onMounted(loadTemplates)
   font-size: 14px;
 }
 
+/* ───── 卡片网格 ───── */
 .template-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
 }
-
 .template-card {
   display: flex;
   flex-direction: column;
   background: var(--ai-surface);
   border: 1px solid var(--ai-border);
-  border-radius: var(--ai-card-radius);
+  border-radius: 12px;
   overflow: hidden;
   transition: var(--ai-transition);
 }
-
 .template-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--ai-shadow-hover);
 }
 
 .card-preview {
-  position: relative;
   width: 100%;
-  height: 200px;
+  height: 150px;
   background: rgba(79, 124, 255, 0.03);
   overflow: hidden;
   cursor: pointer;
 }
-
 .card-cover {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
-
 .card-placeholder {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
+  padding: 6px;
 }
-
 .placeholder-illustration {
-  width: calc(100% - 24px);
-  height: calc(100% - 18px);
+  width: calc(100% - 16px);
+  height: calc(100% - 12px);
 }
-
-.line {
-  fill: none;
-  stroke-width: 1.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.panel {
-  stroke: rgba(79, 124, 255, 0.12);
-  fill: rgba(255, 255, 255, 0.02);
-}
-
-.soft {
-  stroke: rgba(255, 255, 255, 0.1);
-}
-
-.accent {
-  stroke: rgba(79, 124, 255, 0.4);
-}
-
-.dot {
-  fill: rgba(125, 211, 252, 0.55);
-}
+.line { fill: none; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.panel { stroke: rgba(79, 124, 255, 0.12); fill: rgba(255, 255, 255, 0.02); }
+.soft { stroke: rgba(255, 255, 255, 0.1); }
+.accent { stroke: rgba(79, 124, 255, 0.4); }
+.dot { fill: rgba(125, 211, 252, 0.55); }
 
 .card-body {
   flex: 1;
-  padding: 14px 16px 0;
+  padding: 10px 12px 0;
 }
-
 .card-title {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   color: var(--ai-title);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
 }
-
 .card-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .card-footer {
-  padding: 12px 16px 14px;
+  padding: 8px 12px 10px;
+}
+.card-footer :deep(.ant-btn) {
+  height: 32px;
+  font-size: 13px;
 }
 
+/* ───── 分页 ───── */
 .pagination-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 28px;
+  margin-top: 24px;
 }
 
-:deep(.ant-tabs-nav) {
-  margin-bottom: 24px;
-}
-
+:deep(.ant-tabs-nav) { margin-bottom: 0; }
 :deep(.ant-tabs-tab) {
   color: var(--ai-muted);
-  font-size: 14px;
+  font-size: 13px;
+  padding: 6px 0;
 }
-
 :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
   color: var(--ai-primary) !important;
   font-weight: 500;
 }
-
-:deep(.ant-tabs-ink-bar) {
-  background: var(--ai-primary);
-}
-
-:deep(.ant-tabs) {
-  color: var(--ai-text);
-}
+:deep(.ant-tabs-ink-bar) { background: var(--ai-primary); }
+:deep(.ant-tabs) { color: var(--ai-text); }
 </style>
