@@ -19,7 +19,11 @@ export const getDeployUrl = (deployKey: string) => {
 
 // 获取静态资源预览URL
 export const getStaticPreviewUrl = (codeGenType: string, appId: string) => {
-  const baseUrl = `${STATIC_BASE_URL}/${codeGenType}_${appId}/`
+  // 开发环境下 iframe 不走 Vite 代理，直接访问后端避免安全限制
+  const staticBaseUrl = import.meta.env.DEV
+    ? 'http://localhost:8082/api/static'
+    : STATIC_BASE_URL
+  const baseUrl = `${staticBaseUrl}/${codeGenType}_${appId}/`
   // 如果是 Vue 项目，浏览地址需要添加 dist 后缀
   if (codeGenType === CodeGenTypeEnum.VUE_PROJECT) {
     return `${baseUrl}dist/index.html`

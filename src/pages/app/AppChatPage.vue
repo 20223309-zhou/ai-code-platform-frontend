@@ -165,7 +165,7 @@
                 />
               </label>
               <div class="input-actions-center">
-                <a-tooltip title="RAG:开启后 AI 会从已部署的模板库中检索风格相似的代码块作为参考，应用生成的成功率会更高">
+                <a-tooltip title="RAG:开启后 AI 会从已部署的模板库中检索风格相似的代码块作为参考">
                   <label class="glass-toggle" :class="{ active: useRag }">
                     <input type="checkbox" v-model="useRag" style="display: none" />
                     <span class="glass-toggle-track">
@@ -356,8 +356,8 @@ const deployUrl = ref('')
 // 上传文件相关
 const uploadedFiles = ref<File[]>([])
 
-// RAG 知识库开关
-const useRag = ref(true)
+// RAG 知识库开关（从主页传入的 useRag 参数，默认 true）
+const useRag = ref(route.query.useRag !== 'false')
 
 // 初始化应用ID
 appId.value = route.params.id

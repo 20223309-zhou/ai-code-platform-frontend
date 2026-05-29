@@ -221,6 +221,11 @@ onMounted(() => { fetchData() })
 
 <style scoped>
 #userManagePage {
+  padding: 24px;
+  background: var(--ai-surface);
+  border: 1px solid var(--ai-glass-border);
+  border-radius: 16px;
+  margin-top: 16px;
 }
 #userManagePage :deep(.ant-form-item-label > label) {
   color: var(--ai-text);
