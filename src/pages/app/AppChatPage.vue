@@ -356,8 +356,8 @@ const deployUrl = ref('')
 // 上传文件相关
 const uploadedFiles = ref<File[]>([])
 
-// RAG 知识库开关（从主页传入的 useRag 参数，默认 true）
-const useRag = ref(route.query.useRag !== 'false')
+// RAG 知识库开关（从主页传入的 useRag 参数，默认关闭）
+const useRag = ref(route.query.useRag === 'true')
 
 // 初始化应用ID
 appId.value = route.params.id

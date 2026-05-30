@@ -22,7 +22,7 @@ let handleMouseMove: ((e: MouseEvent) => void) | null = null
 
 const userPrompt = ref('')
 const creating = ref(false)
-const useRag = ref(true)
+const useRag = ref(false)
 const activeTemplate = ref('')
 const uploadedFiles = ref<File[]>([])
 
