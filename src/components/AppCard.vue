@@ -1,7 +1,7 @@
 <template>
   <div class="app-card" :class="{ 'app-card--featured': featured }">
     <div class="app-preview">
-      <img v-if="app.cover" :src="app.cover" :alt="app.appName" />
+      <img v-if="app.cover" :src="getOptimizedCover(app.cover)" :alt="app.appName" loading="lazy" />
       <div v-else class="app-placeholder">
         <svg viewBox="0 0 320 140" class="placeholder-illustration" aria-hidden="true">
           <rect x="22" y="20" width="276" height="100" rx="18" class="line panel" />
@@ -46,6 +46,8 @@
 </template>
 
 <script setup lang="ts">
+import { getOptimizedCover } from '@/utils/image'
+
 interface Props {
   app: API.AppVO
   featured?: boolean
