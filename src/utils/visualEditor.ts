@@ -241,8 +241,9 @@ export class VisualEditor {
               path.unshift(selector);
               break;
             }
-            if (current.className) {
-              const classes = current.className.split(' ').filter(c => c && !c.startsWith('edit-'));
+            const classStr = current.getAttribute('class');
+            if (classStr) {
+              const classes = classStr.split(' ').filter(c => c && !c.startsWith('edit-'));
               if (classes.length > 0) {
                 selector += '.' + classes.join('.');
               }
@@ -269,7 +270,7 @@ export class VisualEditor {
           return {
             tagName: element.tagName,
             id: element.id,
-            className: element.className,
+            className: element.getAttribute('class') || '',
             textContent: element.textContent?.trim().substring(0, 100) || '',
             selector: generateSelector(element),
             pagePath: pagePath,
@@ -325,29 +326,29 @@ export class VisualEditor {
            };
 
            const clickHandler = (event) => {
-             if (!isEditMode) return;
-
-             event.preventDefault();
-             event.stopPropagation();
-
-             const target = event.target;
-             if (target === document.body || target === document.documentElement) return;
-             if (target.tagName === 'SCRIPT' || target.tagName === 'STYLE') return;
-
-             clearSelectedEffect();
-             clearHoverEffect();
-
-             target.classList.add('edit-selected');
-             currentSelectedElement = target;
-
-             const elementInfo = getElementInfo(target);
              try {
+               if (!isEditMode) return;
+
+               event.preventDefault();
+               event.stopPropagation();
+
+               const target = event.target;
+               if (target === document.body || target === document.documentElement) return;
+               if (target.tagName === 'SCRIPT' || target.tagName === 'STYLE') return;
+
+               clearSelectedEffect();
+               clearHoverEffect();
+
+               target.classList.add('edit-selected');
+               currentSelectedElement = target;
+
+               const elementInfo = getElementInfo(target);
                window.parent.postMessage({
                  type: 'ELEMENT_SELECTED',
                  data: { elementInfo }
                }, '*');
-             } catch {
-               // 静默处理发送失败
+             } catch (e) {
+               console.error('编辑模式选中元素出错:', e);
              }
            };
 

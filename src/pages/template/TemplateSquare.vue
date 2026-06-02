@@ -60,7 +60,7 @@
       <div v-else class="template-grid">
         <div v-for="app in templates" :key="app.id" class="template-card">
           <div class="card-preview" @click="openPreview(app)" title="在线浏览">
-            <img v-if="app.cover" :src="app.cover" class="card-cover" alt="" />
+            <img v-if="app.cover" :src="getOptimizedCover(app.cover)" class="card-cover" alt="" loading="lazy" />
             <div v-else class="card-placeholder">
               <svg viewBox="0 0 320 140" class="placeholder-illustration" aria-hidden="true">
                 <rect x="22" y="20" width="276" height="100" rx="18" class="line panel" />
@@ -118,6 +118,7 @@ import { message } from 'ant-design-vue'
 import { listGoodAppVoByPage, forkTemplate as forkTemplateApi } from '@/api/appController'
 import { formatCodeGenType } from '@/utils/codeGenTypes'
 import { getStaticPreviewUrl } from '@/config/env'
+import { getOptimizedCover } from '@/utils/image'
 import UserInfo from '@/components/UserInfo.vue'
 
 const router = useRouter()
