@@ -33,6 +33,12 @@
           </template>
           部署
         </a-button>
+        <a-tooltip v-if="appInfo?.deployUrl" title="复制部署地址">
+          <a-button @click="copyDeployUrl">
+            <template #icon><CopyOutlined /></template>
+            复制部署地址
+          </a-button>
+        </a-tooltip>
       </div>
     </div>
 
@@ -299,6 +305,7 @@ import { takePendingAppAttachments } from '@/utils/pendingAppAttachments'
 
 import {
   CloudUploadOutlined,
+  CopyOutlined,
   SendOutlined,
   ExportOutlined,
   InfoCircleOutlined,
@@ -867,10 +874,12 @@ const onMessagesScroll = () => {
   }
 }
 
-// 改良版：只有用户在底部时才自动滚动
+// 改良版：只有用户在底部时才自动滚动（使用 nextTick 确保 DOM 已更新）
 const autoScrollIfNearBottom = () => {
   if (isNearBottom()) {
-    scrollToBottom()
+    nextTick(() => {
+      scrollToBottom()
+    })
   }
 }
 
@@ -937,6 +946,30 @@ const deployApp = async () => {
     message.error('部署失败，请重试')
   } finally {
     deploying.value = false
+  }
+}
+
+// 复制部署地址
+const copyDeployUrl = async () => {
+  const url = appInfo.value?.deployUrl
+  if (!url) return
+  try {
+    await navigator.clipboard.writeText(url)
+    message.success('部署地址已复制')
+  } catch {
+    try {
+      const textarea = document.createElement('textarea')
+      textarea.value = url
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+      message.success('部署地址已复制')
+    } catch {
+      message.error('复制失败')
+    }
   }
 }
 
@@ -1036,7 +1069,10 @@ onMounted(() => {
 
 // 清理资源
 onUnmounted(() => {
-  // EventSource 会在组件卸载时自动清理
+  // 组件卸载时取消后端生成的 token 流
+  if (appId.value) {
+    cancelAppGeneration({ appId: String(appId.value) }).catch(() => {})
+  }
 })
 </script>
 

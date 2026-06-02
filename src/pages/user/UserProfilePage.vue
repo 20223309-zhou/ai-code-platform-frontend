@@ -44,18 +44,37 @@
             <span>还没有创建过应用</span>
           </div>
           <div v-else class="app-list">
-            <div v-for="app in myApps" :key="app.id" class="app-row" @click="goChat(app.id)">
-              <div class="app-row-body">
+            <div v-for="app in myApps" :key="app.id" class="app-row">
+              <div class="app-row-body" @click="goChat(app.id)">
                 <div class="app-row-name">{{ app.appName }}</div>
                 <div class="app-row-meta">
                   <span class="app-row-type">{{ formatCodeGenType(app.codeGenType) }}</span>
                   <span class="app-row-time">{{ formatTime(app.createTime) }}</span>
-                  <span v-if="app.deployKey" class="app-row-deployed">已部署</span>
+                  <span v-if="app.deployUrl" class="app-row-deployed">已部署</span>
                 </div>
               </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ai-muted)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              <div class="app-row-actions">
+                <a-tooltip v-if="app.deployUrl" title="复制部署地址">
+                  <a-button type="text" size="small" @click.stop="copyDeployUrl(app)">
+                    <template #icon><CopyOutlined /></template>
+                  </a-button>
+                </a-tooltip>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ai-muted)" stroke-width="2" style="cursor:pointer" @click="goChat(app.id)"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
             </div>
           </div>
+          <a-pagination
+            v-if="myAppsTotal > pageSize"
+            v-model:current="pageNum"
+            :page-size="pageSize"
+            :total="myAppsTotal"
+            :page-size-options="['5', '10', '15', '20']"
+            show-size-changer
+            size="small"
+            @change="onPageChange"
+            @showSizeChange="onPageChange"
+            style="margin-top: 12px; text-align: center;"
+          />
         </div>
       </div>
 
@@ -82,7 +101,7 @@
           <div class="stat-items">
             <div class="stat-item">
               <div class="stat-num">{{ stats.totalApps }}</div>
-              <div class="stat-label">总生成次数</div>
+              <div class="stat-label">总应用数</div>
             </div>
             <div class="stat-divider"></div>
             <div class="stat-item">
@@ -106,6 +125,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { CopyOutlined } from '@ant-design/icons-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { updateUserBySelf } from '@/api/userController.ts'
 import { listMyAppVoByPage } from '@/api/appController'
@@ -151,21 +171,56 @@ interface AppItem {
   codeGenType?: string
   createTime?: string
   deployKey?: string
+  deployUrl?: string
 }
 
 const myApps = ref<AppItem[]>([])
+const myAppsTotal = ref(0)
+const pageNum = ref(1)
+const pageSize = ref(5)
 
 const fetchMyApps = async () => {
   try {
-    const res = await listMyAppVoByPage({ pageNum: 1, pageSize: 10 })
+    const res = await listMyAppVoByPage({ pageNum: pageNum.value, pageSize: pageSize.value })
     if (res.data?.code === 0 && res.data?.data) {
-      myApps.value = (res.data.data.records || []).slice(0, 5)
+      myApps.value = res.data.data.records || []
+      myAppsTotal.value = res.data.data.totalRow || 0
     }
   } catch { /* ignore */ }
 }
 
 const formatTime = (t?: string) => t ? dayjs(t).format('MM-DD') : ''
 const goChat = (id?: string) => id && router.push(`/app/chat/${id}?view=1`)
+const copyDeployUrl = async (app: AppItem) => {
+  const url = app.deployUrl
+  if (!url) return
+  try {
+    await navigator.clipboard.writeText(url)
+    message.success('部署地址已复制')
+  } catch {
+    try {
+      const textarea = document.createElement('textarea')
+      textarea.value = url
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+      message.success('部署地址已复制')
+    } catch {
+      message.error('复制失败')
+    }
+  }
+}
+const onPageChange = (newPage: number, newPageSize: number) => {
+  pageNum.value = newPage
+  if (newPageSize !== pageSize.value) {
+    pageSize.value = newPageSize
+    pageNum.value = 1
+  }
+  fetchMyApps()
+}
 
 /* ─── 个人资料 ─── */
 const formState = reactive<API.UserUpdateRequest>({
