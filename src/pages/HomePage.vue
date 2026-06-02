@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import { addApp, listMyAppVoByPage } from '@/api/appController'
+import { getLoginUser } from '@/api/userController'
 import { getDeployUrl } from '@/config/env'
 import AppCard from '@/components/AppCard.vue'
 import {
@@ -123,6 +124,12 @@ const createApp = async () => {
 
     if (res.data.code === 0 && res.data.data) {
       message.success('应用创建成功')
+      // 刷新用户信息（额度可能已扣减）
+      getLoginUser().then(userRes => {
+        if (userRes.data.code === 0 && userRes.data.data) {
+          loginUserStore.setLoginUser(userRes.data.data)
+        }
+      })
       const appId = String(res.data.data)
       setPendingAppAttachments(appId, uploadedFiles.value)
       uploadedFiles.value = []
