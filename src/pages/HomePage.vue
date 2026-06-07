@@ -68,7 +68,7 @@ const templates = [
 
 const hasMyApps = computed(() => myApps.value.length > 0)
 const uploadHint = computed(
-  () => `支持图片和文本文件，单个文件不超过 ${CHAT_UPLOAD_MAX_SIZE_MB}MB`,
+  () => `支持图片和txt、md文档，单个文件不超过 ${CHAT_UPLOAD_MAX_SIZE_MB}MB`,
 )
 
 const setPrompt = (prompt: string, label: string) => {
