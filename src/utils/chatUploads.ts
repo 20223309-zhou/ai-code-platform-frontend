@@ -1,7 +1,7 @@
-export const CHAT_UPLOAD_ACCEPT = 'image/*,.txt,.md,.markdown,.csv'
+export const CHAT_UPLOAD_ACCEPT = 'image/*,.txt,.md,.markdown'
 export const CHAT_UPLOAD_MAX_SIZE_MB = 5
 const CHAT_UPLOAD_MAX_SIZE_BYTES = CHAT_UPLOAD_MAX_SIZE_MB * 1024 * 1024
-const TEXT_FILE_EXTENSIONS = ['.txt', '.md', '.markdown', '.csv']
+const TEXT_FILE_EXTENSIONS = ['.txt', '.md', '.markdown']
 
 const getFileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
 
