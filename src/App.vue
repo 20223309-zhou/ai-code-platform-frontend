@@ -481,4 +481,18 @@ iframe.preview-iframe {
 .ant-popover-arrow-content::before {
   background: var(--ai-surface) !important;
 }
+
+/* Popconfirm - 确认弹窗 */
+.ant-popconfirm .ant-popconfirm-message-title {
+  color: var(--ai-title) !important;
+}
+.ant-popconfirm .ant-popconfirm-description {
+  color: var(--ai-text) !important;
+}
+.ant-popconfirm .ant-btn {
+  color: var(--ai-title) !important;
+}
+.ant-popconfirm .ant-btn-primary {
+  color: #fff !important;
+}
 </style>
