@@ -3,6 +3,7 @@ declare namespace API {
 
   type AppAddRequest = {
     initPrompt?: string
+    codeGenType?: string
   }
 
   type AppAdminUpdateRequest = {
@@ -49,6 +50,7 @@ declare namespace API {
     initPrompt?: string
     codeGenType?: string
     deployKey?: string
+    deployUrl?: string
     deployedTime?: string
     priority?: number
     userId?: IdType

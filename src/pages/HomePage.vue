@@ -16,6 +16,7 @@ import {
 import { collectPastedImageFiles } from '@/utils/clipboardUploads'
 import { setPendingAppAttachments } from '@/utils/pendingAppAttachments'
 import { CloudUploadOutlined, CloseOutlined } from '@ant-design/icons-vue'
+import { CodeGenTypeEnum, CODE_GEN_TYPE_CREATE_OPTIONS } from '@/utils/codeGenTypes'
 
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
@@ -25,6 +26,8 @@ const userPrompt = ref('')
 const creating = ref(false)
 const useRag = ref(false)
 const activeTemplate = ref('')
+// 生成类型（创建时指定，创建后不可更改）：默认“智能选择”，由 AI 自动路由
+const selectedCodeGenType = ref<string>(CodeGenTypeEnum.AUTO)
 const uploadedFiles = ref<File[]>([])
 
 const platformSkills = [
@@ -120,6 +123,7 @@ const createApp = async () => {
   try {
     const res = await addApp({
       initPrompt: userPrompt.value.trim(),
+      codeGenType: selectedCodeGenType.value,
     })
 
     if (res.data.code === 0 && res.data.data) {
@@ -239,6 +243,17 @@ onUnmounted(() => {
               <span class="loader-pulse"></span>
             </span>
           </button>
+        </div>
+
+        <div class="type-selector">
+          <span class="type-selector-label">生成类型</span>
+          <a-select
+            v-model:value="selectedCodeGenType"
+            :options="CODE_GEN_TYPE_CREATE_OPTIONS"
+            :disabled="creating"
+            size="small"
+            class="type-select"
+          />
         </div>
 
         <div class="composer-tools">
@@ -856,6 +871,25 @@ onUnmounted(() => {
   color: var(--ai-primary);
   border-color: rgba(79, 124, 255, 0.2);
   font-weight: 500;
+}
+
+.type-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.type-selector-label {
+  flex-shrink: 0;
+  color: var(--ai-muted);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.type-select {
+  width: 160px;
 }
 
 .section {
