@@ -60,7 +60,19 @@
       <div v-else class="template-grid">
         <div v-for="app in templates" :key="app.id" class="template-card">
           <div class="card-preview" @click="openPreview(app)" title="在线浏览">
-            <img v-if="app.cover" :src="getOptimizedCover(app.cover)" class="card-cover" alt="" loading="lazy" />
+            <img
+              v-if="app.cover && !coverFailed(app)"
+              :src="getOptimizedCover(app.cover)"
+              class="card-cover"
+              alt=""
+              width="640"
+              height="400"
+              loading="eager"
+              decoding="sync"
+              fetchpriority="high"
+              referrerpolicy="no-referrer"
+              @error="onCoverError"
+            />
             <div v-else class="card-placeholder">
               <svg viewBox="0 0 320 140" class="placeholder-illustration" aria-hidden="true">
                 <rect x="22" y="20" width="276" height="100" rx="18" class="line panel" />
@@ -96,16 +108,15 @@
       </div>
 
       <div class="pagination-wrapper">
-        <a-pagination
-          v-model:current="pagination.current"
-          v-model:page-size="pagination.pageSize"
-          :total="pagination.total"
-          :show-size-changer="true"
-          :page-size-options="['12', '24', '48']"
-          :show-total="(total: number) => `共 ${total} 个模板`"
-          @change="loadTemplates"
-          @showSizeChange="loadTemplates"
-        />
+      <CustomPagination
+        v-model:current="pagination.current"
+        v-model:page-size="pagination.pageSize"
+        :total="pagination.total"
+        :page-size-options="[12, 24, 48]"
+        :show-total="true"
+        @change="loadTemplates"
+        @showSizeChange="loadTemplates"
+      />
       </div>
     </template>
   </div>
@@ -120,6 +131,7 @@ import { formatCodeGenType } from '@/utils/codeGenTypes'
 import { getStaticPreviewUrl } from '@/config/env'
 import { getOptimizedCover } from '@/utils/image'
 import UserInfo from '@/components/UserInfo.vue'
+import CustomPagination from '@/components/CustomPagination.vue'
 
 const router = useRouter()
 
@@ -128,6 +140,18 @@ const loading = ref(false)
 const forkingId = ref<string | number | null>(null)
 const activeCategory = ref('')
 const searchText = ref('')
+// 封面加载失败的模板 id，自动回退到占位插画
+const coverErrorIds = ref<Set<string | number>>(new Set())
+
+const coverFailed = (app: API.AppVO) => {
+  return app.id !== undefined && coverErrorIds.value.has(app.id)
+}
+
+const onCoverError = (app: API.AppVO) => {
+  if (app.id !== undefined) {
+    coverErrorIds.value = new Set(coverErrorIds.value).add(app.id)
+  }
+}
 
 const pagination = reactive({
   current: 1,
@@ -309,24 +333,34 @@ onMounted(loadTemplates)
   border-radius: 12px;
   overflow: hidden;
   transition: var(--ai-transition);
+  transform: translateZ(0);
+  will-change: transform;
+  isolation: isolate;
 }
 .template-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
   box-shadow: var(--ai-shadow-hover);
 }
 
 .card-preview {
   width: 100%;
   height: 150px;
+  min-height: 150px;
   background: rgba(61, 107, 255, 0.03);
   overflow: hidden;
   cursor: pointer;
+  display: block;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .card-cover {
   width: 100%;
   height: 100%;
+  min-height: 150px;
   object-fit: cover;
   display: block;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .card-placeholder {
   width: 100%;
