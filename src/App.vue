@@ -445,6 +445,45 @@ textarea::placeholder,
   color: var(--ai-text) !important;
 }
 
+/* 分页全元素最强保险：强制可见 + 显式颜色/背景/边框 */
+.ant-pagination-item,
+.ant-pagination-prev,
+.ant-pagination-next,
+.ant-pagination-options,
+.ant-pagination-total-text,
+.ant-pagination-simple-pager {
+  min-width: 32px !important;
+  height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: var(--ai-title) !important;
+  background: var(--ai-surface) !important;
+  border: 1px solid var(--ai-border) !important;
+  border-radius: 8px !important;
+  padding: 0 6px !important;
+  cursor: pointer;
+}
+.ant-pagination-item a,
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link,
+.ant-pagination-simple-pager input {
+  color: var(--ai-title) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: transparent !important;
+  border: none !important;
+}
+.ant-pagination-item-active,
+.ant-pagination-item-active a {
+  background: rgba(61, 107, 255, 0.12) !important;
+  color: var(--ai-primary) !important;
+  font-weight: 600 !important;
+  border-color: rgba(61, 107, 255, 0.4) !important;
+}
+
 /* Modal */
 .ant-modal-content {
   background: var(--ai-glass-strong) !important;
