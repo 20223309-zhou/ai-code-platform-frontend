@@ -66,13 +66,13 @@ const renderedMarkdown = computed(() => {
 
 .markdown-content :deep(h1) {
   font-size: 1.5em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--ai-border-soft);
   padding-bottom: 0.3em;
 }
 
 .markdown-content :deep(h2) {
   font-size: 1.3em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--ai-border-soft);
   padding-bottom: 0.3em;
 }
 
@@ -99,24 +99,25 @@ const renderedMarkdown = computed(() => {
 .markdown-content :deep(blockquote) {
   margin: 1em 0;
   padding: 0.6em 1em;
-  border-left: 3px solid rgba(79, 124, 255, 0.3);
-  background: rgba(79, 124, 255, 0.04);
+  border-left: 3px solid rgba(61, 107, 255, 0.3);
+  background: rgba(61, 107, 255, 0.04);
   color: var(--ai-text);
   border-radius: 0 6px 6px 0;
 }
 
 .markdown-content :deep(code) {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(61, 107, 255, 0.1);
   padding: 0.2em 0.4em;
   border-radius: 4px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.9em;
-  color: #e879f9;
+  color: #a21caf;
 }
 
+/* 代码块保持深色，保证代码高亮清晰（符合 atom-one-dark 主题） */
 .markdown-content :deep(pre) {
-  background: rgba(0, 0, 0, 0.25) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #1c1e2b !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   padding: 1em;
   overflow-x: auto;
@@ -129,7 +130,7 @@ const renderedMarkdown = computed(() => {
   border-radius: 0;
   font-size: 0.9em;
   line-height: 1.5;
-  color: var(--ai-title);
+  color: #d7dce8;
 }
 
 .markdown-content :deep(table) {
@@ -142,19 +143,19 @@ const renderedMarkdown = computed(() => {
 
 .markdown-content :deep(table th),
 .markdown-content :deep(table td) {
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ai-border-soft);
   padding: 0.5em 0.8em;
   text-align: left;
   color: var(--ai-title);
 }
 
 .markdown-content :deep(table th) {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(28, 42, 96, 0.04);
   font-weight: 600;
 }
 
 .markdown-content :deep(table tr:nth-child(even)) {
-  background: rgba(255, 255, 255, 0.015);
+  background: rgba(28, 42, 96, 0.02);
 }
 
 .markdown-content :deep(a) {
@@ -171,12 +172,12 @@ const renderedMarkdown = computed(() => {
   height: auto;
   border-radius: 6px;
   margin: 0.5em 0;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--ai-border-soft);
 }
 
 .markdown-content :deep(hr) {
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--ai-border-soft);
   margin: 1.5em 0;
 }
 

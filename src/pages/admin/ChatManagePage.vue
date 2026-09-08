@@ -200,7 +200,7 @@ const deleteMessage = async (id: number | undefined) => {
 #chatManagePage {
   padding: 24px;
   background: var(--ai-surface);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--ai-border-soft);
   border-radius: 14px;
   margin-top: 16px;
 }

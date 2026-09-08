@@ -121,7 +121,7 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 50% 35% at 30% 20%, rgba(79, 124, 255, 0.07), transparent),
+    radial-gradient(ellipse 50% 35% at 30% 20%, rgba(61, 107, 255, 0.07), transparent),
     radial-gradient(ellipse 40% 30% at 70% 80%, rgba(52, 211, 153, 0.04), transparent);
   pointer-events: none;
 }
@@ -133,11 +133,11 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
   width: 100%;
   max-width: 880px;
   min-height: 500px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--ai-glass-border);
   border-radius: 16px;
-  background: rgba(21, 23, 32, 0.55);
+  background: var(--ai-glass-strong);
   backdrop-filter: blur(40px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--ai-shadow);
   animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   overflow: hidden;
 }
@@ -149,8 +149,8 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
   flex-direction: column;
   justify-content: center;
   padding: 48px 40px;
-  background: linear-gradient(135deg, rgba(79, 124, 255, 0.04), rgba(79, 124, 255, 0.01));
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  background: linear-gradient(135deg, rgba(61, 107, 255, 0.04), rgba(61, 107, 255, 0.01));
+  border-right: 1px solid var(--ai-border-soft);
 }
 
 .brand-logo {
@@ -204,7 +204,7 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
   width: fit-content;
   padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(79, 124, 255, 0.08);
+  background: rgba(61, 107, 255, 0.08);
   color: var(--ai-primary);
   font-size: 11px;
   font-weight: 500;
@@ -239,10 +239,10 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
 #userRegisterPage :deep(.ant-input-affix-wrapper) {
   height: 48px;
   padding: 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ai-glass-border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  background: var(--ai-surface-soft);
+  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.05);
   color: var(--ai-title);
   caret-color: var(--ai-primary);
 }
@@ -263,14 +263,14 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
 }
 
 #userRegisterPage :deep(.ant-input-affix-wrapper:hover) {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(61, 107, 255, 0.35);
 }
 
 #userRegisterPage :deep(.ant-input:focus),
 #userRegisterPage :deep(.ant-input-affix-wrapper-focused) {
-  border-color: rgba(79, 124, 255, 0.2);
-  background: rgba(255, 255, 255, 0.03);
-  box-shadow: inset 0 0 0 1px rgba(79, 124, 255, 0.08), 0 0 16px rgba(79, 124, 255, 0.03);
+  border-color: rgba(61, 107, 255, 0.2);
+  background: var(--ai-surface);
+  box-shadow: inset 0 0 0 1px rgba(61, 107, 255, 0.08), 0 0 16px rgba(61, 107, 255, 0.03);
 }
 
 #userRegisterPage :deep(.ant-input-password-icon) {
@@ -311,8 +311,8 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
   line-height: 1;
   font-weight: 500;
   letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #4f7cff, #2d4fc7);
-  box-shadow: 0 6px 20px rgba(79, 124, 255, 0.2);
+  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
+  box-shadow: 0 6px 20px rgba(61, 107, 255, 0.2);
   transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -320,7 +320,7 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
 .submit-button:focus {
   background: linear-gradient(135deg, #5f8cff, #3d5fd7) !important;
   transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(79, 124, 255, 0.3);
+  box-shadow: 0 10px 28px rgba(61, 107, 255, 0.3);
 }
 
 .submit-button:active {
@@ -335,7 +335,7 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
   .auth-brand {
     padding: 32px 28px;
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--ai-border-soft);
   }
   .brand-features {
     gap: 12px;
