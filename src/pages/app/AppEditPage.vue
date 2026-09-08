@@ -320,7 +320,7 @@ onMounted(() => {
   padding: 12px;
   border: 1px solid var(--ai-border);
   border-radius: var(--ai-control-radius);
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--ai-surface-soft);
 }
 
 .form-tip {
@@ -367,7 +367,7 @@ onMounted(() => {
 }
 
 :deep(.ant-descriptions-item-label) {
-  background: rgba(255, 255, 255, 0.02) !important;
+  background: var(--ai-surface-soft) !important;
   color: var(--ai-text-secondary, var(--ai-text)) !important;
   font-weight: 500;
   border-color: var(--ai-border) !important;

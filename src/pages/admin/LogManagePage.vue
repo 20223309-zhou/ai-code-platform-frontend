@@ -206,8 +206,8 @@ onMounted(() => {
 }
 .method-get {
   color: #5f8cff;
-  background: rgba(79,124,255,0.08);
-  border-color: rgba(79,124,255,0.15);
+  background: rgba(61,107,255,0.08);
+  border-color: rgba(61,107,255,0.15);
 }
 .method-post {
   color: #34d399;

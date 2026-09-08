@@ -227,7 +227,7 @@ onUnmounted(() => {
           <a-textarea
             v-model:value="userPrompt"
             placeholder="例如：帮我创建一个现代 AI SaaS 官网，带定价、案例、登录和控制台页面"
-            :rows="4"
+            :rows="3"
             :maxlength="1000"
             class="prompt-input"
             @keydown.enter.prevent="createApp"
@@ -394,7 +394,7 @@ onUnmounted(() => {
   inset: 0;
   background: radial-gradient(
     640px circle at var(--mouse-x, 50%) var(--mouse-y, 18%),
-    rgba(79, 124, 255, 0.06),
+    rgba(61, 107, 255, 0.06),
     transparent 68%
   );
   pointer-events: none;
@@ -428,9 +428,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 5px 14px;
-  border: 1px solid rgba(79, 124, 255, 0.15);
+  border: 1px solid rgba(61, 107, 255, 0.15);
   border-radius: 999px;
-  background: rgba(79, 124, 255, 0.06);
+  background: rgba(61, 107, 255, 0.06);
   color: var(--ai-primary);
   font-size: 12px;
   font-weight: 500;
@@ -456,48 +456,65 @@ onUnmounted(() => {
 }
 
 .generator-panel {
+  position: relative;
   max-width: 800px;
-  margin: 0 auto 60px;
-  padding: 28px 28px 32px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(21, 23, 32, 0.65);
-  backdrop-filter: blur(36px);
-  -webkit-backdrop-filter: blur(36px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.32);
+  margin: 0 auto 52px;
+  padding: 24px 24px 26px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow:
+    0 1px 2px rgba(28, 44, 110, 0.06),
+    0 24px 60px -12px rgba(28, 44, 110, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* 顶部柔和蓝紫描光，强化卡片从彩色底"浮起"的层次 */
+.generator-panel::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 18%;
+  right: 18%;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent);
+  pointer-events: none;
 }
 
 .generator-header {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .panel-title {
   margin: 0;
   color: var(--ai-title);
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
 .panel-subtitle {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   color: var(--ai-muted);
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.01em;
 }
 
 .input-shell {
   position: relative;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 :deep(.prompt-input.ant-input) {
-  min-height: 144px;
-  padding: 16px 72px 16px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  min-height: 96px;
+  padding: 12px 60px 12px 14px;
+  border: 1px solid var(--ai-glass-border);
   border-radius: var(--ai-control-radius);
-  background: rgba(255, 255, 255, 0.02);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  background: var(--ai-surface);
+  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.04);
   color: var(--ai-title);
   font-size: 14px;
   line-height: 1.7;
@@ -511,12 +528,11 @@ onUnmounted(() => {
 
 :deep(.prompt-input.ant-input:focus),
 :deep(.prompt-input.ant-input-focused) {
-  border-color: rgba(79, 124, 255, 0.25);
-  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(61, 107, 255, 0.45);
+  background: var(--ai-surface);
   box-shadow:
-    inset 0 0 0 1px rgba(79, 124, 255, 0.08),
-    0 0 24px rgba(79, 124, 255, 0.04);
-  animation: breathe-subtle 3s ease-in-out infinite;
+    0 0 0 3px rgba(61, 107, 255, 0.08),
+    0 0 24px rgba(61, 107, 255, 0.06);
 }
 
 :deep(.prompt-input.ant-input::placeholder) {
@@ -536,16 +552,16 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #4f7cff, #2d4fc7);
+  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
   color: #fff;
-  box-shadow: 0 6px 20px rgba(79, 124, 255, 0.25);
+  box-shadow: 0 6px 18px rgba(61, 107, 255, 0.28);
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .generate-button:hover {
   transform: translateY(-1px) scale(1.04);
-  box-shadow: 0 10px 28px rgba(79, 124, 255, 0.35);
+  box-shadow: 0 10px 26px rgba(61, 107, 255, 0.34);
 }
 
 .generate-button:active {
@@ -565,7 +581,7 @@ onUnmounted(() => {
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .upload-panel {
@@ -577,9 +593,9 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border: 1px solid rgba(79, 124, 255, 0.14);
+  border: 1px solid rgba(61, 107, 255, 0.14);
   border-radius: 999px;
-  background: rgba(79, 124, 255, 0.06);
+  background: rgba(61, 107, 255, 0.06);
   color: var(--ai-title);
   font-size: 13px;
   letter-spacing: 0.02em;
@@ -589,9 +605,9 @@ onUnmounted(() => {
 
 .upload-trigger:hover {
   transform: translateY(-1px);
-  border-color: rgba(79, 124, 255, 0.22);
-  background: rgba(79, 124, 255, 0.09);
-  box-shadow: 0 10px 28px rgba(79, 124, 255, 0.12);
+  border-color: rgba(61, 107, 255, 0.22);
+  background: rgba(61, 107, 255, 0.09);
+  box-shadow: 0 10px 28px rgba(61, 107, 255, 0.12);
 }
 
 .upload-trigger.is-disabled {
@@ -617,14 +633,14 @@ onUnmounted(() => {
   width: 60px;
   height: 28px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(28, 42, 96, 0.08);
+  border: 1px solid rgba(28, 42, 96, 0.08);
   transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .glass-toggle.active .glass-toggle-track {
-  background: rgba(79, 124, 255, 0.2);
-  border-color: rgba(79, 124, 255, 0.3);
-  box-shadow: 0 0 12px rgba(79, 124, 255, 0.12);
+  background: rgba(61, 107, 255, 0.2);
+  border-color: rgba(61, 107, 255, 0.3);
+  box-shadow: 0 0 12px rgba(61, 107, 255, 0.12);
 }
 .glass-toggle-knob {
   position: absolute;
@@ -633,7 +649,7 @@ onUnmounted(() => {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -646,9 +662,9 @@ onUnmounted(() => {
 }
 .glass-toggle.active .glass-toggle-knob {
   left: 35px;
-  background: #4f7cff;
+  background: #3d6bff;
   color: #fff;
-  box-shadow: 0 0 12px rgba(79, 124, 255, 0.35);
+  box-shadow: 0 0 12px rgba(61, 107, 255, 0.35);
 }
 
 .skills-trigger {
@@ -659,8 +675,8 @@ onUnmounted(() => {
   padding: 10px 14px;
   border: 1px solid rgba(125, 211, 252, 0.18);
   border-radius: 999px;
-  background: rgba(79, 124, 255, 0.06);
-  color: rgba(232, 233, 234, 0.9);
+  background: rgba(61, 107, 255, 0.06);
+  color: var(--ai-title);
   font-size: 13px;
   letter-spacing: 0.02em;
   cursor: pointer;
@@ -695,7 +711,7 @@ onUnmounted(() => {
   color: var(--ai-title);
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(28, 42, 96, 0.08);
 }
 
 .skill-item {
@@ -703,7 +719,7 @@ onUnmounted(() => {
 }
 
 .skill-item + .skill-item {
-  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(28, 42, 96, 0.05);
 }
 
 .skill-name {
@@ -731,9 +747,9 @@ onUnmounted(() => {
   flex: 1;
   min-width: 0;
   padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(28, 42, 96, 0.1);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(28, 42, 96, 0.03);
 }
 
 .upload-summary {
@@ -754,9 +770,9 @@ onUnmounted(() => {
   gap: 8px;
   max-width: 100%;
   padding: 6px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(28, 42, 96, 0.1);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(28, 42, 96, 0.05);
   color: var(--ai-text);
   font-size: 12px;
 }
@@ -784,7 +800,7 @@ onUnmounted(() => {
 }
 
 .upload-chip-remove:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(28, 42, 96, 0.08);
   color: var(--ai-title);
 }
 
@@ -848,9 +864,9 @@ onUnmounted(() => {
 .template-chip {
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(28, 42, 96, 0.1);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(28, 42, 96, 0.03);
   color: var(--ai-muted);
   font-size: 13px;
   font-weight: 400;
@@ -860,16 +876,16 @@ onUnmounted(() => {
 }
 
 .template-chip:hover {
-  border-color: rgba(79, 124, 255, 0.15);
+  border-color: rgba(61, 107, 255, 0.15);
   color: var(--ai-title);
-  background: rgba(79, 124, 255, 0.04);
+  background: rgba(61, 107, 255, 0.04);
   transform: translateY(-1px);
 }
 
 .template-chip.is-active {
-  background: rgba(79, 124, 255, 0.08);
+  background: rgba(61, 107, 255, 0.08);
   color: var(--ai-primary);
-  border-color: rgba(79, 124, 255, 0.2);
+  border-color: rgba(61, 107, 255, 0.2);
   font-weight: 500;
 }
 
@@ -877,7 +893,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .type-selector-label {
@@ -936,9 +952,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 44px 24px 40px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--ai-border-soft);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.015);
+  background: rgba(28, 42, 96, 0.025);
   text-align: center;
 }
 
@@ -946,31 +962,31 @@ onUnmounted(() => {
   width: 160px;
   max-width: 100%;
   margin-bottom: 14px;
-  opacity: 0.4;
+  opacity: 0.55;
 }
 
 .illu-window {
-  fill: rgba(255, 255, 255, 0.015);
-  stroke: rgba(79, 124, 255, 0.2);
+  fill: rgba(28, 42, 96, 0.02);
+  stroke: rgba(61, 107, 255, 0.32);
   stroke-width: 1.5;
 }
 
 .illu-accent {
-  fill: rgba(79, 124, 255, 0.3);
+  fill: rgba(61, 107, 255, 0.38);
 }
 
 .illu-card {
-  fill: rgba(255, 255, 255, 0.02);
-  stroke: rgba(255, 255, 255, 0.06);
+  fill: rgba(255, 255, 255, 0.6);
+  stroke: rgba(28, 42, 96, 0.12);
   stroke-width: 1;
 }
 
 .illu-bar {
-  fill: rgba(255, 255, 255, 0.08);
+  fill: rgba(28, 42, 96, 0.18);
 }
 
 .illu-cursor {
-  fill: rgba(125, 211, 252, 0.5);
+  fill: #3fa9f5;
 }
 
 .empty-title {
@@ -1050,7 +1066,7 @@ onUnmounted(() => {
   }
 
   :deep(.prompt-input.ant-input) {
-    min-height: 160px;
+    min-height: 120px;
   }
 
   .upload-chip-name {

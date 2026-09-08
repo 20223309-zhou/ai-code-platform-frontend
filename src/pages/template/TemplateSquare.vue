@@ -266,21 +266,21 @@ onMounted(loadTemplates)
   flex-direction: column;
   align-items: center;
   padding: 60px 24px;
-  border: 1px solid var(--ai-border);
+  border: 1px solid var(--ai-border-soft);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.015);
+  background: rgba(28, 42, 96, 0.025);
   text-align: center;
 }
 
 .empty-illustration {
   width: 120px;
   margin-bottom: 12px;
-  opacity: 0.4;
+  opacity: 0.6;
 }
-.illu-window { fill: rgba(255, 255, 255, 0.015); stroke: rgba(79, 124, 255, 0.2); stroke-width: 1.5; }
-.illu-accent { fill: rgba(79, 124, 255, 0.3); }
-.illu-card { fill: rgba(255, 255, 255, 0.02); stroke: rgba(255, 255, 255, 0.06); stroke-width: 1; }
-.illu-bar { fill: rgba(255, 255, 255, 0.08); }
+.illu-window { fill: rgba(28, 42, 96, 0.02); stroke: rgba(61, 107, 255, 0.32); stroke-width: 1.5; }
+.illu-accent { fill: rgba(61, 107, 255, 0.4); }
+.illu-card { fill: rgba(255, 255, 255, 0.7); stroke: rgba(28, 42, 96, 0.12); stroke-width: 1; }
+.illu-bar { fill: rgba(28, 42, 96, 0.18); }
 
 .empty-title {
   margin: 4px 0 6px;
@@ -318,7 +318,7 @@ onMounted(loadTemplates)
 .card-preview {
   width: 100%;
   height: 150px;
-  background: rgba(79, 124, 255, 0.03);
+  background: rgba(61, 107, 255, 0.03);
   overflow: hidden;
   cursor: pointer;
 }
@@ -341,10 +341,10 @@ onMounted(loadTemplates)
   height: calc(100% - 12px);
 }
 .line { fill: none; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
-.panel { stroke: rgba(79, 124, 255, 0.12); fill: rgba(255, 255, 255, 0.02); }
-.soft { stroke: rgba(255, 255, 255, 0.1); }
-.accent { stroke: rgba(79, 124, 255, 0.4); }
-.dot { fill: rgba(125, 211, 252, 0.55); }
+.panel { stroke: rgba(61, 107, 255, 0.18); fill: rgba(28, 42, 96, 0.03); }
+.soft { stroke: rgba(28, 42, 96, 0.16); }
+.accent { stroke: rgba(61, 107, 255, 0.45); }
+.dot { fill: #3fa9f5; }
 
 .card-body {
   flex: 1;

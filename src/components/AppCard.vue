@@ -79,10 +79,13 @@ const handleViewWork = () => {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  background: rgba(21, 23, 32, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgba(28, 44, 110, 0.05),
+    0 16px 40px -12px rgba(28, 44, 110, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
   overflow: hidden;
   cursor: pointer;
   transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
@@ -90,8 +93,11 @@ const handleViewWork = () => {
 
 .app-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(79, 124, 255, 0.12);
-  box-shadow: 0 16px 48px rgba(79, 124, 255, 0.06);
+  border-color: rgba(61, 107, 255, 0.35);
+  box-shadow:
+    0 1px 2px rgba(28, 44, 110, 0.05),
+    0 22px 50px -12px rgba(61, 107, 255, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .app-card--featured:hover {
@@ -102,7 +108,7 @@ const handleViewWork = () => {
   position: relative;
   height: 160px;
   padding: 8px;
-  background: rgba(79, 124, 255, 0.03);
+  background: rgba(61, 107, 255, 0.05);
   overflow: hidden;
 }
 
@@ -110,7 +116,7 @@ const handleViewWork = () => {
   width: 100%;
   height: 100%;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--ai-border-soft);
   object-fit: cover;
 }
 
@@ -121,8 +127,8 @@ const handleViewWork = () => {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--ai-border-soft);
+  background: rgba(61, 107, 255, 0.03);
 }
 
 .placeholder-illustration {
@@ -138,20 +144,20 @@ const handleViewWork = () => {
 }
 
 .panel {
-  stroke: rgba(79, 124, 255, 0.12);
-  fill: rgba(255, 255, 255, 0.02);
+  stroke: rgba(61, 107, 255, 0.2);
+  fill: rgba(28, 42, 96, 0.03);
 }
 
 .soft {
-  stroke: rgba(255, 255, 255, 0.1);
+  stroke: rgba(28, 42, 96, 0.16);
 }
 
 .accent {
-  stroke: rgba(79, 124, 255, 0.4);
+  stroke: rgba(61, 107, 255, 0.45);
 }
 
 .dot {
-  fill: rgba(125, 211, 252, 0.55);
+  fill: #3fa9f5;
 }
 
 .app-badge {
@@ -160,13 +166,14 @@ const handleViewWork = () => {
   left: 12px;
   padding: 2px 10px;
   border-radius: 999px;
-  background: rgba(14, 16, 24, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(61, 107, 255, 0.3);
   color: var(--ai-primary);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.03em;
   backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(35, 55, 130, 0.08);
 }
 
 .app-overlay {
@@ -176,7 +183,7 @@ const handleViewWork = () => {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: rgba(14, 16, 24, 0.6);
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(8px);
   opacity: 0;
   transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
@@ -192,20 +199,21 @@ const handleViewWork = () => {
   border-radius: 6px;
   font-weight: 500;
   font-size: 13px;
-  background: linear-gradient(135deg, #4f7cff, #2d4fc7);
-  box-shadow: 0 4px 14px rgba(79, 124, 255, 0.2);
+  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
+  box-shadow: 0 4px 14px rgba(61, 107, 255, 0.22);
 }
 
 .overlay-button--ghost {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.9);
   color: var(--ai-title);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: none;
+  border: 1px solid var(--ai-glass-border);
+  box-shadow: 0 2px 10px rgba(35, 55, 130, 0.08);
 }
 
 .overlay-button--ghost:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--ai-surface-soft) !important;
+  border-color: rgba(61, 107, 255, 0.4);
+  color: var(--ai-primary);
 }
 
 .app-info {
@@ -245,7 +253,7 @@ const handleViewWork = () => {
 }
 
 .author-avatar {
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ai-border-soft);
 }
 
 .app-author {

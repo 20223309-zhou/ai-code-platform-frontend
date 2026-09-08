@@ -170,7 +170,7 @@ function formatNum(v: number | null | undefined): string {
 
 /* ───── 顶部卡片 ───── */
 const topCards = [
-  { key: 'todayCount' as const, label: '今日创作', icon: CalendarOutlined, color: '#5f8cff', iconBg: 'rgba(79,124,255,0.12)' },
+  { key: 'todayCount' as const, label: '今日创作', icon: CalendarOutlined, color: '#5f8cff', iconBg: 'rgba(61,107,255,0.12)' },
   { key: 'weekCount' as const, label: '本周创作', icon: ClockCircleOutlined, color: '#34d399', iconBg: 'rgba(0,201,167,0.12)' },
   { key: 'monthCount' as const, label: '本月创作', icon: FileTextOutlined, color: '#fbbf24', iconBg: 'rgba(255,184,0,0.12)' },
   { key: 'totalCount' as const, label: '总创作', icon: FolderOpenOutlined, color: '#a78bfa', iconBg: 'rgba(114,46,209,0.12)' },
@@ -285,18 +285,18 @@ const activeUserPercent = computed(() => {
   align-items: center;
   gap: 16px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--ai-glass-border);
   border-radius: 14px;
-  background: rgba(21, 23, 32, 0.6);
+  background: var(--ai-glass-strong);
   backdrop-filter: blur(36px);
   -webkit-backdrop-filter: blur(36px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--ai-shadow);
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: var(--ai-shadow);
+  border-color: var(--ai-border);
 }
 .stat-icon {
   flex-shrink: 0;
@@ -330,7 +330,7 @@ const activeUserPercent = computed(() => {
   margin-top: 8px;
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(28, 42, 96, 0.05);
   overflow: hidden;
 }
 .stat-trend-fill {
@@ -342,18 +342,18 @@ const activeUserPercent = computed(() => {
 /* ───── 图表卡片 ───── */
 .chart-card {
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--ai-glass-border);
   border-radius: 14px;
-  background: rgba(21, 23, 32, 0.6);
+  background: var(--ai-glass-strong);
   backdrop-filter: blur(36px);
   -webkit-backdrop-filter: blur(36px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--ai-shadow);
   height: 100%;
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .chart-card:hover {
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  border-color: var(--ai-border);
+  box-shadow: var(--ai-shadow);
 }
 .chart-title {
   margin: 0 0 16px 0;
@@ -436,7 +436,7 @@ const activeUserPercent = computed(() => {
   align-items: center;
   padding: 8px 16px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(28, 42, 96, 0.04);
 }
 .ring-meta-label {
   color: var(--ai-muted);
@@ -480,7 +480,7 @@ const activeUserPercent = computed(() => {
   flex: 1;
   height: 8px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(28, 42, 96, 0.05);
   overflow: hidden;
 }
 .user-bar-fill {
@@ -502,7 +502,7 @@ const activeUserPercent = computed(() => {
   gap: 6px;
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(28, 42, 96, 0.04);
   color: var(--ai-muted);
   font-size: 13px;
 }

@@ -44,8 +44,14 @@
 
     <!-- 主要内容区域 -->
     <div class="main-content">
-      <!-- 左侧对话区域 -->
+      <!-- 左侧对话/生成区域 -->
       <div class="chat-section">
+        <div class="chat-header">
+          <h3 class="chat-header-title">对话生成</h3>
+          <span class="chat-header-sub" v-if="appInfo?.codeGenType">
+            {{ formatCodeGenType(appInfo.codeGenType) }} · 自然语言驱动
+          </span>
+        </div>
         <!-- 消息区域 -->
         <div class="messages-container" ref="messagesContainer" @scroll="onMessagesScroll">
           <!-- 加载更多按钮 -->
@@ -1127,16 +1133,40 @@ onUnmounted(() => {
   flex: 2;
   display: flex;
   flex-direction: column;
-  background: rgba(21, 23, 32, 0.55);
+  background: var(--ai-surface-soft);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--ai-border-soft);
+  box-shadow: var(--ai-shadow);
   overflow: hidden;
   position: relative;
 }
 
+.chat-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ai-border-soft);
+  background: var(--ai-surface);
+}
+
+.chat-header-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ai-title);
+  letter-spacing: 0.01em;
+}
+
+.chat-header-sub {
+  font-size: 12px;
+  color: var(--ai-muted);
+  margin-left: 4px;
+}
+
 .messages-container {
-  flex: 0.9;
+  flex: 1;
   padding: 14px;
   overflow-y: auto;
   scroll-behavior: smooth;
@@ -1172,15 +1202,16 @@ onUnmounted(() => {
 }
 
 .user-message .message-content {
-  background: linear-gradient(135deg, #4f7cff, #2d4fc7);
+  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
   color: #fff;
 }
 
 .ai-message .message-content {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--ai-surface);
   color: var(--ai-title);
   padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--ai-border-soft);
+  box-shadow: 0 2px 10px rgba(28, 44, 110, 0.05);
 }
 
 .thinking-bubble {
@@ -1256,7 +1287,7 @@ onUnmounted(() => {
 .input-container {
   padding: 8px 14px;
   background: transparent;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-top: 1px solid var(--ai-border-soft);
 }
 
 .input-wrapper {
@@ -1266,10 +1297,10 @@ onUnmounted(() => {
 .input-wrapper :deep(.ant-input) {
   padding-right: 16px;
   padding-bottom: 54px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ai-glass-border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  background: var(--ai-surface);
+  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.05);
   color: var(--ai-title);
   font-size: 14px;
   letter-spacing: 0.01em;
@@ -1277,9 +1308,9 @@ onUnmounted(() => {
 }
 
 .input-wrapper :deep(.ant-input:focus) {
-  border-color: rgba(79, 124, 255, 0.2);
-  background: rgba(255, 255, 255, 0.03);
-  box-shadow: inset 0 0 0 1px rgba(79, 124, 255, 0.08), 0 0 16px rgba(79, 124, 255, 0.03);
+  border-color: rgba(61, 107, 255, 0.2);
+  background: var(--ai-surface);
+  box-shadow: inset 0 0 0 1px rgba(61, 107, 255, 0.08), 0 0 16px rgba(61, 107, 255, 0.03);
 }
 
 .input-wrapper :deep(.ant-input::placeholder) {
@@ -1298,9 +1329,9 @@ onUnmounted(() => {
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ai-glass-border);
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--ai-surface-soft);
   font-size: 12px;
   color: var(--ai-text);
   max-width: 180px;
@@ -1355,14 +1386,14 @@ onUnmounted(() => {
   width: 60px;
   height: 28px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(28, 42, 96, 0.08);
+  border: 1px solid var(--ai-glass-border);
   transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .glass-toggle.active .glass-toggle-track {
-  background: rgba(79, 124, 255, 0.2);
-  border-color: rgba(79, 124, 255, 0.3);
-  box-shadow: 0 0 12px rgba(79, 124, 255, 0.12);
+  background: rgba(61, 107, 255, 0.2);
+  border-color: rgba(61, 107, 255, 0.3);
+  box-shadow: 0 0 12px rgba(61, 107, 255, 0.12);
 }
 .glass-toggle-knob {
   position: absolute;
@@ -1371,7 +1402,7 @@ onUnmounted(() => {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1380,13 +1411,13 @@ onUnmounted(() => {
   font-weight: 700;
   letter-spacing: 0.02em;
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px rgba(28, 42, 96, 0.2);
 }
 .glass-toggle.active .glass-toggle-knob {
   left: 35px;
-  background: #4f7cff;
+  background: #3d6bff;
   color: #fff;
-  box-shadow: 0 0 12px rgba(79, 124, 255, 0.35);
+  box-shadow: 0 0 12px rgba(61, 107, 255, 0.35);
 }
 
 .input-actions-end {
@@ -1402,9 +1433,9 @@ onUnmounted(() => {
   cursor: pointer;
   color: var(--ai-muted);
   padding: 4px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ai-glass-border);
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--ai-surface-soft);
   font-size: 13px;
   transition: all 0.3s;
   user-select: none;
@@ -1413,8 +1444,8 @@ onUnmounted(() => {
 
 .upload-label:hover {
   color: var(--ai-primary) !important;
-  border-color: rgba(79, 124, 255, 0.2) !important;
-  background: rgba(79, 124, 255, 0.04) !important;
+  border-color: rgba(61, 107, 255, 0.2) !important;
+  background: rgba(61, 107, 255, 0.04) !important;
 }
 
 .send-button :deep(.ant-btn-loading-icon .anticon) {
@@ -1442,10 +1473,10 @@ onUnmounted(() => {
   flex: 3;
   display: flex;
   flex-direction: column;
-  background: rgba(21, 23, 32, 0.55);
+  background: var(--ai-glass-strong);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--ai-border-soft);
+  box-shadow: var(--ai-shadow);
   overflow: hidden;
 }
 
@@ -1454,7 +1485,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--ai-border-soft);
 }
 
 .preview-header h3 {
@@ -1474,7 +1505,7 @@ onUnmounted(() => {
   flex: 1;
   position: relative;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.12);
+  background: #ffffff;
 }
 
 .preview-placeholder {
@@ -1508,9 +1539,9 @@ onUnmounted(() => {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  border: 1px solid rgba(79, 124, 255, 0.1);
-  background: rgba(79, 124, 255, 0.03);
-  box-shadow: 0 8px 24px rgba(79, 124, 255, 0.06);
+  border: 1px solid rgba(61, 107, 255, 0.1);
+  background: rgba(61, 107, 255, 0.03);
+  box-shadow: 0 8px 24px rgba(61, 107, 255, 0.06);
   animation: breathe 3s ease-in-out infinite;
 }
 
@@ -1523,8 +1554,8 @@ onUnmounted(() => {
 .preview-spinner :deep(.ant-spin-dot-item) {
   width: 11px;
   height: 11px;
-  background: linear-gradient(135deg, #4f7cff, #7dd3fc);
-  box-shadow: 0 0 10px rgba(79, 124, 255, 0.2);
+  background: linear-gradient(135deg, #3d6bff, #7dd3fc);
+  box-shadow: 0 0 10px rgba(61, 107, 255, 0.2);
 }
 
 .preview-loading-text {
@@ -1569,8 +1600,8 @@ onUnmounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(21, 23, 32, 0.85);
+  border: 1px solid var(--ai-border);
+  background: var(--ai-glass-strong);
   backdrop-filter: blur(16px);
   color: var(--ai-muted);
   cursor: pointer;
@@ -1578,14 +1609,14 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 10;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--ai-shadow);
   transition: all 0.25s;
 }
 .scroll-down-btn:hover {
-  background: rgba(79, 124, 255, 0.15);
-  border-color: rgba(79, 124, 255, 0.3);
+  background: rgba(61, 107, 255, 0.15);
+  border-color: rgba(61, 107, 255, 0.3);
   color: var(--ai-primary);
-  box-shadow: 0 6px 24px rgba(79, 124, 255, 0.15);
+  box-shadow: 0 6px 24px rgba(61, 107, 255, 0.15);
 }
 
 .fade-enter-active,
@@ -1646,7 +1677,7 @@ onUnmounted(() => {
     font-family: 'Monaco', 'Menlo', monospace;
     font-size: 14px;
     font-weight: 500;
-    color: #4f7cff;
+    color: #3d6bff;
   }
   .element-id {
     color: #7dd3fc;
@@ -1658,12 +1689,12 @@ onUnmounted(() => {
   }
   .element-selector-code {
     font-family: 'Monaco', 'Menlo', monospace;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--ai-surface-soft);
     padding: 2px 4px;
     border-radius: 3px;
     font-size: 12px;
     color: #f87171;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--ai-glass-border);
   }
   .edit-mode-active {
     background-color: #52c41a !important;
