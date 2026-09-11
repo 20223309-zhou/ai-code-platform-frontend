@@ -79,13 +79,16 @@ const handleViewWork = () => {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.92);
+  /* 与生成框一致的冷色霜面，和背景氛围同调 */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(240, 244, 255, 0.84) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px) saturate(1.12);
+  -webkit-backdrop-filter: blur(20px) saturate(1.12);
   border-radius: 14px;
   box-shadow:
-    0 1px 2px rgba(28, 44, 110, 0.05),
-    0 16px 40px -12px rgba(28, 44, 110, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    0 2px 4px rgba(28, 44, 110, 0.04),
+    0 18px 44px -20px rgba(45, 70, 140, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   overflow: hidden;
   cursor: pointer;
   transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);

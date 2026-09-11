@@ -112,7 +112,7 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
-  background: var(--ai-bg);
+  background: transparent;
   position: relative;
 }
 
@@ -133,11 +133,12 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
   width: 100%;
   max-width: 880px;
   min-height: 500px;
-  border: 1px solid var(--ai-glass-border);
+  border: 1px solid var(--ai-card-border);
   border-radius: 16px;
-  background: var(--ai-glass-strong);
-  backdrop-filter: blur(40px);
-  box-shadow: var(--ai-shadow);
+  background: var(--ai-card-surface);
+  backdrop-filter: blur(40px) saturate(1.15);
+  -webkit-backdrop-filter: blur(40px) saturate(1.15);
+  box-shadow: var(--ai-card-shadow);
   animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   overflow: hidden;
 }

@@ -1133,7 +1133,8 @@ onUnmounted(() => {
   flex: 2;
   display: flex;
   flex-direction: column;
-  background: var(--ai-surface-soft);
+  /* 极淡的纵向色调：避免大面积纯白单调，同时让白色气泡有依托 */
+  background: linear-gradient(180deg, #f7f9fe 0%, #ebeff8 100%);
   border-radius: 12px;
   border: 1px solid var(--ai-border-soft);
   box-shadow: var(--ai-shadow);
@@ -1473,10 +1474,10 @@ onUnmounted(() => {
   flex: 3;
   display: flex;
   flex-direction: column;
-  background: var(--ai-glass-strong);
+  background: var(--ai-card-surface-solid);
   border-radius: 12px;
-  border: 1px solid var(--ai-border-soft);
-  box-shadow: var(--ai-shadow);
+  border: 1px solid var(--ai-card-border);
+  box-shadow: var(--ai-card-shadow);
   overflow: hidden;
 }
 

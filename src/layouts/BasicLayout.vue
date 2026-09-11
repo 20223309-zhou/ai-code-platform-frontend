@@ -19,7 +19,8 @@ import GlobalFooter from '@/components/GlobalFooter.vue'
 <style scoped>
 .basic-layout {
   min-height: 100vh;
-  background: var(--ai-bg);
+  /* 透明：让 App.vue 里的氛围底/点阵层透出，同时内容位于其上方 */
+  background: transparent;
 }
 
 .main-content {

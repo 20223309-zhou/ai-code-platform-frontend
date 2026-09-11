@@ -328,14 +328,15 @@ onMounted(loadTemplates)
 .template-card {
   display: flex;
   flex-direction: column;
-  background: var(--ai-surface);
-  border: 1px solid var(--ai-border);
-  border-radius: 12px;
+  background: var(--ai-card-surface);
+  border: 1px solid var(--ai-card-border);
+  border-radius: 14px;
   overflow: hidden;
   transition: var(--ai-transition);
   transform: translateZ(0);
   will-change: transform;
   isolation: isolate;
+  box-shadow: var(--ai-card-shadow);
 }
 .template-card:hover {
   transform: translateY(-2px) translateZ(0);

@@ -285,12 +285,12 @@ const activeUserPercent = computed(() => {
   align-items: center;
   gap: 16px;
   padding: 20px;
-  border: 1px solid var(--ai-glass-border);
+  border: 1px solid var(--ai-card-border);
   border-radius: 14px;
-  background: var(--ai-glass-strong);
-  backdrop-filter: blur(36px);
-  -webkit-backdrop-filter: blur(36px);
-  box-shadow: var(--ai-shadow);
+  background: var(--ai-card-surface-solid);
+  backdrop-filter: blur(36px) saturate(1.12);
+  -webkit-backdrop-filter: blur(36px) saturate(1.12);
+  box-shadow: var(--ai-card-shadow);
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .stat-card:hover {
@@ -342,12 +342,12 @@ const activeUserPercent = computed(() => {
 /* ───── 图表卡片 ───── */
 .chart-card {
   padding: 20px;
-  border: 1px solid var(--ai-glass-border);
+  border: 1px solid var(--ai-card-border);
   border-radius: 14px;
-  background: var(--ai-glass-strong);
-  backdrop-filter: blur(36px);
-  -webkit-backdrop-filter: blur(36px);
-  box-shadow: var(--ai-shadow);
+  background: var(--ai-card-surface-solid);
+  backdrop-filter: blur(36px) saturate(1.12);
+  -webkit-backdrop-filter: blur(36px) saturate(1.12);
+  box-shadow: var(--ai-card-shadow);
   height: 100%;
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }

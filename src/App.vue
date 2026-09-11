@@ -17,12 +17,18 @@ import BasicLayout from '@/layouts/BasicLayout.vue'
   --ai-accent-soft: #3fa9f5;
   /* 背景体系 —— 带冷蓝的浅底，避免纯白单调 */
   --ai-bg: #eef1f8;
-  --ai-surface: #ffffff;
+  --ai-surface: #fcfdff;
   --ai-surface-soft: #f4f6fc;
-  --ai-card-bg: rgba(255, 255, 255, 0.92);
+  --ai-card-bg: rgba(252, 253, 255, 0.92);
   --ai-glass: rgba(255, 255, 255, 0.78);
-  --ai-glass-strong: rgba(255, 255, 255, 0.96);
+  --ai-glass-strong: rgba(251, 252, 255, 0.95);
   --ai-glass-border: rgba(28, 42, 96, 0.13);
+  /* 卡片面 —— 与背景同调的冷色霜面，避免刺眼纯白 */
+  --ai-card-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.93) 0%, rgba(240, 244, 255, 0.86) 100%);
+  /* 数据型卡片面 —— 保留高不透明度，保证表格/密集数据可读 */
+  --ai-card-surface-solid: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(246, 249, 255, 0.94) 100%);
+  --ai-card-border: rgba(255, 255, 255, 0.8);
+  --ai-card-shadow: 0 2px 4px rgba(28, 44, 110, 0.04), 0 18px 44px -20px rgba(45, 70, 140, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   /* 文本三档（反相） */
   --ai-title: #141b2e;
   --ai-text: #3f4a60;
@@ -50,6 +56,13 @@ body,
   margin: 0;
   padding: 0;
   min-height: 100%;
+}
+
+/* 让应用内容整体处于背景装饰层之上，避免点阵/光幕叠在内容上冲淡可读性。
+   注意：.basic-layout 需为透明，背景装饰才能透出（见 BasicLayout.vue）。 */
+#app {
+  position: relative;
+  z-index: 1;
 }
 
 body {
@@ -185,7 +198,8 @@ button, input, textarea,
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  /* 置于内容之下（#app 建立了层叠上下文），避免光幕叠在内容上 */
+  z-index: -1;
   overflow: hidden;
 }
 

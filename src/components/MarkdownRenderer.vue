@@ -7,8 +7,8 @@ import { computed } from 'vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 
-// 引入代码高亮样式
-import 'highlight.js/styles/atom-one-dark.css'
+// 引入代码高亮样式（浅色主题，与整体亮色风格统一）
+import 'highlight.js/styles/atom-one-light.css'
 
 interface Props {
   content: string
@@ -21,22 +21,47 @@ const md: MarkdownIt = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-  highlight: function (str: string, lang: string): string {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return (
-          '<pre class="hljs"><code>' +
-          hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
-          '</code></pre>'
-        )
-      } catch {
-        // 忽略错误，使用默认处理
-      }
-    }
-
-    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>'
-  },
 })
+
+/**
+ * 生成「代码面板」结构：语言标签头 + 代码体。
+ * 由自定义 fence 渲染器输出，避免 <pre> 同时带 .hljs 时被高亮主题的
+ * 背景规则刷成透明（历史上踩过这个坑）。
+ */
+function renderCodePanel(code: string, info: string): string {
+  const lang = (info || '').trim().split(/\s+/)[0].toLowerCase()
+  let inner: string
+  if (lang && hljs.getLanguage(lang)) {
+    try {
+      inner = hljs.highlight(code, { language: lang, ignoreIllegals: true }).value
+    } catch {
+      inner = md.utils.escapeHtml(code)
+    }
+  } else {
+    inner = md.utils.escapeHtml(code)
+  }
+  const label = lang || 'code'
+  return (
+    '<div class="code-block">' +
+    '<div class="code-block-head"><span class="code-block-lang">' +
+    label +
+    '</span></div>' +
+    '<pre class="code-block-pre"><code class="hljs">' +
+    inner +
+    '</code></pre>' +
+    '</div>'
+  )
+}
+
+// 围栏代码块 ```lang
+md.renderer.rules.fence = (tokens, idx) => {
+  return renderCodePanel(tokens[idx].content, tokens[idx].info) + '\n'
+}
+
+// 缩进式代码块（4 空格）
+md.renderer.rules.code_block = (tokens, idx) => {
+  return renderCodePanel(tokens[idx].content, '') + '\n'
+}
 
 // 计算渲染后的 Markdown
 const renderedMarkdown = computed(() => {
@@ -106,31 +131,80 @@ const renderedMarkdown = computed(() => {
 }
 
 .markdown-content :deep(code) {
-  background: rgba(61, 107, 255, 0.1);
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
+  background: #e6ecf8;
+  padding: 0.18em 0.42em;
+  border-radius: 5px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.9em;
-  color: #a21caf;
+  color: #b3327f;
 }
 
-/* 代码块保持深色，保证代码高亮清晰（符合 atom-one-dark 主题） */
+/* ── 代码面板：语言标签头 + 左侧品牌色边 + 比纯白深一档的冷蓝内嵌底 ── */
+.markdown-content :deep(.code-block) {
+  margin: 1em 0;
+  border: 1px solid rgba(28, 42, 96, 0.09);
+  border-left: 3px solid rgba(61, 107, 255, 0.55);
+  border-radius: 10px;
+  background: #eaeff9;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.04);
+}
+
+.markdown-content :deep(.code-block-head) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border-bottom: 1px solid rgba(28, 42, 96, 0.07);
+}
+
+.markdown-content :deep(.code-block-lang) {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #6b7690;
+}
+
+.markdown-content :deep(.code-block-pre) {
+  margin: 0;
+  padding: 0.9em 1em;
+  background: transparent !important;
+  border: none;
+  border-radius: 0;
+  overflow-x: auto;
+}
+
+.markdown-content :deep(.code-block-pre code),
+.markdown-content :deep(.code-block-pre code.hljs) {
+  background: transparent !important;
+  padding: 0;
+  border-radius: 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+  line-height: 1.65;
+  color: #2b3245;
+}
+
+/* 兜底：未被 fence 包裹的裸 <pre>（如 markdown 内嵌 HTML）也给同款浅色底 */
 .markdown-content :deep(pre) {
-  background: #1c1e2b !important;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 1em;
+  background: #eaeff9 !important;
+  border: 1px solid rgba(28, 42, 96, 0.09);
+  border-radius: 10px;
+  padding: 0.9em 1em;
   overflow-x: auto;
   margin: 1em 0;
 }
 
 .markdown-content :deep(pre code) {
-  background: transparent;
+  background: transparent !important;
   padding: 0;
   border-radius: 0;
   font-size: 0.9em;
-  line-height: 1.5;
-  color: #d7dce8;
+  line-height: 1.65;
+  color: #2b3245;
 }
 
 .markdown-content :deep(table) {
@@ -181,11 +255,15 @@ const renderedMarkdown = computed(() => {
   margin: 1.5em 0;
 }
 
+/* 代码块：与亮色主题同语言的「内嵌代码面板」——
+   比纯白深一档的冷蓝底，既有代码块的可辨识度，又不会像深色块那样突兀。
+   注意：<pre> 同时带 .hljs 类，此规则优先级高于 pre 规则，故两处都需给实色底。 */
 .markdown-content :deep(.hljs) {
-  background: transparent !important;
-  border-radius: 6px;
+  background: #eaeff9 !important;
+  color: #2b3245 !important;
+  border-radius: 10px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.9em;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 </style>

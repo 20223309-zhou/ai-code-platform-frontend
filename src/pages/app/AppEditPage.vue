@@ -330,10 +330,10 @@ onMounted(() => {
 }
 
 :deep(.ant-card) {
-  background: var(--ai-surface);
-  border: 1px solid var(--ai-border);
+  background: var(--ai-card-surface-solid);
+  border: 1px solid var(--ai-card-border);
   border-radius: var(--ai-card-radius);
-  box-shadow: var(--ai-shadow);
+  box-shadow: var(--ai-card-shadow);
 }
 
 :deep(.ant-card-head) {
