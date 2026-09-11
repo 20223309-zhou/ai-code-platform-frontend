@@ -267,10 +267,11 @@ const deleteApp = async (id: string | undefined) => {
 <style scoped>
 #appManagePage {
   padding: 24px;
-  background: var(--ai-surface);
-  border: 1px solid var(--ai-glass-border);
+  background: var(--ai-card-surface-solid);
+  border: 1px solid var(--ai-card-border);
   border-radius: 16px;
   margin-top: 16px;
+  box-shadow: var(--ai-card-shadow);
 }
 
 .no-cover {

@@ -270,7 +270,7 @@ const handleSubmit = async () => {
 #userProfilePage {
   padding: 32px 24px;
   min-height: calc(100vh - 64px);
-  background: var(--ai-bg);
+  background: transparent;
 }
 
 .profile-shell {
@@ -302,11 +302,12 @@ const handleSubmit = async () => {
 /* ───── 通用卡片 ───── */
 .section-card {
   padding: 24px;
-  border: 1px solid var(--ai-glass-border);
+  border: 1px solid var(--ai-card-border);
   border-radius: 14px;
-  background: var(--ai-glass-strong);
-  backdrop-filter: blur(36px);
-  box-shadow: var(--ai-shadow);
+  background: var(--ai-card-surface);
+  backdrop-filter: blur(36px) saturate(1.12);
+  -webkit-backdrop-filter: blur(36px) saturate(1.12);
+  box-shadow: var(--ai-card-shadow);
 }
 .section-header {
   display: flex;
