@@ -17,6 +17,7 @@ import { collectPastedImageFiles } from '@/utils/clipboardUploads'
 import { setPendingAppAttachments } from '@/utils/pendingAppAttachments'
 import { CloudUploadOutlined, CloseOutlined } from '@ant-design/icons-vue'
 import { CodeGenTypeEnum, CODE_GEN_TYPE_CREATE_OPTIONS } from '@/utils/codeGenTypes'
+import { loadModelOptions, pickDefaultModelName } from '@/utils/aiModels'
 
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
@@ -28,6 +29,9 @@ const useRag = ref(false)
 const activeTemplate = ref('')
 // 生成类型（创建时指定，创建后不可更改）：默认“智能选择”，由 AI 自动路由
 const selectedCodeGenType = ref<string>(CodeGenTypeEnum.AUTO)
+// 本次生成使用的模型（创建后由聊天页继续沿用，可在聊天页随时切换）
+const selectedModel = ref<string>('')
+const modelOptions = ref<{ label: string; value: string }[]>([])
 const uploadedFiles = ref<File[]>([])
 
 const platformSkills = [
@@ -137,7 +141,8 @@ const createApp = async () => {
       const appId = String(res.data.data)
       setPendingAppAttachments(appId, uploadedFiles.value)
       uploadedFiles.value = []
-      await router.push(`/app/chat/${appId}?useRag=${useRag.value}`)
+      const modelQuery = selectedModel.value ? `&modelName=${encodeURIComponent(selectedModel.value)}` : ''
+      await router.push(`/app/chat/${appId}?useRag=${useRag.value}${modelQuery}`)
     } else {
       message.error('创建失败：' + res.data.message)
     }
@@ -186,6 +191,13 @@ const viewWork = (app: API.AppVO) => {
 
 onMounted(async () => {
   loadMyApps()
+  // 加载可选模型列表，默认选中后端标记的默认模型
+  loadModelOptions().then((options) => {
+    modelOptions.value = options
+    if (!selectedModel.value) {
+      selectedModel.value = pickDefaultModelName(options)
+    }
+  })
 
   handleMouseMove = (e: MouseEvent) => {
     const { clientX, clientY } = e
@@ -246,14 +258,27 @@ onUnmounted(() => {
         </div>
 
         <div class="type-selector">
-          <span class="type-selector-label">生成类型</span>
-          <a-select
-            v-model:value="selectedCodeGenType"
-            :options="CODE_GEN_TYPE_CREATE_OPTIONS"
-            :disabled="creating"
-            size="small"
-            class="type-select"
-          />
+          <div class="type-selector-item">
+            <span class="type-selector-label">生成类型</span>
+            <a-select
+              v-model:value="selectedCodeGenType"
+              :options="CODE_GEN_TYPE_CREATE_OPTIONS"
+              :disabled="creating"
+              size="small"
+              class="type-select"
+            />
+          </div>
+          <div class="type-selector-item">
+            <span class="type-selector-label">模型</span>
+            <a-select
+              v-model:value="selectedModel"
+              :options="modelOptions"
+              :disabled="creating"
+              size="small"
+              class="type-select"
+              placeholder="默认模型"
+            />
+          </div>
         </div>
 
         <div class="composer-tools">
@@ -461,14 +486,15 @@ onUnmounted(() => {
   margin: 0 auto 52px;
   padding: 24px 24px 26px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  /* 整卡略降不透明度，和内部输入框形成玻璃层次，避免整体发白 */
+  background: rgba(255, 255, 255, 0.48);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   box-shadow:
     0 1px 2px rgba(28, 44, 110, 0.06),
     0 24px 60px -12px rgba(28, 44, 110, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 /* 顶部柔和蓝紫描光，强化卡片从彩色底"浮起"的层次 */
@@ -511,10 +537,13 @@ onUnmounted(() => {
 :deep(.prompt-input.ant-input) {
   min-height: 96px;
   padding: 12px 60px 12px 14px;
-  border: 1px solid var(--ai-glass-border);
+  border: 1px solid rgba(28, 42, 96, 0.12);
   border-radius: var(--ai-control-radius);
-  background: var(--ai-surface);
-  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.04);
+  /* 半透明玻璃态：让底层彩色渐变透出来，避免纯白单调 */
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.03);
   color: var(--ai-title);
   font-size: 14px;
   line-height: 1.7;
@@ -526,10 +555,14 @@ onUnmounted(() => {
               background 0.3s ease;
 }
 
+:deep(.prompt-input.ant-input:hover) {
+  background: rgba(255, 255, 255, 0.32);
+}
+
 :deep(.prompt-input.ant-input:focus),
 :deep(.prompt-input.ant-input-focused) {
   border-color: rgba(61, 107, 255, 0.45);
-  background: var(--ai-surface);
+  background: rgba(255, 255, 255, 0.45);
   box-shadow:
     0 0 0 3px rgba(61, 107, 255, 0.08),
     0 0 24px rgba(61, 107, 255, 0.06);
@@ -891,9 +924,16 @@ onUnmounted(() => {
 
 .type-selector {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 24px;
+  margin-bottom: 12px;
+}
+
+.type-selector-item {
+  display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
 }
 
 .type-selector-label {
