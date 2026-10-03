@@ -185,6 +185,14 @@
                     </span>
                   </label>
                 </a-tooltip>
+                <a-select
+                    v-model:value="selectedModel"
+                    :options="modelOptions"
+                    :disabled="isGenerating"
+                    size="small"
+                    class="model-select"
+                    placeholder="默认模型"
+                />
               </div>
               <div class="input-actions-end">
               <a-button
@@ -292,6 +300,7 @@ import {
 } from '@/api/appController'
 import { listAppChatHistory } from '@/api/chatHistoryController'
 import { CodeGenTypeEnum, formatCodeGenType } from '@/utils/codeGenTypes'
+import { DEFAULT_MODEL_NAME, loadModelOptions, pickDefaultModelName } from '@/utils/aiModels'
 import request from '@/request'
 
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
@@ -372,6 +381,12 @@ const uploadedFiles = ref<File[]>([])
 // RAG 知识库开关（从主页传入的 useRag 参数，默认关闭）
 const useRag = ref(route.query.useRag === 'true')
 
+// 当前使用的模型：可从主页经 query 传入，聊天过程中可随时切换
+const selectedModel = ref<string>(
+  route.query.modelName ? String(route.query.modelName) : DEFAULT_MODEL_NAME,
+)
+const modelOptions = ref<{ label: string; value: string }[]>([])
+
 // 初始化应用ID
 appId.value = route.params.id
 
@@ -427,6 +442,7 @@ const buildFormData = (messageText: string, files: File[] = []) => {
   formData.append('appId', String(appId.value))
   formData.append('message', messageText)
   formData.append('useRag', String(useRag.value))
+  formData.append('modelName', selectedModel.value)
   files.forEach((file) => formData.append('files', file))
   return formData
 }
@@ -1067,6 +1083,14 @@ const getInputPlaceholder = () => {
 onMounted(() => {
   fetchAppInfo()
 
+  // 加载可选模型列表；主页未指定模型时使用默认模型
+  loadModelOptions().then((options) => {
+    modelOptions.value = options
+    if (!route.query.modelName) {
+      selectedModel.value = pickDefaultModelName(options)
+    }
+  })
+
   // 监听 iframe 消息
   window.addEventListener('message', (event) => {
     visualEditor.handleIframeMessage(event)
@@ -1133,10 +1157,12 @@ onUnmounted(() => {
   flex: 2;
   display: flex;
   flex-direction: column;
-  /* 极淡的纵向色调：避免大面积纯白单调，同时让白色气泡有依托 */
-  background: linear-gradient(180deg, #f7f9fe 0%, #ebeff8 100%);
+  /* 半透明玻璃：让页面彩色渐变透上来，避免大面积纯白 */
+  background: linear-gradient(180deg, rgba(247, 249, 254, 0.62) 0%, rgba(235, 239, 248, 0.46) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-radius: 12px;
-  border: 1px solid var(--ai-border-soft);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   box-shadow: var(--ai-shadow);
   overflow: hidden;
   position: relative;
@@ -1149,7 +1175,9 @@ onUnmounted(() => {
   gap: 10px;
   padding: 14px 16px;
   border-bottom: 1px solid var(--ai-border-soft);
-  background: var(--ai-surface);
+  background: rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .chat-header-title {
@@ -1208,11 +1236,13 @@ onUnmounted(() => {
 }
 
 .ai-message .message-content {
-  background: var(--ai-surface);
+  background: rgba(255, 255, 255, 0.5);
   color: var(--ai-title);
   padding: 8px 12px;
-  border: 1px solid var(--ai-border-soft);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 0 2px 10px rgba(28, 44, 110, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .thinking-bubble {
@@ -1298,19 +1328,26 @@ onUnmounted(() => {
 .input-wrapper :deep(.ant-input) {
   padding-right: 16px;
   padding-bottom: 54px;
-  border: 1px solid var(--ai-glass-border);
+  border: 1px solid rgba(28, 42, 96, 0.12);
   border-radius: 10px;
-  background: var(--ai-surface);
-  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.05);
+  /* 半透明玻璃态：与首页输入框保持一致 */
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.03);
   color: var(--ai-title);
   font-size: 14px;
   letter-spacing: 0.01em;
   caret-color: var(--ai-primary);
 }
 
+.input-wrapper :deep(.ant-input:hover) {
+  background: rgba(255, 255, 255, 0.32);
+}
+
 .input-wrapper :deep(.ant-input:focus) {
   border-color: rgba(61, 107, 255, 0.2);
-  background: var(--ai-surface);
+  background: rgba(255, 255, 255, 0.45);
   box-shadow: inset 0 0 0 1px rgba(61, 107, 255, 0.08), 0 0 16px rgba(61, 107, 255, 0.03);
 }
 
@@ -1374,6 +1411,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   pointer-events: auto;
+}
+
+.model-select {
+  width: 150px;
 }
 
 .glass-toggle {
@@ -1474,9 +1515,12 @@ onUnmounted(() => {
   flex: 3;
   display: flex;
   flex-direction: column;
-  background: var(--ai-card-surface-solid);
+  /* 与左侧对话列保持一致的玻璃质感 */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62) 0%, rgba(246, 249, 255, 0.5) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-radius: 12px;
-  border: 1px solid var(--ai-card-border);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   box-shadow: var(--ai-card-shadow);
   overflow: hidden;
 }

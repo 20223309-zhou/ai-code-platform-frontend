@@ -114,6 +114,18 @@ declare namespace API {
     message?: string
   }
 
+  type BaseResponseMapStringModelInfo = {
+    code?: number
+    data?: Record<string, ModelInfo>
+    message?: string
+  }
+
+  type ModelInfo = {
+    modelName?: string
+    label?: string
+    default?: boolean
+  }
+
   type BaseResponseUser = {
     code?: number
     data?: User
@@ -153,6 +165,7 @@ declare namespace API {
   type chatToGenCodeParams = {
     appId: IdType
     message: string
+    modelName?: string
     useRag?: boolean
   }
 
