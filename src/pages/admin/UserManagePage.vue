@@ -259,12 +259,12 @@ onMounted(() => { fetchData() })
 }
 .role-user {
   color: var(--ai-text);
-  background: rgba(28, 42, 96, 0.04);
+  background: rgba(var(--ai-ink-rgb), 0.04);
   border-color: var(--ai-border);
 }
 .vip-0 {
   color: var(--ai-muted);
-  background: rgba(28, 42, 96, 0.04);
+  background: rgba(var(--ai-ink-rgb), 0.04);
   border-color: var(--ai-border);
 }
 .vip-1 {

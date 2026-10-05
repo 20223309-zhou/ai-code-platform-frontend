@@ -79,28 +79,21 @@ const handleViewWork = () => {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  /* 与生成框一致的冷色霜面，和背景氛围同调 */
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(240, 244, 255, 0.84) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px) saturate(1.12);
-  -webkit-backdrop-filter: blur(20px) saturate(1.12);
-  border-radius: 14px;
-  box-shadow:
-    0 2px 4px rgba(28, 44, 110, 0.04),
-    0 18px 44px -20px rgba(45, 70, 140, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  /* 纸雕：奶白纸片 + 暖色描边 + 硬边偏移投影 */
+  background: #fffdf7;
+  border: 1.5px solid #ecdcbd;
+  border-radius: 16px;
+  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.24), 0 18px 26px -24px rgba(120, 92, 52, 0.5);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .app-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(61, 107, 255, 0.35);
-  box-shadow:
-    0 1px 2px rgba(28, 44, 110, 0.05),
-    0 22px 50px -12px rgba(61, 107, 255, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  border-color: #dfc9a2;
+  box-shadow: 3px 6px 0 rgba(184, 152, 104, 0.28), 0 24px 32px -26px rgba(120, 92, 52, 0.55);
 }
 
 .app-card--featured:hover {
@@ -111,7 +104,7 @@ const handleViewWork = () => {
   position: relative;
   height: 160px;
   padding: 8px;
-  background: rgba(61, 107, 255, 0.05);
+  background: #f7eeda;
   overflow: hidden;
 }
 
@@ -119,7 +112,7 @@ const handleViewWork = () => {
   width: 100%;
   height: 100%;
   border-radius: 8px;
-  border: 1px solid var(--ai-border-soft);
+  border: 1px solid #eadfc6;
   object-fit: cover;
 }
 
@@ -130,8 +123,8 @@ const handleViewWork = () => {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1px solid var(--ai-border-soft);
-  background: rgba(61, 107, 255, 0.03);
+  border: 1px solid #eadfc6;
+  background: #fffdf7;
 }
 
 .placeholder-illustration {
@@ -147,20 +140,20 @@ const handleViewWork = () => {
 }
 
 .panel {
-  stroke: rgba(61, 107, 255, 0.2);
-  fill: rgba(28, 42, 96, 0.03);
+  stroke: rgba(201, 113, 62, 0.3);
+  fill: rgba(201, 113, 62, 0.06);
 }
 
 .soft {
-  stroke: rgba(28, 42, 96, 0.16);
+  stroke: rgba(120, 96, 62, 0.28);
 }
 
 .accent {
-  stroke: rgba(61, 107, 255, 0.45);
+  stroke: rgba(201, 113, 62, 0.55);
 }
 
 .dot {
-  fill: #3fa9f5;
+  fill: #d9a05b;
 }
 
 .app-badge {
@@ -168,15 +161,14 @@ const handleViewWork = () => {
   top: 12px;
   left: 12px;
   padding: 2px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(61, 107, 255, 0.3);
-  color: var(--ai-primary);
+  border-radius: 8px;
+  background: #fffdf7;
+  border: 1.5px solid rgba(201, 113, 62, 0.3);
+  color: #a8612f;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.03em;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 2px 8px rgba(35, 55, 130, 0.08);
+  box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.22);
 }
 
 .app-overlay {
@@ -185,9 +177,8 @@ const handleViewWork = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  background: rgba(255, 253, 247, 0.88);
   opacity: 0;
   transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -199,24 +190,24 @@ const handleViewWork = () => {
 .overlay-button {
   height: 32px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 500;
   font-size: 13px;
-  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
-  box-shadow: 0 4px 14px rgba(61, 107, 255, 0.22);
+  background: #c9713e;
+  box-shadow: 2px 2px 0 rgba(150, 92, 48, 0.35);
 }
 
 .overlay-button--ghost {
-  background: rgba(255, 255, 255, 0.9);
+  background: #fffdf7;
   color: var(--ai-title);
-  border: 1px solid var(--ai-glass-border);
-  box-shadow: 0 2px 10px rgba(35, 55, 130, 0.08);
+  border: 1.5px solid #ecdcbd;
+  box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.2);
 }
 
 .overlay-button--ghost:hover {
-  background: var(--ai-surface-soft) !important;
-  border-color: rgba(61, 107, 255, 0.4);
-  color: var(--ai-primary);
+  background: #fdf6e6 !important;
+  border-color: #dcc9a2;
+  color: #a8612f;
 }
 
 .app-info {

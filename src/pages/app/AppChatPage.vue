@@ -1231,7 +1231,7 @@ onUnmounted(() => {
 }
 
 .user-message .message-content {
-  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
+  background: linear-gradient(135deg, var(--ai-primary), var(--ai-primary-strong));
   color: #fff;
 }
 
@@ -1240,7 +1240,7 @@ onUnmounted(() => {
   color: var(--ai-title);
   padding: 8px 12px;
   border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 2px 10px rgba(28, 44, 110, 0.05);
+  box-shadow: 0 2px 10px rgba(var(--ai-ink-rgb), 0.05);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -1328,13 +1328,13 @@ onUnmounted(() => {
 .input-wrapper :deep(.ant-input) {
   padding-right: 16px;
   padding-bottom: 54px;
-  border: 1px solid rgba(28, 42, 96, 0.12);
+  border: 1px solid rgba(var(--ai-ink-rgb), 0.12);
   border-radius: 10px;
   /* 半透明玻璃态：与首页输入框保持一致 */
   background: rgba(255, 255, 255, 0.22);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.03);
+  box-shadow: inset 0 1px 2px rgba(var(--ai-ink-rgb), 0.03);
   color: var(--ai-title);
   font-size: 14px;
   letter-spacing: 0.01em;
@@ -1346,9 +1346,9 @@ onUnmounted(() => {
 }
 
 .input-wrapper :deep(.ant-input:focus) {
-  border-color: rgba(61, 107, 255, 0.2);
+  border-color: rgba(var(--ai-accent-rgb), 0.2);
   background: rgba(255, 255, 255, 0.45);
-  box-shadow: inset 0 0 0 1px rgba(61, 107, 255, 0.08), 0 0 16px rgba(61, 107, 255, 0.03);
+  box-shadow: inset 0 0 0 1px rgba(var(--ai-accent-rgb), 0.08), 0 0 16px rgba(var(--ai-accent-rgb), 0.03);
 }
 
 .input-wrapper :deep(.ant-input::placeholder) {
@@ -1414,7 +1414,79 @@ onUnmounted(() => {
 }
 
 .model-select {
-  width: 150px;
+  width: 148px;
+}
+
+/* 模型下拉：与首页同款的冷色胶囊（不描边，仅底色区分） */
+.input-actions-center :deep(.model-select) {
+  height: 30px !important;
+  line-height: 30px !important;
+}
+
+.input-actions-center :deep(.model-select .ant-select-selector) {
+  display: flex !important;
+  align-items: center !important;
+  /* 值与首页一致：在框内水平居中 */
+  justify-content: center !important;
+  height: 30px !important;
+  line-height: 30px !important;
+  padding: 0 26px 0 8px !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+  border: none !important;
+  background: linear-gradient(180deg, rgba(var(--ai-accent-rgb), 0.1), rgba(var(--ai-accent-rgb), 0.065)) !important;
+  box-shadow: none !important;
+}
+
+/* 交互态：用双类名把特异性提到 6，压过全局 .ant-select-focused 规则(5)，
+   否则聚焦时会出现多余的内层聚焦环 */
+.input-actions-center.input-actions-center :deep(.model-select:hover .ant-select-selector),
+.input-actions-center.input-actions-center :deep(.model-select.ant-select-focused .ant-select-selector),
+.input-actions-center.input-actions-center :deep(.model-select.ant-select-open .ant-select-selector) {
+  background: linear-gradient(180deg, rgba(var(--ai-accent-rgb), 0.16), rgba(var(--ai-accent-rgb), 0.1)) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 值 / 占位符：显式 flex 垂直居中；并关掉 antd 的 ::after 基线伪元素（会撑高行盒顶偏文字） */
+.input-actions-center :deep(.model-select .ant-select-selection-item),
+.input-actions-center :deep(.model-select .ant-select-selection-placeholder) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  height: 30px !important;
+  line-height: 1 !important;
+  font-size: 13px;
+}
+
+.input-actions-center :deep(.model-select .ant-select-selection-item::after),
+.input-actions-center :deep(.model-select .ant-select-selection-placeholder::after) {
+  display: none !important;
+}
+
+.input-actions-center :deep(.model-select .ant-select-selection-item),
+.input-actions-center :deep(.model-select .ant-select-selection-search-input) {
+  color: var(--ai-title) !important;
+  font-weight: 600;
+}
+
+.input-actions-center :deep(.model-select .ant-select-selection-placeholder) {
+  color: var(--ai-muted) !important;
+}
+
+.input-actions-center :deep(.model-select .ant-select-arrow) {
+  inset-inline-end: 10px;
+  color: rgba(var(--ai-accent-rgb), 0.85) !important;
+  font-size: 11px;
+}
+
+.input-actions-center :deep(.model-select.ant-select-disabled .ant-select-selector) {
+  opacity: 0.6;
+}
+
+.input-actions-center :deep(.model-select.ant-select-disabled .ant-select-selection-item) {
+  color: var(--ai-muted) !important;
 }
 
 .glass-toggle {
@@ -1428,14 +1500,14 @@ onUnmounted(() => {
   width: 60px;
   height: 28px;
   border-radius: 14px;
-  background: rgba(28, 42, 96, 0.08);
+  background: rgba(var(--ai-ink-rgb), 0.08);
   border: 1px solid var(--ai-glass-border);
   transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .glass-toggle.active .glass-toggle-track {
-  background: rgba(61, 107, 255, 0.2);
-  border-color: rgba(61, 107, 255, 0.3);
-  box-shadow: 0 0 12px rgba(61, 107, 255, 0.12);
+  background: rgba(var(--ai-accent-rgb), 0.2);
+  border-color: rgba(var(--ai-accent-rgb), 0.3);
+  box-shadow: 0 0 12px rgba(var(--ai-accent-rgb), 0.12);
 }
 .glass-toggle-knob {
   position: absolute;
@@ -1453,13 +1525,13 @@ onUnmounted(() => {
   font-weight: 700;
   letter-spacing: 0.02em;
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 1px 4px rgba(28, 42, 96, 0.2);
+  box-shadow: 0 1px 4px rgba(var(--ai-ink-rgb), 0.2);
 }
 .glass-toggle.active .glass-toggle-knob {
   left: 35px;
-  background: #3d6bff;
+  background: var(--ai-primary);
   color: #fff;
-  box-shadow: 0 0 12px rgba(61, 107, 255, 0.35);
+  box-shadow: 0 0 12px rgba(var(--ai-accent-rgb), 0.35);
 }
 
 .input-actions-end {
@@ -1486,8 +1558,8 @@ onUnmounted(() => {
 
 .upload-label:hover {
   color: var(--ai-primary) !important;
-  border-color: rgba(61, 107, 255, 0.2) !important;
-  background: rgba(61, 107, 255, 0.04) !important;
+  border-color: rgba(var(--ai-accent-rgb), 0.2) !important;
+  background: rgba(var(--ai-accent-rgb), 0.04) !important;
 }
 
 .send-button :deep(.ant-btn-loading-icon .anticon) {
@@ -1584,9 +1656,9 @@ onUnmounted(() => {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  border: 1px solid rgba(61, 107, 255, 0.1);
-  background: rgba(61, 107, 255, 0.03);
-  box-shadow: 0 8px 24px rgba(61, 107, 255, 0.06);
+  border: 1px solid rgba(var(--ai-accent-rgb), 0.1);
+  background: rgba(var(--ai-accent-rgb), 0.03);
+  box-shadow: 0 8px 24px rgba(var(--ai-accent-rgb), 0.06);
   animation: breathe 3s ease-in-out infinite;
 }
 
@@ -1599,8 +1671,8 @@ onUnmounted(() => {
 .preview-spinner :deep(.ant-spin-dot-item) {
   width: 11px;
   height: 11px;
-  background: linear-gradient(135deg, #3d6bff, #7dd3fc);
-  box-shadow: 0 0 10px rgba(61, 107, 255, 0.2);
+  background: linear-gradient(135deg, var(--ai-primary), var(--ai-accent-soft));
+  box-shadow: 0 0 10px rgba(var(--ai-accent-rgb), 0.2);
 }
 
 .preview-loading-text {
@@ -1658,10 +1730,10 @@ onUnmounted(() => {
   transition: all 0.25s;
 }
 .scroll-down-btn:hover {
-  background: rgba(61, 107, 255, 0.15);
-  border-color: rgba(61, 107, 255, 0.3);
+  background: rgba(var(--ai-accent-rgb), 0.15);
+  border-color: rgba(var(--ai-accent-rgb), 0.3);
   color: var(--ai-primary);
-  box-shadow: 0 6px 24px rgba(61, 107, 255, 0.15);
+  box-shadow: 0 6px 24px rgba(var(--ai-accent-rgb), 0.15);
 }
 
 .fade-enter-active,
@@ -1722,10 +1794,10 @@ onUnmounted(() => {
     font-family: 'Monaco', 'Menlo', monospace;
     font-size: 14px;
     font-weight: 500;
-    color: #3d6bff;
+    color: var(--ai-primary);
   }
   .element-id {
-    color: #7dd3fc;
+    color: #e8a33d;
     margin-left: 4px;
   }
   .element-class {

@@ -88,7 +88,7 @@ const wrapStyle: Record<string, string> = {
   isolation: 'isolate',
 }
 const totalStyle: Record<string, string> = {
-  color: '#3f4a60',
+  color: '#6e6047',
   fontSize: '13px',
   marginRight: '8px',
   lineHeight: '36px',
@@ -119,34 +119,34 @@ const baseBtn: Record<string, string> = {
 }
 const btnStyle: Record<string, string> = {
   ...baseBtn,
-  border: '1px solid rgba(28,42,96,0.12)',
-  background: '#ffffff',
-  color: '#3f4a60',
+  border: '1.5px solid #ecdcbd',
+  background: '#fffdf7',
+  color: '#6e6047',
   cursor: 'pointer',
 }
 const prevBtnStyle: Record<string, string> = {
   ...baseBtn,
-  border: '1px solid rgba(28,42,96,0.12)',
-  background: 'rgba(0,0,0,0.04)',
-  color: 'rgba(0,0,0,0.25)',
+  border: '1.5px solid #ecdcbd',
+  background: '#f7eeda',
+  color: '#c4b39a',
   cursor: 'not-allowed',
   fontSize: '18px',
   fontWeight: '600',
 }
 const nextBtnStyle: Record<string, string> = {
   ...baseBtn,
-  border: '1px solid rgba(28,42,96,0.12)',
-  background: '#ffffff',
-  color: '#3f4a60',
+  border: '1.5px solid #ecdcbd',
+  background: '#fffdf7',
+  color: '#6e6047',
   cursor: 'pointer',
   fontSize: '18px',
   fontWeight: '600',
 }
 const activeBtnStyle: Record<string, string> = {
   ...baseBtn,
-  border: '1px solid rgba(61,107,255,0.4)',
-  background: 'rgba(61,107,255,0.12)',
-  color: '#3d6bff',
+  border: '1.5px solid rgba(201,113,62,0.45)',
+  background: 'rgba(201,113,62,0.14)',
+  color: '#a8612f',
   cursor: 'pointer',
   fontWeight: '600',
 }
@@ -154,12 +154,12 @@ const selectStyle: Record<string, string> = {
   marginLeft: '8px',
   height: '36px',
   padding: '0 28px 0 10px',
-  border: '1px solid rgba(28,42,96,0.12)',
-  borderRadius: '8px',
+  border: '1.5px solid #ecdcbd',
+  borderRadius: '10px',
   background:
-    "#ffffff url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%233f4a60' stroke-width='2.5' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>\") no-repeat right 8px center",
+    "#fffdf7 url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6047' stroke-width='2.5' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>\") no-repeat right 8px center",
   backgroundSize: '12px',
-  color: '#3f4a60',
+  color: '#6e6047',
   fontSize: '14px',
   fontFamily: 'inherit',
   cursor: 'pointer',
@@ -217,13 +217,13 @@ function onSizeChange(ev: Event) {
   white-space: nowrap;
   margin: 24px 0 0;
   font-family: inherit;
-  color: #3f4a60;
+  color: #6e6047;
   font-size: 14px;
   visibility: visible !important;
   opacity: 1 !important;
 }
 .cp-total {
-  color: #3f4a60;
+  color: #6e6047;
   font-size: 13px;
   margin-right: 8px;
   line-height: 36px;
@@ -241,10 +241,10 @@ function onSizeChange(ev: Event) {
   font-family: inherit;
 }
 .cp-btn.cp-active {
-  background: rgba(61, 107, 255, 0.12) !important;
-  color: #3d6bff !important;
+  background: rgba(201, 113, 62, 0.16) !important;
+  color: #a8612f !important;
   font-weight: 600 !important;
-  border-color: rgba(61, 107, 255, 0.4) !important;
+  border-color: rgba(201, 113, 62, 0.45) !important;
 }
 .cp-nav {
   font-size: 18px;

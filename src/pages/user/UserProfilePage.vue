@@ -358,7 +358,7 @@ const handleSubmit = async () => {
   border: 1px solid var(--ai-glass-border);
   border-radius: 10px;
   background: var(--ai-surface-soft);
-  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.05);
+  box-shadow: inset 0 1px 2px rgba(var(--ai-ink-rgb), 0.05);
   color: var(--ai-title);
   caret-color: var(--ai-primary);
 }
@@ -366,12 +366,12 @@ const handleSubmit = async () => {
 #userProfilePage :deep(.ant-input-affix-wrapper .ant-input) {
   height: 100%; padding: 0; line-height: normal; border: none; border-radius: 0; background: transparent; box-shadow: none;
 }
-#userProfilePage :deep(.ant-input-affix-wrapper:hover) { border-color: rgba(61, 107, 255, 0.35); }
+#userProfilePage :deep(.ant-input-affix-wrapper:hover) { border-color: rgba(var(--ai-accent-rgb), 0.35); }
 #userProfilePage :deep(.ant-input:focus),
 #userProfilePage :deep(.ant-input-affix-wrapper-focused) {
-  border-color: rgba(61, 107, 255, 0.2);
-  background: rgba(28, 42, 96, 0.05);
-  box-shadow: inset 0 0 0 1px rgba(61, 107, 255, 0.08), 0 0 16px rgba(61, 107, 255, 0.03);
+  border-color: rgba(var(--ai-accent-rgb), 0.2);
+  background: rgba(var(--ai-ink-rgb), 0.05);
+  box-shadow: inset 0 0 0 1px rgba(var(--ai-accent-rgb), 0.08), 0 0 16px rgba(var(--ai-accent-rgb), 0.03);
 }
 #userProfilePage :deep(textarea.ant-input) {
   min-height: 100px; padding: 12px 14px; line-height: 1.6; resize: vertical;
@@ -381,14 +381,14 @@ const handleSubmit = async () => {
 .save-btn {
   width: 100%; height: 44px; border: none; border-radius: 10px;
   font-size: 15px; font-weight: 500; letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
-  box-shadow: 0 6px 20px rgba(61, 107, 255, 0.2);
+  background: linear-gradient(135deg, var(--ai-primary), var(--ai-primary-strong));
+  box-shadow: 0 6px 20px rgba(var(--ai-accent-rgb), 0.2);
   transition: all 0.3s;
 }
 .save-btn:hover {
-  background: linear-gradient(135deg, #5f8cff, #3d5fd7) !important;
+  background: linear-gradient(135deg, #d4824b, var(--ai-primary-strong)) !important;
   transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(61, 107, 255, 0.3) !important;
+  box-shadow: 0 10px 28px rgba(var(--ai-accent-rgb), 0.3) !important;
 }
 
 /* ───── 作品列表 ───── */
@@ -403,7 +403,7 @@ const handleSubmit = async () => {
   padding: 12px 14px; border-radius: 8px; cursor: pointer;
   transition: background 0.2s;
 }
-.app-row:hover { background: rgba(28, 42, 96, 0.05); }
+.app-row:hover { background: rgba(var(--ai-ink-rgb), 0.05); }
 .app-row-body { flex: 1; min-width: 0; }
 .app-row-name {
   color: var(--ai-title); font-size: 14px; font-weight: 500;
@@ -423,7 +423,7 @@ const handleSubmit = async () => {
   width: 46px; height: 46px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
 }
-.vip-icon-0 { background: rgba(28, 42, 96, 0.05); color: var(--ai-muted); }
+.vip-icon-0 { background: rgba(var(--ai-ink-rgb), 0.05); color: var(--ai-muted); }
 .vip-icon-1 { background: rgba(52, 211, 153, 0.08); color: #34d399; }
 .vip-icon-2 { background: rgba(249, 115, 22, 0.08); color: #f97316; }
 .vip-info { display: flex; flex-direction: column; gap: 2px; }

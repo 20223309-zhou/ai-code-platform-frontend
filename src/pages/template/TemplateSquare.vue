@@ -292,7 +292,7 @@ onMounted(loadTemplates)
   padding: 60px 24px;
   border: 1px solid var(--ai-border-soft);
   border-radius: 12px;
-  background: rgba(28, 42, 96, 0.025);
+  background: rgba(var(--ai-ink-rgb), 0.025);
   text-align: center;
 }
 
@@ -301,10 +301,10 @@ onMounted(loadTemplates)
   margin-bottom: 12px;
   opacity: 0.6;
 }
-.illu-window { fill: rgba(28, 42, 96, 0.02); stroke: rgba(61, 107, 255, 0.32); stroke-width: 1.5; }
-.illu-accent { fill: rgba(61, 107, 255, 0.4); }
-.illu-card { fill: rgba(255, 255, 255, 0.7); stroke: rgba(28, 42, 96, 0.12); stroke-width: 1; }
-.illu-bar { fill: rgba(28, 42, 96, 0.18); }
+.illu-window { fill: rgba(var(--ai-ink-rgb), 0.02); stroke: rgba(var(--ai-accent-rgb), 0.32); stroke-width: 1.5; }
+.illu-accent { fill: rgba(var(--ai-accent-rgb), 0.4); }
+.illu-card { fill: rgba(255, 255, 255, 0.7); stroke: rgba(var(--ai-ink-rgb), 0.12); stroke-width: 1; }
+.illu-bar { fill: rgba(var(--ai-ink-rgb), 0.18); }
 
 .empty-title {
   margin: 4px 0 6px;
@@ -332,9 +332,10 @@ onMounted(loadTemplates)
   border: 1px solid var(--ai-card-border);
   border-radius: 14px;
   overflow: hidden;
-  transition: var(--ai-transition);
+  transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  /* 保留 translateZ(0)（修复过卡片内容不显示）；移除 will-change，
+     避免 12 张卡长期占着合成层资源。 */
   transform: translateZ(0);
-  will-change: transform;
   isolation: isolate;
   box-shadow: var(--ai-card-shadow);
 }
@@ -347,7 +348,7 @@ onMounted(loadTemplates)
   width: 100%;
   height: 150px;
   min-height: 150px;
-  background: rgba(61, 107, 255, 0.03);
+  background: rgba(var(--ai-accent-rgb), 0.03);
   overflow: hidden;
   cursor: pointer;
   display: block;
@@ -376,10 +377,10 @@ onMounted(loadTemplates)
   height: calc(100% - 12px);
 }
 .line { fill: none; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
-.panel { stroke: rgba(61, 107, 255, 0.18); fill: rgba(28, 42, 96, 0.03); }
-.soft { stroke: rgba(28, 42, 96, 0.16); }
-.accent { stroke: rgba(61, 107, 255, 0.45); }
-.dot { fill: #3fa9f5; }
+.panel { stroke: rgba(var(--ai-accent-rgb), 0.18); fill: rgba(var(--ai-ink-rgb), 0.03); }
+.soft { stroke: rgba(var(--ai-ink-rgb), 0.16); }
+.accent { stroke: rgba(var(--ai-accent-rgb), 0.45); }
+.dot { fill: #d9a05b; }
 
 .card-body {
   flex: 1;
