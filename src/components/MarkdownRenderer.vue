@@ -124,14 +124,14 @@ const renderedMarkdown = computed(() => {
 .markdown-content :deep(blockquote) {
   margin: 1em 0;
   padding: 0.6em 1em;
-  border-left: 3px solid rgba(61, 107, 255, 0.3);
-  background: rgba(61, 107, 255, 0.04);
+  border-left: 3px solid rgba(var(--ai-accent-rgb), 0.3);
+  background: rgba(var(--ai-accent-rgb), 0.04);
   color: var(--ai-text);
   border-radius: 0 6px 6px 0;
 }
 
 .markdown-content :deep(code) {
-  background: #e6ecf8;
+  background: #f7eeda;
   padding: 0.18em 0.42em;
   border-radius: 5px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -142,12 +142,12 @@ const renderedMarkdown = computed(() => {
 /* ── 代码面板：语言标签头 + 左侧品牌色边 + 比纯白深一档的冷蓝内嵌底 ── */
 .markdown-content :deep(.code-block) {
   margin: 1em 0;
-  border: 1px solid rgba(28, 42, 96, 0.09);
-  border-left: 3px solid rgba(61, 107, 255, 0.55);
+  border: 1px solid rgba(var(--ai-ink-rgb), 0.09);
+  border-left: 3px solid rgba(var(--ai-accent-rgb), 0.55);
   border-radius: 10px;
-  background: #eaeff9;
+  background: #f7eeda;
   overflow: hidden;
-  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.04);
+  box-shadow: inset 0 1px 2px rgba(var(--ai-ink-rgb), 0.04);
 }
 
 .markdown-content :deep(.code-block-head) {
@@ -156,7 +156,7 @@ const renderedMarkdown = computed(() => {
   justify-content: space-between;
   padding: 5px 12px;
   background: rgba(255, 255, 255, 0.55);
-  border-bottom: 1px solid rgba(28, 42, 96, 0.07);
+  border-bottom: 1px solid rgba(var(--ai-ink-rgb), 0.07);
 }
 
 .markdown-content :deep(.code-block-lang) {
@@ -165,7 +165,7 @@ const renderedMarkdown = computed(() => {
   line-height: 1.4;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: #6b7690;
+  color: #a0917a;
 }
 
 .markdown-content :deep(.code-block-pre) {
@@ -185,13 +185,13 @@ const renderedMarkdown = computed(() => {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.9em;
   line-height: 1.65;
-  color: #2b3245;
+  color: #4a3f33;
 }
 
 /* 兜底：未被 fence 包裹的裸 <pre>（如 markdown 内嵌 HTML）也给同款浅色底 */
 .markdown-content :deep(pre) {
-  background: #eaeff9 !important;
-  border: 1px solid rgba(28, 42, 96, 0.09);
+  background: #f7eeda !important;
+  border: 1px solid rgba(var(--ai-ink-rgb), 0.09);
   border-radius: 10px;
   padding: 0.9em 1em;
   overflow-x: auto;
@@ -204,7 +204,7 @@ const renderedMarkdown = computed(() => {
   border-radius: 0;
   font-size: 0.9em;
   line-height: 1.65;
-  color: #2b3245;
+  color: #4a3f33;
 }
 
 .markdown-content :deep(table) {
@@ -224,12 +224,12 @@ const renderedMarkdown = computed(() => {
 }
 
 .markdown-content :deep(table th) {
-  background: rgba(28, 42, 96, 0.04);
+  background: rgba(var(--ai-ink-rgb), 0.04);
   font-weight: 600;
 }
 
 .markdown-content :deep(table tr:nth-child(even)) {
-  background: rgba(28, 42, 96, 0.02);
+  background: rgba(var(--ai-ink-rgb), 0.02);
 }
 
 .markdown-content :deep(a) {
@@ -259,8 +259,8 @@ const renderedMarkdown = computed(() => {
    比纯白深一档的冷蓝底，既有代码块的可辨识度，又不会像深色块那样突兀。
    注意：<pre> 同时带 .hljs 类，此规则优先级高于 pre 规则，故两处都需给实色底。 */
 .markdown-content :deep(.hljs) {
-  background: #eaeff9 !important;
-  color: #2b3245 !important;
+  background: #f7eeda !important;
+  color: #4a3f33 !important;
   border-radius: 10px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.9em;

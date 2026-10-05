@@ -169,7 +169,7 @@ onMounted(() => {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 50% 35% at 30% 20%, rgba(61, 107, 255, 0.07), transparent),
+    radial-gradient(ellipse 50% 35% at 30% 20%, rgba(var(--ai-accent-rgb), 0.07), transparent),
     radial-gradient(ellipse 40% 30% at 70% 80%, rgba(52, 211, 153, 0.04), transparent);
   pointer-events: none;
 }
@@ -198,7 +198,7 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
   padding: 48px 40px;
-  background: linear-gradient(135deg, rgba(61, 107, 255, 0.04), rgba(61, 107, 255, 0.01));
+  background: linear-gradient(135deg, rgba(var(--ai-accent-rgb), 0.04), rgba(var(--ai-accent-rgb), 0.01));
   border-right: 1px solid var(--ai-border-soft);
 }
 
@@ -256,7 +256,7 @@ onMounted(() => {
   width: fit-content;
   padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(61, 107, 255, 0.08);
+  background: rgba(var(--ai-accent-rgb), 0.08);
   color: var(--ai-primary);
   font-size: 11px;
   font-weight: 500;
@@ -313,8 +313,8 @@ onMounted(() => {
 }
 
 .captcha-card:hover {
-  border-color: rgba(61, 107, 255, 0.2);
-  box-shadow: 0 8px 22px rgba(61, 107, 255, 0.12);
+  border-color: rgba(var(--ai-accent-rgb), 0.2);
+  box-shadow: 0 8px 22px rgba(var(--ai-accent-rgb), 0.12);
   transform: translateY(-1px);
 }
 
@@ -336,7 +336,7 @@ onMounted(() => {
   border: 1px solid var(--ai-glass-border);
   border-radius: 10px;
   background: var(--ai-surface-soft);
-  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.05);
+  box-shadow: inset 0 1px 2px rgba(154, 126, 84, 0.09);
   color: var(--ai-title);
   caret-color: var(--ai-primary);
 }
@@ -357,14 +357,14 @@ onMounted(() => {
 }
 
 #userLoginPage :deep(.ant-input-affix-wrapper:hover) {
-  border-color: rgba(61, 107, 255, 0.35);
+  border-color: rgba(var(--ai-accent-rgb), 0.35);
 }
 
 #userLoginPage :deep(.ant-input:focus),
 #userLoginPage :deep(.ant-input-affix-wrapper-focused) {
-  border-color: rgba(61, 107, 255, 0.2);
+  border-color: rgba(var(--ai-accent-rgb), 0.2);
   background: var(--ai-surface);
-  box-shadow: inset 0 0 0 1px rgba(61, 107, 255, 0.08), 0 0 16px rgba(61, 107, 255, 0.03);
+  box-shadow: inset 0 0 0 1px rgba(var(--ai-accent-rgb), 0.08), 0 0 16px rgba(var(--ai-accent-rgb), 0.03);
 }
 
 #userLoginPage :deep(.ant-input-password-icon) {
@@ -405,19 +405,21 @@ onMounted(() => {
   line-height: 1;
   font-weight: 500;
   letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
-  box-shadow: 0 6px 20px rgba(61, 107, 255, 0.2);
+  background: linear-gradient(135deg, var(--ai-primary), var(--ai-primary-strong));
+  box-shadow: 0 6px 20px rgba(var(--ai-accent-rgb), 0.2);
   transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .submit-button:hover,
 .submit-button:focus {
-  background: linear-gradient(135deg, #5f8cff, #3d5fd7) !important;
+  /* 纸雕主题：原来是写死的蓝色渐变，点击/聚焦时会刺眼 */
+  background: linear-gradient(135deg, #d4824b, var(--ai-primary-strong)) !important;
   transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(61, 107, 255, 0.3);
+  box-shadow: 0 10px 28px rgba(var(--ai-accent-rgb), 0.3);
 }
 
 .submit-button:active {
+  background: var(--ai-primary-strong) !important;
   transform: scale(0.98);
 }
 
@@ -435,7 +437,7 @@ onMounted(() => {
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(61, 107, 255, 0.08);
+  background: rgba(var(--ai-accent-rgb), 0.08);
 }
 .oauth-divider span {
   white-space: nowrap;
@@ -457,8 +459,8 @@ onMounted(() => {
   transition: all 0.25s;
 }
 .github-btn:hover {
-  border-color: rgba(61, 107, 255, 0.4);
-  background: rgba(28, 42, 96, 0.05);
+  border-color: rgba(var(--ai-accent-rgb), 0.4);
+  background: rgba(154, 126, 84, 0.09);
   color: var(--ai-primary);
 }
 

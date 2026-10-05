@@ -277,7 +277,7 @@ const deleteApp = async (id: string | undefined) => {
 .no-cover {
   width: 80px;
   height: 60px;
-  background: rgba(28, 42, 96, 0.05);
+  background: rgba(var(--ai-ink-rgb), 0.05);
   display: flex;
   align-items: center;
   justify-content: center;

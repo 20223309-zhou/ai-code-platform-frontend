@@ -206,16 +206,17 @@ onUnmounted(() => {
   padding: 0 24px;
   background: transparent;
   border-bottom: 1px solid transparent;
+  /* 性能：不再 transition backdrop-filter（动画模糊极贵），只过渡颜色/阴影 */
   transition:
-    background 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    backdrop-filter 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* 性能：滚动态去掉 backdrop-filter（固定顶栏滚动时逐帧重模糊是主要卡顿源），
+   用略高的不透明度白色替代，视觉基本一致但零模糊开销。 */
 .header--scrolled {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
+  background: rgba(255, 255, 255, 0.9);
   border-bottom: 1px solid var(--ai-border-soft);
   box-shadow: 0 6px 24px rgba(35, 55, 130, 0.06);
 }
@@ -251,9 +252,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   color: var(--ai-primary);
-  background: rgba(61, 107, 255, 0.1);
-  box-shadow: 0 4px 14px rgba(61, 107, 255, 0.14);
-  animation: breathe 3s ease-in-out infinite;
+  background: rgba(var(--ai-accent-rgb), 0.1);
+  /* 性能：移除常驻 box-shadow 呼吸动画（逐帧重绘 + 与顶栏毛玻璃叠加，全站持续耗电） */
+  box-shadow: 0 4px 14px rgba(var(--ai-accent-rgb), 0.14);
 }
 
 .logo {
@@ -307,13 +308,13 @@ onUnmounted(() => {
 
 :deep(.nav-menu .ant-menu-item:hover) {
   color: var(--ai-primary) !important;
-  background: rgba(61, 107, 255, 0.07) !important;
+  background: rgba(var(--ai-accent-rgb), 0.07) !important;
 }
 
 :deep(.nav-menu .ant-menu-item-selected) {
   color: var(--ai-primary) !important;
   font-weight: 600;
-  background: rgba(61, 107, 255, 0.1) !important;
+  background: rgba(var(--ai-accent-rgb), 0.1) !important;
 }
 
 :deep(.nav-menu .ant-menu-item::after) {
@@ -348,7 +349,7 @@ onUnmounted(() => {
 }
 
 .user-trigger:hover {
-  border-color: rgba(61, 107, 255, 0.35);
+  border-color: rgba(var(--ai-accent-rgb), 0.35);
   background: var(--ai-surface-soft);
 }
 
@@ -382,7 +383,7 @@ onUnmounted(() => {
   padding: 0 5px;
   border-radius: 4px;
   background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #1a1a2e;
+  color: #4a3f33;
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
@@ -417,16 +418,23 @@ onUnmounted(() => {
   font-weight: 500;
   font-size: 14px;
   letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
-  box-shadow: 0 6px 20px rgba(61, 107, 255, 0.2);
+  background: linear-gradient(135deg, var(--ai-primary), var(--ai-primary-strong));
+  box-shadow: 0 6px 20px rgba(var(--ai-accent-rgb), 0.2);
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .login-button:hover,
 .login-button:focus {
-  background: linear-gradient(135deg, #4f7cff, #3a5fe8) !important;
+  /* 纸雕主题：原来是写死的蓝色渐变，点击/聚焦时会刺眼 */
+  background: linear-gradient(135deg, #d4824b, var(--ai-primary-strong)) !important;
   transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(61, 107, 255, 0.3);
+  box-shadow: 0 10px 28px rgba(var(--ai-accent-rgb), 0.3);
+}
+
+.login-button:active {
+  background: var(--ai-primary-strong) !important;
+  transform: translateY(1px);
+  box-shadow: 0 3px 8px rgba(var(--ai-accent-rgb), 0.26);
 }
 
 @media (max-width: 768px) {

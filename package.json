@@ -12,12 +12,15 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "guard": "node scripts/vue-code-guard.mjs"
   },
   "dependencies": {
     "ant-design-vue": "^4.2.6",
+    "@ant-design/icons-vue": "^7.0.1",
     "axios": "^1.11.0",
     "@types/markdown-it": "^14.1.2",
+    "dayjs": "^1.11.13",
     "highlight.js": "^11.11.1",
     "markdown-it": "^14.1.0",
     "pinia": "^3.0.3",

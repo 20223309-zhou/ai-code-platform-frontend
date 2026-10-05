@@ -170,10 +170,10 @@ function formatNum(v: number | null | undefined): string {
 
 /* ───── 顶部卡片 ───── */
 const topCards = [
-  { key: 'todayCount' as const, label: '今日创作', icon: CalendarOutlined, color: '#5f8cff', iconBg: 'rgba(61,107,255,0.12)' },
+  { key: 'todayCount' as const, label: '今日创作', icon: CalendarOutlined, color: '#c9713e', iconBg: 'rgba(201,113,62,0.12)' },
   { key: 'weekCount' as const, label: '本周创作', icon: ClockCircleOutlined, color: '#34d399', iconBg: 'rgba(0,201,167,0.12)' },
   { key: 'monthCount' as const, label: '本月创作', icon: FileTextOutlined, color: '#fbbf24', iconBg: 'rgba(255,184,0,0.12)' },
-  { key: 'totalCount' as const, label: '总创作', icon: FolderOpenOutlined, color: '#a78bfa', iconBg: 'rgba(114,46,209,0.12)' },
+  { key: 'totalCount' as const, label: '总创作', icon: FolderOpenOutlined, color: '#7e9b6b', iconBg: 'rgba(126,155,107,0.14)' },
 ]
 
 const maxCount = computed(() => {
@@ -192,7 +192,7 @@ function trendPercent(key: string): string {
 }
 
 /* ───── 柱状图 ───── */
-const barColors = ['#5f8cff', '#34d399', '#fbbf24', '#a78bfa']
+const barColors = ['#c9713e', '#34d399', '#fbbf24', '#b07a9b']
 const barKeys = ['todayCount', 'weekCount', 'monthCount', 'totalCount']
 const barLabels = ['今日', '本周', '本月', '总创']
 
@@ -330,7 +330,7 @@ const activeUserPercent = computed(() => {
   margin-top: 8px;
   height: 4px;
   border-radius: 2px;
-  background: rgba(28, 42, 96, 0.05);
+  background: rgba(var(--ai-ink-rgb), 0.05);
   overflow: hidden;
 }
 .stat-trend-fill {
@@ -436,7 +436,7 @@ const activeUserPercent = computed(() => {
   align-items: center;
   padding: 8px 16px;
   border-radius: 8px;
-  background: rgba(28, 42, 96, 0.04);
+  background: rgba(var(--ai-ink-rgb), 0.04);
 }
 .ring-meta-label {
   color: var(--ai-muted);
@@ -469,7 +469,7 @@ const activeUserPercent = computed(() => {
   font-weight: 700;
 }
 .user-value.highlight {
-  color: #5f8cff;
+  color: #c9713e;
 }
 .user-bar-wrap {
   display: flex;
@@ -480,13 +480,13 @@ const activeUserPercent = computed(() => {
   flex: 1;
   height: 8px;
   border-radius: 4px;
-  background: rgba(28, 42, 96, 0.05);
+  background: rgba(var(--ai-ink-rgb), 0.05);
   overflow: hidden;
 }
 .user-bar-fill {
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, #5f8cff, #34d399);
+  background: linear-gradient(90deg, #c9713e, #34d399);
   transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .user-bar-text {
@@ -502,13 +502,13 @@ const activeUserPercent = computed(() => {
   gap: 6px;
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(28, 42, 96, 0.04);
+  background: rgba(var(--ai-ink-rgb), 0.04);
   color: var(--ai-muted);
   font-size: 13px;
 }
 .user-meta-icon {
   font-size: 14px;
-  color: #5f8cff;
+  color: #c9713e;
 }
 
 /* ───── 响应式 ───── */

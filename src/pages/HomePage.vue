@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
@@ -21,7 +21,6 @@ import { loadModelOptions, pickDefaultModelName } from '@/utils/aiModels'
 
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
-let handleMouseMove: ((e: MouseEvent) => void) | null = null
 
 const userPrompt = ref('')
 const creating = ref(false)
@@ -199,23 +198,11 @@ onMounted(async () => {
     }
   })
 
-  handleMouseMove = (e: MouseEvent) => {
-    const { clientX, clientY } = e
-    const { innerWidth, innerHeight } = window
-    const x = (clientX / innerWidth) * 100
-    const y = (clientY / innerHeight) * 100
-    document.documentElement.style.setProperty('--mouse-x', `${x}%`)
-    document.documentElement.style.setProperty('--mouse-y', `${y}%`)
-  }
-
-  document.addEventListener('mousemove', handleMouseMove)
+  // 性能：原先这里监听 mousemove 并逐帧写 --mouse-x/--mouse-y 到根元素，
+  // 而 #homePage::after 是铺满视口的光晕层 → 每次移动鼠标都会触发整屏样式重算 + 重绘。
+  // 现改为静态光晕（见样式中的 radial-gradient），彻底去掉这条逐帧开销。
 })
 
-onUnmounted(() => {
-  if (handleMouseMove) {
-    document.removeEventListener('mousemove', handleMouseMove)
-  }
-})
 </script>
 
 <template>
@@ -228,6 +215,33 @@ onUnmounted(() => {
       </section>
 
       <section class="generator-panel fade-section is-visible">
+        <!-- 剪纸小狐狸：贴在卡片右上角的纸片 -->
+        <svg class="paper-fox" viewBox="0 0 120 120" aria-hidden="true">
+          <!-- 纸片厚度（向下右偏移的深色副本） -->
+          <g transform="translate(2.6,3)" fill="#b35f32">
+            <path d="M22 42 L14 10 L46 30 Z" />
+            <path d="M98 42 L106 10 L74 30 Z" />
+            <path d="M60 22 C33 22 19 41 19 60 C19 85 38 102 60 102 C82 102 101 85 101 60 C101 41 87 22 60 22 Z" />
+          </g>
+          <!-- 外耳 -->
+          <path d="M22 42 L14 10 L46 30 Z" fill="#d97a45" />
+          <path d="M98 42 L106 10 L74 30 Z" fill="#d97a45" />
+          <!-- 内耳 -->
+          <path d="M26 38 L21 19 L40 31 Z" fill="#f6d9be" />
+          <path d="M94 38 L99 19 L80 31 Z" fill="#f6d9be" />
+          <!-- 头 -->
+          <path d="M60 22 C33 22 19 41 19 60 C19 85 38 102 60 102 C82 102 101 85 101 60 C101 41 87 22 60 22 Z" fill="#e88a50" />
+          <!-- 口鼻 -->
+          <path d="M60 64 C48 64 40 74 40 84 C40 94 49 101 60 101 C71 101 80 94 80 84 C80 74 72 64 60 64 Z" fill="#fff6e6" />
+          <!-- 鼻子 -->
+          <path d="M60 68 L68 77 L60 84 L52 77 Z" fill="#5a4535" />
+          <!-- 眼睛 -->
+          <circle cx="43" cy="59" r="4.6" fill="#4a3f33" />
+          <circle cx="77" cy="59" r="4.6" fill="#4a3f33" />
+          <!-- 腮红 -->
+          <ellipse cx="33" cy="75" rx="6" ry="4" fill="#f2b48c" opacity="0.8" />
+          <ellipse cx="87" cy="75" rx="6" ry="4" fill="#f2b48c" opacity="0.8" />
+        </svg>
         <div class="generator-header">
           <div>
             <h2 class="panel-title">开始生成</h2>
@@ -275,7 +289,7 @@ onUnmounted(() => {
               :options="modelOptions"
               :disabled="creating"
               size="small"
-              class="type-select"
+              class="type-select type-select--model"
               placeholder="默认模型"
             />
           </div>
@@ -412,14 +426,14 @@ onUnmounted(() => {
   background: transparent;
 }
 
-/* 鼠标跟随光晕 — 最上层 */
+/* 静态光晕 — 最上层（原为鼠标跟随，逐帧重绘全屏，已改为固定位置） */
 #homePage::after {
   content: '';
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    640px circle at var(--mouse-x, 50%) var(--mouse-y, 18%),
-    rgba(61, 107, 255, 0.06),
+    640px circle at 50% 18%,
+    rgba(var(--ai-accent-rgb), 0.06),
     transparent 68%
   );
   pointer-events: none;
@@ -453,9 +467,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 5px 14px;
-  border: 1px solid rgba(61, 107, 255, 0.15);
+  border: 1px solid rgba(var(--ai-accent-rgb), 0.15);
   border-radius: 999px;
-  background: rgba(61, 107, 255, 0.06);
+  background: rgba(var(--ai-accent-rgb), 0.06);
   color: var(--ai-primary);
   font-size: 12px;
   font-weight: 500;
@@ -492,8 +506,8 @@ onUnmounted(() => {
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   box-shadow:
-    0 1px 2px rgba(28, 44, 110, 0.06),
-    0 24px 60px -12px rgba(28, 44, 110, 0.22),
+    0 1px 2px rgba(var(--ai-ink-rgb), 0.06),
+    0 24px 60px -12px rgba(var(--ai-ink-rgb), 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
@@ -537,13 +551,13 @@ onUnmounted(() => {
 :deep(.prompt-input.ant-input) {
   min-height: 96px;
   padding: 12px 60px 12px 14px;
-  border: 1px solid rgba(28, 42, 96, 0.12);
+  border: 1px solid rgba(var(--ai-ink-rgb), 0.12);
   border-radius: var(--ai-control-radius);
   /* 半透明玻璃态：让底层彩色渐变透出来，避免纯白单调 */
   background: rgba(255, 255, 255, 0.22);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: inset 0 1px 2px rgba(28, 42, 96, 0.03);
+  box-shadow: inset 0 1px 2px rgba(var(--ai-ink-rgb), 0.03);
   color: var(--ai-title);
   font-size: 14px;
   line-height: 1.7;
@@ -561,11 +575,11 @@ onUnmounted(() => {
 
 :deep(.prompt-input.ant-input:focus),
 :deep(.prompt-input.ant-input-focused) {
-  border-color: rgba(61, 107, 255, 0.45);
+  border-color: rgba(var(--ai-accent-rgb), 0.45);
   background: rgba(255, 255, 255, 0.45);
   box-shadow:
-    0 0 0 3px rgba(61, 107, 255, 0.08),
-    0 0 24px rgba(61, 107, 255, 0.06);
+    0 0 0 3px rgba(var(--ai-accent-rgb), 0.08),
+    0 0 24px rgba(var(--ai-accent-rgb), 0.06);
 }
 
 :deep(.prompt-input.ant-input::placeholder) {
@@ -585,16 +599,16 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3d6bff, #2b4fe0);
+  background: linear-gradient(135deg, var(--ai-primary), var(--ai-primary-strong));
   color: #fff;
-  box-shadow: 0 6px 18px rgba(61, 107, 255, 0.28);
+  box-shadow: 0 6px 18px rgba(var(--ai-accent-rgb), 0.28);
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .generate-button:hover {
   transform: translateY(-1px) scale(1.04);
-  box-shadow: 0 10px 26px rgba(61, 107, 255, 0.34);
+  box-shadow: 0 10px 26px rgba(var(--ai-accent-rgb), 0.34);
 }
 
 .generate-button:active {
@@ -626,9 +640,9 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border: 1px solid rgba(61, 107, 255, 0.14);
+  border: 1px solid rgba(var(--ai-accent-rgb), 0.14);
   border-radius: 999px;
-  background: rgba(61, 107, 255, 0.06);
+  background: rgba(var(--ai-accent-rgb), 0.06);
   color: var(--ai-title);
   font-size: 13px;
   letter-spacing: 0.02em;
@@ -638,9 +652,9 @@ onUnmounted(() => {
 
 .upload-trigger:hover {
   transform: translateY(-1px);
-  border-color: rgba(61, 107, 255, 0.22);
-  background: rgba(61, 107, 255, 0.09);
-  box-shadow: 0 10px 28px rgba(61, 107, 255, 0.12);
+  border-color: rgba(var(--ai-accent-rgb), 0.22);
+  background: rgba(var(--ai-accent-rgb), 0.09);
+  box-shadow: 0 10px 28px rgba(var(--ai-accent-rgb), 0.12);
 }
 
 .upload-trigger.is-disabled {
@@ -666,14 +680,14 @@ onUnmounted(() => {
   width: 60px;
   height: 28px;
   border-radius: 14px;
-  background: rgba(28, 42, 96, 0.08);
-  border: 1px solid rgba(28, 42, 96, 0.08);
+  background: rgba(var(--ai-ink-rgb), 0.08);
+  border: 1px solid rgba(var(--ai-ink-rgb), 0.08);
   transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .glass-toggle.active .glass-toggle-track {
-  background: rgba(61, 107, 255, 0.2);
-  border-color: rgba(61, 107, 255, 0.3);
-  box-shadow: 0 0 12px rgba(61, 107, 255, 0.12);
+  background: rgba(var(--ai-accent-rgb), 0.2);
+  border-color: rgba(var(--ai-accent-rgb), 0.3);
+  box-shadow: 0 0 12px rgba(var(--ai-accent-rgb), 0.12);
 }
 .glass-toggle-knob {
   position: absolute;
@@ -695,9 +709,9 @@ onUnmounted(() => {
 }
 .glass-toggle.active .glass-toggle-knob {
   left: 35px;
-  background: #3d6bff;
+  background: var(--ai-primary);
   color: #fff;
-  box-shadow: 0 0 12px rgba(61, 107, 255, 0.35);
+  box-shadow: 0 0 12px rgba(var(--ai-accent-rgb), 0.35);
 }
 
 .skills-trigger {
@@ -708,7 +722,7 @@ onUnmounted(() => {
   padding: 10px 14px;
   border: 1px solid rgba(125, 211, 252, 0.18);
   border-radius: 999px;
-  background: rgba(61, 107, 255, 0.06);
+  background: rgba(var(--ai-accent-rgb), 0.06);
   color: var(--ai-title);
   font-size: 13px;
   letter-spacing: 0.02em;
@@ -744,7 +758,7 @@ onUnmounted(() => {
   color: var(--ai-title);
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(28, 42, 96, 0.08);
+  border-bottom: 1px solid rgba(var(--ai-ink-rgb), 0.08);
 }
 
 .skill-item {
@@ -752,7 +766,7 @@ onUnmounted(() => {
 }
 
 .skill-item + .skill-item {
-  border-top: 1px solid rgba(28, 42, 96, 0.05);
+  border-top: 1px solid rgba(var(--ai-ink-rgb), 0.05);
 }
 
 .skill-name {
@@ -780,9 +794,9 @@ onUnmounted(() => {
   flex: 1;
   min-width: 0;
   padding: 12px 14px;
-  border: 1px solid rgba(28, 42, 96, 0.1);
+  border: 1px solid rgba(var(--ai-ink-rgb), 0.1);
   border-radius: 12px;
-  background: rgba(28, 42, 96, 0.03);
+  background: rgba(var(--ai-ink-rgb), 0.03);
 }
 
 .upload-summary {
@@ -803,9 +817,9 @@ onUnmounted(() => {
   gap: 8px;
   max-width: 100%;
   padding: 6px 10px;
-  border: 1px solid rgba(28, 42, 96, 0.1);
+  border: 1px solid rgba(var(--ai-ink-rgb), 0.1);
   border-radius: 999px;
-  background: rgba(28, 42, 96, 0.05);
+  background: rgba(var(--ai-ink-rgb), 0.05);
   color: var(--ai-text);
   font-size: 12px;
 }
@@ -833,7 +847,7 @@ onUnmounted(() => {
 }
 
 .upload-chip-remove:hover:not(:disabled) {
-  background: rgba(28, 42, 96, 0.08);
+  background: rgba(var(--ai-ink-rgb), 0.08);
   color: var(--ai-title);
 }
 
@@ -873,7 +887,7 @@ onUnmounted(() => {
 }
 
 .loader-ring-path {
-  stroke: #7dd3fc;
+  stroke: #e8a33d;
   stroke-linecap: round;
   stroke-dasharray: 64;
   stroke-dashoffset: 20;
@@ -897,9 +911,9 @@ onUnmounted(() => {
 .template-chip {
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid rgba(28, 42, 96, 0.1);
+  border: 1px solid rgba(var(--ai-ink-rgb), 0.1);
   border-radius: 8px;
-  background: rgba(28, 42, 96, 0.03);
+  background: rgba(var(--ai-ink-rgb), 0.03);
   color: var(--ai-muted);
   font-size: 13px;
   font-weight: 400;
@@ -909,16 +923,16 @@ onUnmounted(() => {
 }
 
 .template-chip:hover {
-  border-color: rgba(61, 107, 255, 0.15);
+  border-color: rgba(var(--ai-accent-rgb), 0.15);
   color: var(--ai-title);
-  background: rgba(61, 107, 255, 0.04);
+  background: rgba(var(--ai-accent-rgb), 0.04);
   transform: translateY(-1px);
 }
 
 .template-chip.is-active {
-  background: rgba(61, 107, 255, 0.08);
+  background: rgba(var(--ai-accent-rgb), 0.08);
   color: var(--ai-primary);
-  border-color: rgba(61, 107, 255, 0.2);
+  border-color: rgba(var(--ai-accent-rgb), 0.2);
   font-weight: 500;
 }
 
@@ -926,26 +940,136 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px 24px;
+  gap: 10px 14px;
   margin-bottom: 12px;
 }
 
+/* 每枚下拉 = 一枚冷色胶囊：不描边，只用底色与面板区分 */
 .type-selector-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  height: 32px;
+  padding: 0 8px 0 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(180deg, rgba(var(--ai-accent-rgb), 0.1), rgba(var(--ai-accent-rgb), 0.065));
+  box-shadow: none;
+  /* 渐变无法插值动画，故只过渡阴影，避免无谓的属性监听 */
+  transition: box-shadow 0.25s ease;
+}
+
+.type-selector-item:hover {
+  background: linear-gradient(180deg, rgba(var(--ai-accent-rgb), 0.16), rgba(var(--ai-accent-rgb), 0.1));
+  box-shadow: 0 8px 20px -10px rgba(var(--ai-accent-rgb), 0.42);
+}
+
+.type-selector-item:focus-within {
+  background: linear-gradient(180deg, rgba(var(--ai-accent-rgb), 0.16), rgba(var(--ai-accent-rgb), 0.1));
+  box-shadow: 0 0 0 3px rgba(var(--ai-accent-rgb), 0.14);
+}
+
+.type-selector-item:has(.ant-select-disabled) {
+  opacity: 0.6;
 }
 
 .type-selector-label {
   flex-shrink: 0;
+  padding-right: 10px;
+  margin-right: 4px;
+  border-right: 1px solid rgba(var(--ai-accent-rgb), 0.18);
   color: var(--ai-muted);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
   letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* 模型下拉推到这一行的最右侧 */
+.type-selector-item:last-child {
+  margin-left: auto;
 }
 
 .type-select {
-  width: 160px;
+  width: 150px;
+}
+
+/* 模型名通常更长，单独加宽 */
+.type-select--model {
+  width: 186px;
+}
+
+/* 下拉本体融进胶囊：去掉自身底色、边框与阴影 */
+.type-selector-item :deep(.type-select) {
+  height: 30px !important;
+  line-height: 30px !important;
+}
+
+.type-selector-item :deep(.type-select .ant-select-selector) {
+  display: flex !important;
+  align-items: center !important;
+  /* 值在框内水平居中（右侧留出箭头的位置，使视觉重心居中） */
+  justify-content: center !important;
+  height: 30px !important;
+  padding: 0 20px 0 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+/* 交互态必须单独覆盖：全局 .ant-select-focused ... .ant-select-selector 的特异性为 5，
+   高于上面的 base 规则(4)，不覆盖就会在胶囊内部画出一个"框中框"聚焦环。 */
+.type-selector-item.type-selector-item :deep(.type-select .ant-select-selector:hover),
+.type-selector-item.type-selector-item :deep(.type-select:hover .ant-select-selector),
+.type-selector-item.type-selector-item :deep(.type-select.ant-select-focused .ant-select-selector),
+.type-selector-item.type-selector-item :deep(.type-select.ant-select-open .ant-select-selector) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 值 / 占位符：显式 flex 垂直居中，避免 small 尺寸下的基线偏移 */
+.type-selector-item :deep(.type-select .ant-select-selection-item),
+.type-selector-item :deep(.type-select .ant-select-selection-placeholder) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  height: 30px !important;
+  line-height: 1 !important;
+  font-size: 13px;
+}
+
+/* antd 给值元素塞了一个 ::after 基线伪元素，会撑高行盒把文字顶偏，这里关掉 */
+.type-selector-item :deep(.type-select .ant-select-selection-item::after),
+.type-selector-item :deep(.type-select .ant-select-selection-placeholder::after) {
+  display: none !important;
+}
+
+.type-selector-item :deep(.type-select .ant-select-selection-search-input) {
+  line-height: 30px !important;
+  font-size: 13px;
+}
+
+.type-selector-item :deep(.type-select .ant-select-selection-item),
+.type-selector-item :deep(.type-select .ant-select-selection-search-input) {
+  color: var(--ai-title) !important;
+  font-weight: 600;
+}
+
+.type-selector-item :deep(.type-select .ant-select-selection-placeholder) {
+  color: var(--ai-muted) !important;
+}
+
+.type-selector-item :deep(.type-select .ant-select-arrow) {
+  inset-inline-end: 2px;
+  color: rgba(var(--ai-accent-rgb), 0.85) !important;
+  font-size: 11px;
+}
+
+.type-selector-item :deep(.type-select.ant-select-disabled .ant-select-selection-item) {
+  color: var(--ai-muted) !important;
 }
 
 .section {
@@ -994,7 +1118,7 @@ onUnmounted(() => {
   padding: 44px 24px 40px;
   border: 1px solid var(--ai-border-soft);
   border-radius: 14px;
-  background: rgba(28, 42, 96, 0.025);
+  background: rgba(var(--ai-ink-rgb), 0.025);
   text-align: center;
 }
 
@@ -1006,27 +1130,27 @@ onUnmounted(() => {
 }
 
 .illu-window {
-  fill: rgba(28, 42, 96, 0.02);
-  stroke: rgba(61, 107, 255, 0.32);
+  fill: rgba(var(--ai-ink-rgb), 0.02);
+  stroke: rgba(var(--ai-accent-rgb), 0.32);
   stroke-width: 1.5;
 }
 
 .illu-accent {
-  fill: rgba(61, 107, 255, 0.38);
+  fill: rgba(var(--ai-accent-rgb), 0.38);
 }
 
 .illu-card {
   fill: rgba(255, 255, 255, 0.6);
-  stroke: rgba(28, 42, 96, 0.12);
+  stroke: rgba(var(--ai-ink-rgb), 0.12);
   stroke-width: 1;
 }
 
 .illu-bar {
-  fill: rgba(28, 42, 96, 0.18);
+  fill: rgba(var(--ai-ink-rgb), 0.18);
 }
 
 .illu-cursor {
-  fill: #3fa9f5;
+  fill: #d9a05b;
 }
 
 .empty-title {
@@ -1111,6 +1235,177 @@ onUnmounted(() => {
 
   .upload-chip-name {
     max-width: 170px;
+  }
+}
+
+/* =====================================================================
+   纸雕主题 · 温柔纸雕 / 淡黄纸片（首页样板）
+   作用域仅限 #homePage，不影响其它页面；要回退直接删掉本段即可。
+   设计原则：结构规整，材质有手感 —— 只换色彩 / 材质 / 边缘 / 插画。
+   ===================================================================== */
+/* 背景与纸料色板已在 App.vue 全局定义（全站纸雕主题） */
+
+/* 纸雕不需要发光层 */
+#homePage::after {
+  display: none;
+}
+
+/* ───────── 剪纸小狐狸（贴在生成框右上角） ───────── */
+.paper-fox {
+  position: absolute;
+  top: -20px;
+  right: -10px;
+  width: 68px;
+  height: 68px;
+  transform: rotate(-8deg);
+  filter: drop-shadow(2px 3px 0 rgba(184, 152, 104, 0.32));
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ───────── 生成框 = 一张贴上去的白纸 ───────── */
+#homePage .generator-panel {
+  background: #fffdf7;
+  border: 1.5px solid #ecdcbd;
+  border-radius: 18px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.26), 0 22px 30px -26px rgba(120, 92, 52, 0.6);
+}
+
+#homePage .generator-panel::before {
+  left: 10%;
+  right: 10%;
+  background: linear-gradient(90deg, transparent, rgba(201, 113, 62, 0.32), transparent);
+}
+
+/* ───────── 输入区 = 纸上压出的凹槽 ───────── */
+#homePage :deep(.prompt-input.ant-input) {
+  background: #faf3e3;
+  border: 1.5px solid #ecdcbd;
+  border-radius: 14px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: inset 2px 2px 0 rgba(184, 152, 104, 0.12);
+  color: var(--ai-title);
+}
+
+#homePage :deep(.prompt-input.ant-input:hover) {
+  background: #fdf7ea;
+}
+
+#homePage :deep(.prompt-input.ant-input:focus),
+#homePage :deep(.prompt-input.ant-input-focused) {
+  background: #fffdf7;
+  border-color: #d9a878;
+  box-shadow: inset 2px 2px 0 rgba(184, 152, 104, 0.1), 0 0 0 3px rgba(201, 113, 62, 0.14);
+}
+
+#homePage :deep(.prompt-input.ant-input::placeholder) {
+  font-style: normal;
+}
+
+/* ───────── 生成按钮 = 陶土橘纸片圆片 ───────── */
+#homePage .generate-button {
+  background: #c9713e;
+  background-image: none;
+  color: #fffdf7;
+  box-shadow: 2px 3px 0 rgba(150, 92, 48, 0.36);
+}
+
+#homePage .generate-button:hover {
+  background: #b9622f;
+  box-shadow: 3px 4px 0 rgba(150, 92, 48, 0.42);
+  transform: translateY(-1px) scale(1.03);
+}
+
+#homePage .generate-button:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 1px 1px 0 rgba(150, 92, 48, 0.36);
+}
+
+/* 呼吸动画是蓝色 box-shadow，纸雕下关掉 */
+#homePage .input-shell.is-creating .generate-button {
+  animation: none;
+}
+
+/* ───────── 纸片 chip（徽标 / 上传 / Skills / 模板） ───────── */
+#homePage .hero-badge {
+  background: rgba(201, 113, 62, 0.1);
+  border: 1.5px solid rgba(201, 113, 62, 0.22);
+  border-radius: 10px;
+  color: #a8612f;
+}
+
+#homePage .upload-trigger,
+#homePage .skills-trigger {
+  background: #fffdf7;
+  border: 1.5px solid #ecdcbd;
+  border-radius: 10px;
+  color: var(--ai-title);
+  box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.18);
+}
+
+#homePage .upload-trigger:hover,
+#homePage .skills-trigger:hover {
+  background: #fdf6e6;
+  border-color: #dcc9a2;
+  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.26);
+}
+
+#homePage .template-chip {
+  background: #fffdf7;
+  border: 1.5px solid #ecdcbd;
+  border-radius: 10px;
+  box-shadow: 1px 1px 0 rgba(184, 152, 104, 0.14);
+}
+
+#homePage .template-chip:hover {
+  background: #fdf6e6;
+  border-color: #dcc9a2;
+  color: var(--ai-title);
+  box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.22);
+}
+
+#homePage .template-chip.is-active {
+  background: rgba(201, 113, 62, 0.12);
+  border-color: rgba(201, 113, 62, 0.3);
+  color: #a8612f;
+  box-shadow: 1px 1px 0 rgba(184, 152, 104, 0.2);
+}
+
+/* ───────── 生成类型 / 模型胶囊 = 纸片 ───────── */
+#homePage .type-selector-item {
+  background: #f6ead1;
+  border: none;
+  box-shadow: none;
+}
+
+#homePage .type-selector-item:hover {
+  background: #f0e0bf;
+  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.22);
+}
+
+#homePage .type-selector-item:focus-within {
+  background: #f0e0bf;
+  box-shadow: 0 0 0 3px rgba(201, 113, 62, 0.16);
+}
+
+#homePage .type-selector-label {
+  border-right-color: rgba(168, 138, 92, 0.4);
+  color: #8d7c60;
+}
+
+/* ───────── 空状态也要纸片化 ───────── */
+#homePage .empty-state {
+  background: #fffdf7;
+  border: 1.5px dashed #e3d2b0;
+  border-radius: 16px;
+}
+
+@media (max-width: 860px) {
+  .paper-fox {
+    display: none;
   }
 }
 </style>
