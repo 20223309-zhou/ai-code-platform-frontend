@@ -365,8 +365,18 @@ declare namespace API {
 
   type UserRegisterRequest = {
     userAccount?: string
+    email?: string
+    emailCode?: string
     userPassword?: string
     checkPassword?: string
+  }
+
+  type EmailSendCodeRequest = {
+    email?: string
+    /** register / resetpwd / bind / upgrade */
+    scene?: string
+    captchaKey?: string
+    captchaCode?: string
   }
 
   type UserUpdateRequest = {

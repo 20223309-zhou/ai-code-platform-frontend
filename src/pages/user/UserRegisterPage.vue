@@ -1,87 +1,158 @@
 <template>
-  <div class="auth-page">
-    <div id="userRegisterPage" class="auth-split">
-      <!-- 左侧品牌区 -->
-      <div class="auth-brand">
-        <div class="brand-logo">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ai-primary)" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        </div>
-        <h1 class="brand-title">加入 iCodeAI</h1>
-        <p class="brand-desc">不写一行代码，用自然语言生成完整应用</p>
-        <div class="brand-features">
-          <div class="brand-feature">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>免费注册，立即开始生成</span>
-          </div>
-          <div class="brand-feature">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>多种生成模式：HTML / 多文件 / Vue</span>
-          </div>
-          <div class="brand-feature">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>对话式迭代修改，所见即所得</span>
-          </div>
-          <div class="brand-feature">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>一键部署，模板广场共享</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右侧注册区 -->
-      <div class="auth-panel">
-        <div class="auth-badge">创建你的 AI 工作台</div>
-        <h2 class="panel-title">用户注册</h2>
-        <p class="panel-desc">不写一行代码，生成完整应用</p>
-        <a-form :model="formState" name="basic" autocomplete="off" class="auth-form" @finish="handleSubmit">
-          <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
-            <a-input v-model:value="formState.userAccount" placeholder="请输入账号" size="large" />
+  <AuthShell
+    badge="创建你的 AI 工作台"
+    title="用户注册"
+    desc="填写信息并通过邮箱验证后即可开始"
+  >
+    <a-form :model="formState" name="basic" layout="vertical" autocomplete="off" @finish="handleSubmit">
+      <!-- 账号 / 邮箱：语义上一组，两列并排；两个验证码各带按钮，必须整行 -->
+      <a-row :gutter="14">
+        <a-col :span="12">
+          <a-form-item
+            name="userAccount"
+            label="账号"
+            :rules="[
+              { required: true, message: '请输入账号' },
+              { min: 4, message: '账号不能小于 4 位' },
+              { validator: validateUserAccount },
+            ]"
+          >
+            <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
           </a-form-item>
+        </a-col>
+
+        <a-col :span="12">
+          <a-form-item
+            name="email"
+            label="邮箱"
+            :rules="[
+              { required: true, message: '请输入邮箱' },
+              { type: 'email', message: '邮箱格式不正确' },
+            ]"
+          >
+            <a-input v-model:value="formState.email" placeholder="用于登录、收验证码" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+
+      <a-form-item
+        name="captchaCode"
+        label="图形验证码"
+        :rules="[{ required: true, message: '请输入图形验证码' }]"
+      >
+        <div class="captcha-row">
+          <a-input v-model:value="formState.captchaCode" placeholder="请输入图形验证码" />
+          <button type="button" class="captcha-card" @click="handleRefreshCaptcha">
+            <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image" />
+            <span v-else class="captcha-placeholder">加载中...</span>
+          </button>
+        </div>
+      </a-form-item>
+
+      <a-form-item
+        name="emailCode"
+        label="邮箱验证码"
+        :rules="[{ required: true, message: '请输入邮箱验证码' }]"
+      >
+        <div class="captcha-row">
+          <a-input v-model:value="formState.emailCode" placeholder="查收邮件，填写 6 位验证码" />
+          <button
+            type="button"
+            class="send-code-btn"
+            :disabled="sendingCode || countdown > 0"
+            @click="handleSendEmailCode"
+          >
+            {{ sendButtonText }}
+          </button>
+        </div>
+      </a-form-item>
+
+      <!-- 密码 / 确认密码：语义上一组，两列并排 -->
+      <a-row :gutter="14">
+        <a-col :span="12">
           <a-form-item
             name="userPassword"
+            label="密码"
             :rules="[
               { required: true, message: '请输入密码' },
               { min: 8, message: '密码不能小于 8 位' },
             ]"
           >
-            <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" size="large" />
+            <a-input-password v-model:value="formState.userPassword" placeholder="8 位以上" />
           </a-form-item>
+        </a-col>
+
+        <a-col :span="12">
           <a-form-item
             name="checkPassword"
+            label="确认密码"
             :rules="[
               { required: true, message: '请确认密码' },
               { min: 8, message: '密码不能小于 8 位' },
               { validator: validateCheckPassword },
             ]"
           >
-            <a-input-password v-model:value="formState.checkPassword" placeholder="请确认密码" size="large" />
+            <a-input-password v-model:value="formState.checkPassword" placeholder="再次输入" />
           </a-form-item>
-          <div class="tips">
-            已有账号？
-            <RouterLink to="/user/login">去登录</RouterLink>
-          </div>
-          <a-form-item>
-            <a-button type="primary" html-type="submit" class="submit-button">注册</a-button>
-          </a-form-item>
-        </a-form>
+        </a-col>
+      </a-row>
+
+      <div class="auth-tips">
+        已有账号？<RouterLink to="/user/login">去登录</RouterLink>
       </div>
-    </div>
-  </div>
+
+      <a-form-item>
+        <a-button class="auth-submit" html-type="submit" :loading="submitting">
+          {{ submitting ? '注册中' : '注册' }}
+        </a-button>
+      </a-form-item>
+    </a-form>
+  </AuthShell>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { userRegister } from '@/api/userController.ts'
+import { getCaptcha, sendEmailCode, userRegister } from '@/api/userController.ts'
+import AuthShell from '@/components/AuthShell.vue'
 import { message } from 'ant-design-vue'
-import { reactive } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
 const router = useRouter()
 
-const formState = reactive<API.UserRegisterRequest>({
+/** 图形验证码只用于"发送邮箱验证码"这一动作，不入注册请求体 */
+type RegisterForm = API.UserRegisterRequest & { captchaCode: string }
+
+const formState = reactive<RegisterForm>({
   userAccount: '',
+  email: '',
+  emailCode: '',
   userPassword: '',
   checkPassword: '',
+  captchaCode: '',
 })
+
+const captchaImage = ref('')
+const captchaKey = ref('')
+const sendingCode = ref(false)
+const submitting = ref(false)
+const countdown = ref(0)
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+const sendButtonText = computed(() => {
+  if (sendingCode.value) {
+    return '发送中'
+  }
+  return countdown.value > 0 ? `${countdown.value}s 后重发` : '发送验证码'
+})
+
+const validateUserAccount = (rule: unknown, value: string, callback: (error?: Error) => void) => {
+  // 后端会拒绝含 @ 的账号，前端提前拦一下，避免白填一遍表单
+  if (value && value.includes('@')) {
+    callback(new Error('账号不能包含 @'))
+  } else {
+    callback()
+  }
+}
 
 const validateCheckPassword = (rule: unknown, value: string, callback: (error?: Error) => void) => {
   if (value && value !== formState.userPassword) {
@@ -91,261 +162,112 @@ const validateCheckPassword = (rule: unknown, value: string, callback: (error?: 
   }
 }
 
-const handleSubmit = async (values: API.UserRegisterRequest) => {
-  const res = await userRegister(values)
-  if (res.data.code === 0) {
-    message.success('注册成功')
-    router.push({
-      path: '/user/login',
-      replace: true,
+const handleRefreshCaptcha = async () => {
+  try {
+    const res = await getCaptcha(captchaKey.value || undefined)
+    if (res.data.code === 0 && res.data.data) {
+      captchaKey.value = res.data.data.captchaKey || ''
+      formState.captchaCode = ''
+      captchaImage.value = res.data.data.captchaImage || ''
+    } else {
+      message.error('验证码加载失败：' + (res.data.message || '未知错误'))
+    }
+  } catch (error) {
+    console.error('加载图形验证码失败：', error)
+    message.error('验证码加载失败，请重试')
+  }
+}
+
+const startCountdown = () => {
+  countdown.value = 60
+  if (countdownTimer) {
+    clearInterval(countdownTimer)
+  }
+  countdownTimer = setInterval(() => {
+    countdown.value -= 1
+    if (countdown.value <= 0 && countdownTimer) {
+      clearInterval(countdownTimer)
+      countdownTimer = null
+    }
+  }, 1000)
+}
+
+const handleSendEmailCode = async () => {
+  if (sendingCode.value || countdown.value > 0) {
+    return
+  }
+  if (!formState.email) {
+    message.warning('请先输入邮箱')
+    return
+  }
+  if (!formState.captchaCode) {
+    message.warning('请先输入图形验证码')
+    return
+  }
+  sendingCode.value = true
+  try {
+    const res = await sendEmailCode({
+      email: formState.email,
+      scene: 'register',
+      captchaKey: captchaKey.value,
+      captchaCode: formState.captchaCode,
     })
-  } else {
-    message.error('注册失败，' + res.data.message)
+    if (res.data.code === 0) {
+      message.success('验证码已发送，请查收邮件')
+      startCountdown()
+    } else {
+      message.error(res.data.message || '验证码发送失败')
+    }
+  } catch (error) {
+    console.error('发送邮箱验证码失败：', error)
+    message.error('验证码发送失败，请检查网络后重试')
+  } finally {
+    sendingCode.value = false
+    // 图形验证码是一次性的（后端无论成败都会作废），所以每次发送后都换一张，
+    // 否则用户点第二次必然收到"验证码错误"
+    await handleRefreshCaptcha()
   }
 }
+
+const handleSubmit = async () => {
+  if (submitting.value) {
+    return
+  }
+  submitting.value = true
+  try {
+    // 显式组装请求体，避免把 captchaCode 一起发给注册接口
+    const res = await userRegister({
+      userAccount: formState.userAccount,
+      email: formState.email,
+      emailCode: formState.emailCode,
+      userPassword: formState.userPassword,
+      checkPassword: formState.checkPassword,
+    })
+    if (res.data.code === 0) {
+      message.success('注册成功')
+      router.push({
+        path: '/user/login',
+        replace: true,
+      })
+    } else {
+      message.error('注册失败，' + res.data.message)
+    }
+  } catch (error) {
+    console.error('注册请求失败：', error)
+    message.error('注册失败，请检查网络后重试')
+  } finally {
+    submitting.value = false
+  }
+}
+
+onMounted(() => {
+  handleRefreshCaptcha()
+})
+
+onUnmounted(() => {
+  if (countdownTimer) {
+    clearInterval(countdownTimer)
+    countdownTimer = null
+  }
+})
 </script>
-
-<style scoped>
-.auth-page {
-  min-height: calc(100vh - 64px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 16px;
-  background: transparent;
-  position: relative;
-}
-
-.auth-page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 50% 35% at 30% 20%, rgba(var(--ai-accent-rgb), 0.07), transparent),
-    radial-gradient(ellipse 40% 30% at 70% 80%, rgba(52, 211, 153, 0.04), transparent);
-  pointer-events: none;
-}
-
-/* ───── 左右分栏 ───── */
-.auth-split {
-  position: relative;
-  display: flex;
-  width: 100%;
-  max-width: 880px;
-  min-height: 500px;
-  border: 1px solid var(--ai-card-border);
-  border-radius: 16px;
-  background: var(--ai-card-surface);
-  backdrop-filter: blur(40px) saturate(1.15);
-  -webkit-backdrop-filter: blur(40px) saturate(1.15);
-  box-shadow: var(--ai-card-shadow);
-  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  overflow: hidden;
-}
-
-/* ───── 左侧品牌区 ───── */
-.auth-brand {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 48px 40px;
-  background: linear-gradient(135deg, rgba(var(--ai-accent-rgb), 0.04), rgba(var(--ai-accent-rgb), 0.01));
-  border-right: 1px solid var(--ai-border-soft);
-}
-
-.brand-logo {
-  margin-bottom: 16px;
-}
-
-.brand-title {
-  margin: 0 0 8px;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--ai-title);
-  letter-spacing: -0.02em;
-}
-
-.brand-desc {
-  margin: 0 0 36px;
-  color: var(--ai-muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.brand-features {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.brand-feature {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--ai-text);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.brand-feature svg {
-  flex-shrink: 0;
-}
-
-/* ───── 右侧面板 ───── */
-.auth-panel {
-  width: 400px;
-  padding: 44px 36px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.auth-badge {
-  width: fit-content;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(var(--ai-accent-rgb), 0.08);
-  color: var(--ai-primary);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  margin-bottom: 14px;
-}
-
-.panel-title {
-  margin: 0 0 6px;
-  color: var(--ai-title);
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.panel-desc {
-  margin: 0 0 28px;
-  color: var(--ai-muted);
-  font-size: 14px;
-}
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-}
-
-#userRegisterPage :deep(.ant-form-item) {
-  margin-bottom: 18px;
-}
-
-#userRegisterPage :deep(.ant-input),
-#userRegisterPage :deep(.ant-input-affix-wrapper) {
-  height: 48px;
-  padding: 0 14px;
-  border: 1px solid var(--ai-glass-border);
-  border-radius: 10px;
-  background: var(--ai-surface-soft);
-  box-shadow: inset 0 1px 2px rgba(154, 126, 84, 0.09);
-  color: var(--ai-title);
-  caret-color: var(--ai-primary);
-}
-
-#userRegisterPage :deep(.ant-input) {
-  line-height: 48px;
-  letter-spacing: 0.02em;
-}
-
-#userRegisterPage :deep(.ant-input-affix-wrapper .ant-input) {
-  height: 100%;
-  padding: 0;
-  line-height: normal;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-#userRegisterPage :deep(.ant-input-affix-wrapper:hover) {
-  border-color: rgba(var(--ai-accent-rgb), 0.35);
-}
-
-#userRegisterPage :deep(.ant-input:focus),
-#userRegisterPage :deep(.ant-input-affix-wrapper-focused) {
-  border-color: rgba(var(--ai-accent-rgb), 0.2);
-  background: var(--ai-surface);
-  box-shadow: inset 0 0 0 1px rgba(var(--ai-accent-rgb), 0.08), 0 0 16px rgba(var(--ai-accent-rgb), 0.03);
-}
-
-#userRegisterPage :deep(.ant-input-password-icon) {
-  color: var(--ai-muted);
-}
-
-#userRegisterPage :deep(.ant-input-password-icon:hover) {
-  color: var(--ai-primary);
-}
-
-.tips {
-  margin-bottom: 18px;
-  text-align: right;
-  color: var(--ai-muted);
-  font-size: 13px;
-}
-
-.tips a {
-  color: var(--ai-primary);
-  font-weight: 600;
-}
-
-.tips a:hover {
-  text-decoration: underline;
-}
-
-.submit-button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 48px;
-  padding: 0 20px;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  line-height: 1;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  background: linear-gradient(135deg, var(--ai-primary), var(--ai-primary-strong));
-  box-shadow: 0 6px 20px rgba(var(--ai-accent-rgb), 0.2);
-  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.submit-button:hover,
-.submit-button:focus {
-  /* 纸雕主题：原来是写死的蓝色渐变，点击/聚焦时会刺眼 */
-  background: linear-gradient(135deg, #d4824b, var(--ai-primary-strong)) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(var(--ai-accent-rgb), 0.3);
-}
-
-.submit-button:active {
-  background: var(--ai-primary-strong) !important;
-  transform: scale(0.98);
-}
-
-@media (max-width: 768px) {
-  .auth-split {
-    flex-direction: column;
-    max-width: 440px;
-  }
-  .auth-brand {
-    padding: 32px 28px;
-    border-right: none;
-    border-bottom: 1px solid var(--ai-border-soft);
-  }
-  .brand-features {
-    gap: 12px;
-  }
-  .auth-panel {
-    width: 100%;
-    padding: 32px 28px;
-  }
-}
-</style>
