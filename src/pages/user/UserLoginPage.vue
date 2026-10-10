@@ -1,95 +1,66 @@
 ﻿<template>
-  <div class="auth-page">
-    <div id="userLoginPage" class="auth-split">
-      <!-- 左侧品牌区 -->
-      <div class="auth-brand">
-        <div class="brand-logo">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--ai-primary)" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+  <AuthShell badge="欢迎回来" title="账号登录" desc="输入账号或邮箱后完成登录">
+    <a-form :model="formState" name="basic" layout="vertical" autocomplete="off" @finish="handleSubmit">
+      <a-form-item
+        name="userAccount"
+        label="账号 / 邮箱"
+        :rules="[{ required: true, message: '请输入账号或邮箱' }]"
+      >
+        <a-input v-model:value="formState.userAccount" placeholder="请输入账号或邮箱" />
+      </a-form-item>
+
+      <a-form-item
+        name="userPassword"
+        label="密码"
+        :rules="[
+          { required: true, message: '请输入密码' },
+          { min: 8, message: '密码长度不能小于 8 位' },
+        ]"
+      >
+        <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" />
+      </a-form-item>
+
+      <a-form-item
+        name="captchaCode"
+        label="验证码"
+        :rules="[{ required: true, message: '请输入验证码' }]"
+      >
+        <div class="captcha-row">
+          <a-input v-model:value="formState.captchaCode" placeholder="请输入验证码" />
+          <button type="button" class="captcha-card" @click="handleRefreshCaptcha">
+            <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image" />
+            <span v-else class="captcha-placeholder">加载中...</span>
+          </button>
         </div>
-        <h1 class="brand-title">iCodeAI</h1>
-        <p class="brand-desc">自然语言驱动的AI应用生成平台</p>
-        <div class="brand-features">
-          <div class="brand-feature">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>一句话描述，AI 自动生成完整应用</span>
-          </div>
-          <div class="brand-feature">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>多轮对话迭代修改，所见即所得</span>
-          </div>
-          <div class="brand-feature">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>支持 HTML / 多文件 / Vue 三种模式</span>
-          </div>
-          <div class="brand-feature">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>一键部署上线，模板可复用</span>
-          </div>
-        </div>
+      </a-form-item>
+
+      <div class="auth-tips">
+        没有账号？<RouterLink to="/user/register">去注册</RouterLink>
       </div>
 
-      <!-- 右侧登录区 -->
-      <div class="auth-panel">
-        <div class="auth-badge">欢迎回来</div>
-        <h2 class="panel-title">账号登录</h2>
-        <p class="panel-desc">输入账号密码后完成登录</p>
+      <a-form-item>
+        <a-button class="auth-submit" html-type="submit" :loading="submitting">
+          {{ submitting ? '登录中' : '登录' }}
+        </a-button>
+      </a-form-item>
 
-        <a-form :model="formState" name="basic" autocomplete="off" class="auth-form" @finish="handleSubmit">
-          <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
-            <a-input v-model:value="formState.userAccount" placeholder="请输入账号" size="large" />
-          </a-form-item>
+      <div class="oauth-divider"><span>或</span></div>
 
-          <a-form-item
-            name="userPassword"
-            :rules="[
-              { required: true, message: '请输入密码' },
-              { min: 8, message: '密码长度不能小于 8 位' },
-            ]"
-          >
-            <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" size="large" />
-          </a-form-item>
-
-          <div class="captcha-row">
-            <a-form-item
-              class="captcha-input-item"
-              name="captchaCode"
-              :rules="[{ required: true, message: '请输入验证码' }]"
-            >
-              <a-input v-model:value="formState.captchaCode" placeholder="请输入验证码" size="large" />
-            </a-form-item>
-
-            <button type="button" class="captcha-card" @click="handleRefreshCaptcha">
-              <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image" />
-              <span v-else class="captcha-placeholder">加载中...</span>
-            </button>
-          </div>
-
-          <div class="tips">
-            没有账号？<RouterLink to="/user/register">去注册</RouterLink>
-          </div>
-
-          <a-form-item>
-            <a-button type="primary" html-type="submit" class="submit-button">登录</a-button>
-          </a-form-item>
-
-          <div class="oauth-divider"><span>或</span></div>
-
-          <a-button class="github-btn" :href="githubAuthUrl">
-            <template #icon>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-            </template>
-            GitHub 登录
-          </a-button>
-        </a-form>
-      </div>
-    </div>
-  </div>
+      <a-button class="github-btn" :href="githubAuthUrl">
+        <template #icon>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </template>
+        GitHub 登录
+      </a-button>
+    </a-form>
+  </AuthShell>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, computed } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import AuthShell from '@/components/AuthShell.vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { getCaptcha, userLogin } from '@/api/userController.ts'
 import request from '@/request'
@@ -110,8 +81,14 @@ const formState = reactive<API.UserLoginRequest>({
 })
 
 const captchaImage = ref('')
+const submitting = ref(false)
 
-const isCaptchaError = (errorMessage: string) => /验证码|过期|captcha/i.test(errorMessage)
+// 与后端 ErrorCode 保持一致，按 code 判断而不是靠文案正则匹配
+// （正则匹配很脆，后端改一个字的措辞就失效）
+const ERROR_CODE = {
+  CAPTCHA_ERROR: 40001,
+  TOO_MANY_REQUEST: 42900,
+}
 
 const handleRefreshCaptcha = async () => {
   try {
@@ -130,21 +107,47 @@ const handleRefreshCaptcha = async () => {
 }
 
 const handleSubmit = async () => {
-  const res = await userLogin({ ...formState })
-  if (res.data.code === 0 && res.data.data) {
-    await loginUserStore.fetchLoginUser()
-    message.success('登录成功')
-    await router.push({
-      path: '/',
-      replace: true,
-    })
+  if (submitting.value) {
     return
   }
+  submitting.value = true
+  try {
+    const res = await userLogin({ ...formState })
+    if (res.data.code === 0 && res.data.data) {
+      await loginUserStore.fetchLoginUser()
+      message.success('登录成功')
+      await router.push({
+        path: '/',
+        replace: true,
+      })
+      return
+    }
 
-  const errorMessage = res.data.message || '登录失败'
-  message.error('登录失败：' + errorMessage)
-  if (isCaptchaError(errorMessage)) {
+    const code = res.data.code
+    const errorMessage = res.data.message || '登录失败'
+
+    // 被限流时切面在方法体执行前就拦截了，验证码没有被消费，不用刷新
+    if (code === ERROR_CODE.TOO_MANY_REQUEST) {
+      message.error(errorMessage)
+      return
+    }
+
+    // 验证码是一次性的：只要请求到达后端，无论账号密码对错、验证码对错，
+    // 服务端都会在 finally 里作废当前验证码。所以任何非限流的失败都必须换一张，
+    // 否则用户改完密码再点登录，会先吃一次"验证码错误或已过期"。
+    if (code === ERROR_CODE.CAPTCHA_ERROR) {
+      message.error(errorMessage)
+    } else {
+      message.error('登录失败：' + errorMessage)
+    }
     await handleRefreshCaptcha()
+  } catch (error) {
+    // 网络异常 / 5xx：无法确定验证码是否被消费，一并刷新最稳妥
+    console.error('登录请求失败：', error)
+    message.error('登录失败，请检查网络后重试')
+    await handleRefreshCaptcha()
+  } finally {
+    submitting.value = false
   }
 }
 
@@ -154,341 +157,51 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.auth-page {
-  min-height: calc(100vh - 64px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 16px;
-  background: transparent;
-  position: relative;
-}
+/* 表单控件样式统一放在 AuthShell 里（登录/注册共用），这里只留登录页专有的部分 */
 
-.auth-page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 50% 35% at 30% 20%, rgba(var(--ai-accent-rgb), 0.07), transparent),
-    radial-gradient(ellipse 40% 30% at 70% 80%, rgba(52, 211, 153, 0.04), transparent);
-  pointer-events: none;
-}
-
-/* ───── 左右分栏 ───── */
-.auth-split {
-  position: relative;
-  display: flex;
-  width: 100%;
-  max-width: 880px;
-  min-height: 500px;
-  border: 1px solid var(--ai-card-border);
-  border-radius: 16px;
-  background: var(--ai-card-surface);
-  backdrop-filter: blur(40px) saturate(1.15);
-  -webkit-backdrop-filter: blur(40px) saturate(1.15);
-  box-shadow: var(--ai-card-shadow);
-  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  overflow: hidden;
-}
-
-/* ───── 左侧品牌区 ───── */
-.auth-brand {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 48px 40px;
-  background: linear-gradient(135deg, rgba(var(--ai-accent-rgb), 0.04), rgba(var(--ai-accent-rgb), 0.01));
-  border-right: 1px solid var(--ai-border-soft);
-}
-
-.brand-logo {
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-title {
-  margin: 0 0 8px;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--ai-title);
-  letter-spacing: -0.02em;
-}
-
-.brand-desc {
-  margin: 0 0 36px;
-  color: var(--ai-muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.brand-features {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.brand-feature {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--ai-text);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.brand-feature svg {
-  flex-shrink: 0;
-}
-
-/* ───── 右侧面板 ───── */
-.auth-panel {
-  width: 400px;
-  padding: 44px 36px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.auth-badge {
-  width: fit-content;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(var(--ai-accent-rgb), 0.08);
-  color: var(--ai-primary);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  margin-bottom: 14px;
-}
-
-.panel-title {
-  margin: 0 0 6px;
-  color: var(--ai-title);
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.panel-desc {
-  margin: 0 0 28px;
-  color: var(--ai-muted);
-  font-size: 14px;
-}
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-}
-
-#userLoginPage :deep(.ant-form-item) {
-  margin-bottom: 18px;
-}
-
-.captcha-row {
-  display: flex;
-  align-items: stretch;
-  gap: 12px;
-}
-
-.captcha-input-item {
-  flex: 1;
-}
-
-.captcha-card {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 132px;
-  height: 48px;
-  padding: 0;
-  border: 1px solid var(--ai-glass-border);
-  border-radius: 10px;
-  background: var(--ai-surface-soft);
-  cursor: pointer;
-  overflow: hidden;
-  transition: var(--ai-transition);
-}
-
-.captcha-card:hover {
-  border-color: rgba(var(--ai-accent-rgb), 0.2);
-  box-shadow: 0 8px 22px rgba(var(--ai-accent-rgb), 0.12);
-  transform: translateY(-1px);
-}
-
-.captcha-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.captcha-placeholder {
-  color: var(--ai-muted);
-  font-size: 12px;
-}
-
-#userLoginPage :deep(.ant-input),
-#userLoginPage :deep(.ant-input-affix-wrapper) {
-  height: 48px;
-  padding: 0 14px;
-  border: 1px solid var(--ai-glass-border);
-  border-radius: 10px;
-  background: var(--ai-surface-soft);
-  box-shadow: inset 0 1px 2px rgba(154, 126, 84, 0.09);
-  color: var(--ai-title);
-  caret-color: var(--ai-primary);
-}
-
-#userLoginPage :deep(.ant-input) {
-  line-height: 48px;
-  letter-spacing: 0.02em;
-}
-
-#userLoginPage :deep(.ant-input-affix-wrapper .ant-input) {
-  height: 100%;
-  padding: 0;
-  line-height: normal;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-#userLoginPage :deep(.ant-input-affix-wrapper:hover) {
-  border-color: rgba(var(--ai-accent-rgb), 0.35);
-}
-
-#userLoginPage :deep(.ant-input:focus),
-#userLoginPage :deep(.ant-input-affix-wrapper-focused) {
-  border-color: rgba(var(--ai-accent-rgb), 0.2);
-  background: var(--ai-surface);
-  box-shadow: inset 0 0 0 1px rgba(var(--ai-accent-rgb), 0.08), 0 0 16px rgba(var(--ai-accent-rgb), 0.03);
-}
-
-#userLoginPage :deep(.ant-input-password-icon) {
-  color: var(--ai-muted);
-}
-
-#userLoginPage :deep(.ant-input-password-icon:hover) {
-  color: var(--ai-primary);
-}
-
-.tips {
-  margin-bottom: 18px;
-  text-align: right;
-  color: var(--ai-muted);
-  font-size: 13px;
-}
-
-.tips a {
-  color: var(--ai-primary);
-  font-weight: 600;
-}
-
-.tips a:hover {
-  text-decoration: underline;
-}
-
-.submit-button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 48px;
-  padding: 0 20px;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  line-height: 1;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  background: linear-gradient(135deg, var(--ai-primary), var(--ai-primary-strong));
-  box-shadow: 0 6px 20px rgba(var(--ai-accent-rgb), 0.2);
-  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.submit-button:hover,
-.submit-button:focus {
-  /* 纸雕主题：原来是写死的蓝色渐变，点击/聚焦时会刺眼 */
-  background: linear-gradient(135deg, #d4824b, var(--ai-primary-strong)) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(var(--ai-accent-rgb), 0.3);
-}
-
-.submit-button:active {
-  background: var(--ai-primary-strong) !important;
-  transform: scale(0.98);
-}
-
-/* ───── OAuth 分隔线 ───── */
+/* ───── 分隔线 ───── */
 .oauth-divider {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 16px 0;
+  margin: 14px 0;
   color: var(--ai-muted);
   font-size: 12px;
 }
+
 .oauth-divider::before,
 .oauth-divider::after {
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(var(--ai-accent-rgb), 0.08);
+  background: var(--ai-border);
 }
+
 .oauth-divider span {
   white-space: nowrap;
 }
 
-/* ───── GitHub 登录按钮 ───── */
+/* ───── GitHub 登录：次级纸片按钮 ───── */
 .github-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  height: 44px;
-  border: 1px solid var(--ai-glass-border);
-  border-radius: 10px;
-  background: var(--ai-surface-soft);
-  color: var(--ai-title);
+  height: 42px;
+  border: 1px solid var(--ai-border) !important;
+  border-radius: var(--ai-control-radius);
+  background: var(--ai-surface) !important;
+  color: var(--ai-title) !important;
   font-size: 14px;
-  transition: all 0.25s;
+  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.2);
+  transition: var(--ai-transition);
 }
+
 .github-btn:hover {
-  border-color: rgba(var(--ai-accent-rgb), 0.4);
-  background: rgba(154, 126, 84, 0.09);
-  color: var(--ai-primary);
-}
-
-@media (max-width: 768px) {
-  .auth-split {
-    flex-direction: column;
-    max-width: 440px;
-  }
-  .auth-brand {
-    padding: 32px 28px;
-    border-right: none;
-    border-bottom: 1px solid var(--ai-border-soft);
-  }
-  .brand-features {
-    gap: 12px;
-  }
-  .auth-panel {
-    width: 100%;
-    padding: 32px 28px;
-  }
-}
-
-@media (max-width: 520px) {
-  .captcha-row {
-    flex-direction: column;
-  }
-  .captcha-card {
-    width: 100%;
-  }
+  border-color: rgba(var(--ai-accent-rgb), 0.45) !important;
+  color: var(--ai-primary) !important;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 4px 0 rgba(184, 152, 104, 0.26);
 }
 </style>

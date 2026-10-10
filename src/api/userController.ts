@@ -113,6 +113,21 @@ export async function userLogout(options?: { [key: string]: any }) {
 }
 
 /** 此处后端没有提供注释 POST /user/register */
+/** 发送邮箱验证码（需携带图形验证码） POST /user/email/sendCode */
+export async function sendEmailCode(
+  body: API.EmailSendCodeRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseBoolean>('/user/email/sendCode', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 export async function userRegister(
   body: API.UserRegisterRequest,
   options?: { [key: string]: any }
