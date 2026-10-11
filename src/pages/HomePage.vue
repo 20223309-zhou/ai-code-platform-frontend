@@ -33,14 +33,39 @@ const selectedModel = ref<string>('')
 const modelOptions = ref<{ label: string; value: string }[]>([])
 const uploadedFiles = ref<File[]>([])
 
-const platformSkills = [
-  { name: '✔ form-validation-patterns', desc: '智能表单校验：联动规则、动态表单项、实时反馈' },
-  { name: '✔ table-list-patterns', desc: '高效列表页：搜索分页、批量操作、数据表格' },
-  { name: '✔ api-call-pattern', desc: '标准API封装：loading/error/empty 三态处理' },
-  { name: '✔ responsive-breakpoints', desc: '响应式布局：导航折叠、断点适配' },
-  { name: '✔ design-tokens', desc: '设计Token体系：CSS变量、暗色模式、间距节奏' },
-  { name: '✔ micro-interactions', desc: '微交互：骨架屏、空状态、过渡动画、操作反馈' },
+// 平台内置的 AI Skills（与后端 src/main/resources/skills/*/SKILL.md 一一对应）
+// 按生效时机分组，方便用户理解"AI 在什么时候做了什么"
+const skillGroups = [
+  {
+    phase: '生成前',
+    hint: '先读你的需求',
+    skills: [
+      { name: 'ui-reference', desc: '读取参考图 / 网页，提取配色、布局与字体' },
+      { name: 'design-tokens', desc: '设计 Token 体系：CSS 变量、暗色模式、间距节奏' },
+    ],
+  },
+  {
+    phase: '生成中',
+    hint: '套用工程规范',
+    skills: [
+      { name: 'api-call-pattern', desc: '接口调用：loading / error / empty 三态处理' },
+      { name: 'form-validation-patterns', desc: '表单校验：联动规则、动态表单项、实时反馈' },
+      { name: 'table-list-patterns', desc: '列表页：搜索分页、批量操作、数据表格' },
+      { name: 'responsive-breakpoints', desc: '响应式布局：导航折叠、卡片网格、断点适配' },
+      { name: 'micro-interactions', desc: '微交互：骨架屏、空状态、过渡动画、操作反馈' },
+    ],
+  },
+  {
+    phase: '生成后',
+    hint: '自检产出质量',
+    skills: [
+      { name: 'code-audit', desc: '检查代码是否符合基础质量指标' },
+      { name: 'responsive-check', desc: '在 4 个断点下验证页面布局是否正常' },
+    ],
+  },
 ]
+
+const skillCount = skillGroups.reduce((sum, group) => sum + group.skills.length, 0)
 
 const myApps = ref<API.AppVO[]>([])
 const myAppsPage = reactive({
@@ -311,16 +336,27 @@ onMounted(async () => {
             <a-popover placement="topLeft" trigger="hover" :mouseEnterDelay="0.1">
               <template #content>
                 <div class="skills-popover">
-                  <div class="skills-title">平台 AI Skills</div>
-                  <div v-for="skill in platformSkills" :key="skill.name" class="skill-item">
-                    <div class="skill-name">{{ skill.name }}</div>
-                    <div class="skill-desc">{{ skill.desc }}</div>
+                  <div class="skills-head">
+                    <div class="skills-title">平台 AI Skills</div>
+                    <div class="skills-count">{{ skillCount }} 项能力</div>
+                  </div>
+                  <p class="skills-note">由平台在生成过程中自动启用，无需手动开启</p>
+                  <div v-for="group in skillGroups" :key="group.phase" class="skill-group">
+                    <div class="skill-phase">
+                      <span class="skill-phase-name">{{ group.phase }}</span>
+                      <span class="skill-phase-hint">{{ group.hint }}</span>
+                    </div>
+                    <div v-for="skill in group.skills" :key="skill.name" class="skill-item">
+                      <div class="skill-name">{{ skill.name }}</div>
+                      <div class="skill-desc">{{ skill.desc }}</div>
+                    </div>
                   </div>
                 </div>
               </template>
               <label class="skills-trigger" :class="{ 'is-disabled': creating }">
                 <span class="skills-icon">⚡</span>
                 <span>AI Skills</span>
+                <span class="skills-badge">{{ skillCount }}</span>
               </label>
             </a-popover>
             <p class="upload-hint">{{ uploadHint }}</p>
@@ -748,25 +784,97 @@ onMounted(async () => {
   font-size: 14px;
 }
 
+.skills-trigger .skills-badge {
+  min-width: 17px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--ai-primary);
+  color: #fffdf7;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
 .skills-popover {
-  max-width: 320px;
+  width: 340px;
+}
+
+.skills-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(var(--ai-ink-rgb), 0.08);
 }
 
 .skills-title {
   font-size: 14px;
   font-weight: 600;
   color: var(--ai-title);
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(var(--ai-ink-rgb), 0.08);
+}
+
+.skills-count {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid rgba(var(--ai-accent-rgb), 0.28);
+  border-radius: 999px;
+  background: rgba(var(--ai-accent-rgb), 0.08);
+  color: var(--ai-primary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.skills-note {
+  margin: 9px 0 12px;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: rgba(var(--ai-ink-rgb), 0.04);
+  color: var(--ai-muted);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+.skill-group + .skill-group {
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(var(--ai-ink-rgb), 0.09);
+}
+
+.skill-phase {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 3px;
+}
+
+.skill-phase-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ai-title);
+}
+
+.skill-phase-hint {
+  font-size: 11px;
+  color: var(--ai-muted);
 }
 
 .skill-item {
-  padding: 6px 0;
+  position: relative;
+  padding: 5px 0 5px 11px;
 }
 
-.skill-item + .skill-item {
-  border-top: 1px solid rgba(var(--ai-ink-rgb), 0.05);
+.skill-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(var(--ai-accent-rgb), 0.45);
 }
 
 .skill-name {

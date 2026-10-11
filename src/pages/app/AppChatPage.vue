@@ -1414,7 +1414,7 @@ onUnmounted(() => {
 }
 
 .model-select {
-  width: 148px;
+  width: 220px;
 }
 
 /* 模型下拉：与首页同款的冷色胶囊（不描边，仅底色区分） */
@@ -1757,6 +1757,11 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  /* 窄屏下模型选择框收窄，避免挤压两侧的上传 / 发送按钮 */
+  .model-select {
+    width: 168px;
+  }
+
   .header-bar {
     padding: 8px 14px 10px;
   }
