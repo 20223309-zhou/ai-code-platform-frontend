@@ -24,10 +24,14 @@ withDefaults(
 
 <template>
   <div class="auth-page">
-    <div class="auth-card">
-      <!-- ───────── 顶部纸雕横幅 ───────── -->
-      <div class="auth-banner">
-        <!-- 场景整体是装饰性的，交给读屏器忽略；logo 单独放在外面 -->
+    <!-- 左：品牌舞台。窄屏（<1080px）隐藏，此时卡片重新居中 -->
+    <section class="auth-hero">
+      <div class="hero-brand">
+        <img src="@/assets/logo.png" alt="iCodeAI" />
+        <span>iCodeAI</span>
+      </div>
+
+      <div class="hero-scene">
         <div class="bn-scene" aria-hidden="true">
           <div class="bn-sky"></div>
 
@@ -114,13 +118,21 @@ withDefaults(
           </div>
         </div>
 
-        <!-- 品牌标识：坐在天空区正中，避开地面的小动物。与顶栏左侧同一张图 -->
-        <span class="bn-logo">
-          <img src="@/assets/logo.png" alt="iCodeAI" />
-        </span>
       </div>
 
-      <!-- ───────── 表单 ───────── -->
+      <div class="hero-copy">
+        <h1>描述一句，得到一个能跑的网站</h1>
+        <p>AI 负责写代码、装依赖、构建和部署，你只需要说清楚想要什么。</p>
+        <ul class="hero-points">
+          <li>方案预选 —— 先定布局方向，再动手写代码</li>
+          <li>实时预览 —— 边聊边改，改完立刻看到效果</li>
+          <li>一键部署 —— 直接拿到可分享的公网链接</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 右：表单。.auth-panel 保留，:deep 表单控件样式不受影响 -->
+    <section class="auth-card">
       <section class="auth-panel">
         <header class="auth-head">
           <span v-if="badge" class="auth-badge">{{ badge }}</span>
@@ -129,29 +141,112 @@ withDefaults(
         </header>
         <slot />
       </section>
-    </div>
+    </section>
   </div>
 </template>
 
 <style scoped>
 /* ───────── 页面：让卡片在纸面上居中 ───────── */
+/* 宽屏两栏：左边品牌舞台，右边表单。窄屏把左栏隐藏、卡片重新居中（见文件末尾媒体查询） */
 .auth-page {
   position: relative;
-  min-height: calc(100vh - 64px);
+  min-height: 100%;
   display: flex;
-  padding: 24px 20px;
+  align-items: center;
+  justify-content: center;
+  gap: 72px;
+  padding: 36px 56px;
+}
+
+.auth-hero {
+  flex: 0 1 440px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 4px;
+}
+
+.hero-brand img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.hero-brand span {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--ai-title);
+}
+
+/* 纸雕场景：原来挤在 116px 的卡片横幅里，这里放得开 */
+.hero-scene {
+  position: relative;
+  height: 210px;
+  margin: 6px 0 22px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.hero-copy h1 {
+  margin: 0 0 10px;
+  font-size: 25px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ai-title);
+}
+
+.hero-copy p {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ai-text);
+}
+
+.hero-points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.hero-points li {
+  position: relative;
+  padding-left: 17px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ai-text);
+}
+
+.hero-points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ai-primary);
+  opacity: 0.65;
 }
 
 /* 一张纸片：硬边偏移投影 + 暖色描边，和全站纸片卡面同一套语汇 */
 .auth-card {
   position: relative;
-  width: 100%;
   /* 460 而不是更窄：注册页有「账号 | 邮箱」「密码 | 确认密码」两组两列，
      再窄两列的输入框就放不下 placeholder 了 */
-  max-width: 460px;
-  /* 居中用 margin:auto 而不是 align-items:center —— 内容高过视口时，
-     居中会把顶部推到滚动原点之上，用户滚回去也看不到。 */
-  margin: auto;
+  flex: 0 0 460px;
+  width: 460px;
   border: 1px solid var(--ai-card-border);
   border-radius: 18px;
   background: var(--ai-surface);
@@ -554,4 +649,23 @@ withDefaults(
     width: 40px;
   }
 }
+
+/* 窄屏（含浏览器窄窗口、平板）：左栏会挤得难读，直接隐藏，表单回到居中单卡 */
+@media (max-width: 1080px) {
+  .auth-page {
+    gap: 0;
+    padding: 24px 20px;
+  }
+
+  .auth-hero {
+    display: none;
+  }
+
+  .auth-card {
+    flex: 0 1 460px;
+    width: 100%;
+    max-width: 460px;
+  }
+}
+
 </style>

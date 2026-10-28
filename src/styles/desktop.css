@@ -1,0 +1,53 @@
+/**
+ * 桌面端（Electron）专属适配。
+ *
+ * 只在壳里生效：所有规则挂在 `html.is-desktop` 下，
+ * 而那个 class 只在 window.desktop.isDesktop 为真时才会加到 <html> 上。
+ *
+ * 布局已经改成「左侧 Aside + 右侧 Main」的应用形态，顶栏不再存在，
+ * 所以窗口拖动交给 BasicLayout 里的 .window-bar 和 Aside 品牌区，
+ * 这里只留通用的滚动条细化。
+ */
+
+/* 窗口条：只在壳里出现，横跨右列顶部，既是拖动区也是窗口按钮的容身之处。
+   放在全局样式而不是 BasicLayout 的 scoped 里 —— scoped 下的
+   `:global(html.is-desktop) .window-bar` 会被叠加 data-v 属性后失效，
+   实测 display 一直是 none。 */
+html.is-desktop .window-bar {
+  display: block;
+  -webkit-app-region: drag;
+}
+
+/* 侧栏品牌区也是拖动区：用户很自然地会去拖左上角，
+   只让右列 .window-bar 可拖的话，拖左上角会"没反应"。
+   注意必须写在全局样式里 —— scoped 下的 :global(html.is-desktop) 实测不生效。 */
+html.is-desktop .aside-brand {
+  -webkit-app-region: drag;
+}
+
+/* Windows 默认的经典滚动条在窗口里偏粗，抢视觉。只改桌面端。 */
+html.is-desktop ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html.is-desktop ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.is-desktop ::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(31, 36, 48, 0.18);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+html.is-desktop ::-webkit-scrollbar-thumb:hover {
+  background: rgba(31, 36, 48, 0.3);
+  background-clip: padding-box;
+}
+
+/* 窗口里没有"按住拖拽链接"这种浏览器语义，去掉图片和链接的默认拖影 */
+html.is-desktop img {
+  -webkit-user-drag: none;
+}

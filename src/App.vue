@@ -235,6 +235,12 @@ body,
 #app {
   position: relative;
   z-index: 1;
+  /* 显式给应用根节点铺底：只靠 body 的背景，换主题后主区底色不跟随
+     （实测 body 计算值是冷色，但主区渲染仍是原纸色）。
+     注意 .bg-dynamic-global 是 #app 的子元素且 z-index:-1，
+     所以铺在 #app 上不会盖住那层氛围雾。 */
+  background: var(--ai-bg);
+  min-height: 100vh;
 }
 
 body {
@@ -399,10 +405,12 @@ button, input, textarea,
   position: absolute;
   inset: -10%;
   filter: blur(48px);
+  /* 光晕跟着主题主色走：否则换了主题后 body 的 --ai-bg 变了，
+     这层硬编码暖色仍然盖在上面，看起来还是原纸色 */
   background:
-    radial-gradient(circle at 12% 16%, rgba(201, 113, 62, 0.16), transparent 40%),
-    radial-gradient(circle at 88% 24%, rgba(126, 155, 107, 0.14), transparent 38%),
-    radial-gradient(circle at 74% 90%, rgba(216, 165, 91, 0.18), transparent 42%);
+    radial-gradient(circle at 12% 16%, rgba(var(--ai-accent-rgb), 0.16), transparent 40%),
+    radial-gradient(circle at 88% 24%, rgba(var(--ai-accent-rgb), 0.1), transparent 38%),
+    radial-gradient(circle at 74% 90%, rgba(var(--ai-accent-rgb), 0.15), transparent 42%);
 }
 
 /* 纸张压边：四角与四边的柔和暗角，让整页像"一张有厚度的纸"而非无限延展的色块 */
@@ -411,9 +419,10 @@ button, input, textarea,
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /* 暗角同样跟 --ai-ink-rgb 走 */
   background:
-    radial-gradient(ellipse 120% 90% at 50% 50%, transparent 58%, rgba(168, 134, 84, 0.09) 100%),
-    linear-gradient(90deg, rgba(168, 134, 84, 0.07) 0%, transparent 9%, transparent 91%, rgba(168, 134, 84, 0.07) 100%);
+    radial-gradient(ellipse 120% 90% at 50% 50%, transparent 58%, rgba(var(--ai-ink-rgb), 0.09) 100%),
+    linear-gradient(90deg, rgba(var(--ai-ink-rgb), 0.07) 0%, transparent 9%, transparent 91%, rgba(var(--ai-ink-rgb), 0.07) 100%);
 }
 
 /* ───────── 剪纸卡通动物装饰（静止、无动画、无毛玻璃） ───────── */

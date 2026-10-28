@@ -13,6 +13,8 @@ dist
 dist-ssr
 coverage
 *.local
+# electron-builder 产物（安装包 + 免安装目录，动辄几百 MB）
+release
 
 /cypress/videos/
 /cypress/screenshots/

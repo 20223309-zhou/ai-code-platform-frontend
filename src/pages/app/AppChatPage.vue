@@ -53,6 +53,17 @@
       </div>
     </div>
 
+    <!-- 换方案要等模型十几秒，只让按钮转圈用户会以为没反应 -->
+    <div v-if="regenLoading" class="regen-progress-bar">
+      <PlanProgressBar
+        :active="regenLoading"
+        :text="regenPhase"
+        :elapsed="regenElapsed"
+        :slow-after="16"
+        @cancel="cancelRegenPlan"
+      />
+    </div>
+
     <!-- 主要内容区域 -->
     <div class="main-content">
       <!-- 左侧对话/生成区域 -->
@@ -333,6 +344,9 @@ import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import AppDetailModal from '@/components/AppDetailModal.vue'
 import DeploySuccessModal from '@/components/DeploySuccessModal.vue'
 import PlanChoiceModal from '@/components/PlanChoiceModal.vue'
+import PlanProgressBar from '@/components/PlanProgressBar.vue'
+import axios from 'axios'
+import { PLAN_STAGES, PLAN_TIMEOUT_MS, useStageProgress } from '@/utils/useStageProgress'
 import aiAvatar from '@/assets/aiAvatar.png'
 import { API_BASE_URL, getStaticPreviewUrl } from '@/config/env'
 import { VisualEditor, type ElementInfo } from '@/utils/visualEditor'
@@ -402,6 +416,15 @@ const previewReady = ref(false)
 const regenPlanOpen = ref(false)
 const regenPlans = ref<AppPlanItem[]>([])
 const regenLoading = ref(false)
+// 换方案同样要等模型十几秒，给状态条 + 秒数 + 取消（与首页共用一套文案）
+const {
+  elapsed: regenElapsed,
+  text: regenPhase,
+  start: startRegenProgress,
+  stop: stopRegenProgress,
+} = useStageProgress(PLAN_STAGES)
+let regenAbort: AbortController | null = null
+const cancelRegenPlan = () => regenAbort?.abort()
 /** 已经看过或采用过的方案标题，传给模型避免它又给同一套方向 */
 const usedPlanTitles = ref<string[]>([])
 
@@ -658,11 +681,16 @@ const startChangePlan = async () => {
   }
 
   regenLoading.value = true
+  startRegenProgress()
+  regenAbort = new AbortController()
   try {
-    const res = await generateAppPlan({
-      initPrompt: basePrompt,
-      excludeTitles: collectUsedPlanTitles(),
-    })
+    const res = await generateAppPlan(
+      {
+        initPrompt: basePrompt,
+        excludeTitles: collectUsedPlanTitles(),
+      },
+      { signal: regenAbort.signal, timeout: PLAN_TIMEOUT_MS },
+    )
     const data = res.data?.data
     const plans = Array.isArray(data?.plans) ? data.plans : []
     if (res.data?.code !== 0 || plans.length === 0) {
@@ -672,10 +700,20 @@ const startChangePlan = async () => {
     regenPlans.value = plans
     regenPlanOpen.value = true
   } catch (error) {
+    if (axios.isCancel(error)) {
+      message.info('已取消换方案')
+      return
+    }
     console.error('换方案失败：', error)
-    message.error('获取新方案失败，请稍后再试')
+    message.error(
+      (error as { code?: string })?.code === 'ECONNABORTED'
+        ? '生成新方案超时，请稍后再试'
+        : '获取新方案失败，请稍后再试',
+    )
   } finally {
+    stopRegenProgress()
     regenLoading.value = false
+    regenAbort = null
   }
 }
 
@@ -1275,11 +1313,17 @@ onUnmounted(() => {
 
 <style scoped>
 #appChatPage {
-  height: 100vh;
+  /* 现在由 BasicLayout 的 .app-main 提供确定高度，页面撑满它即可 */
+  height: 100%;
   display: flex;
   flex-direction: column;
   padding: 16px;
   background: transparent;
+}
+
+/* 换方案状态条：与 header-bar 左右内边距对齐，不额外挤占高度 */
+.regen-progress-bar {
+  padding: 0 16px 10px;
 }
 
 .header-bar {

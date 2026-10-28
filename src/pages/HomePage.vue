@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 import { message, Modal } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import { addApp, listMyAppVoByPage } from '@/api/appController'
 import { generateAppPlan, type AppPlanItem } from '@/api/appPlanController'
 import PlanChoiceModal from '@/components/PlanChoiceModal.vue'
+import PlanProgressBar from '@/components/PlanProgressBar.vue'
+import { PLAN_STAGES, PLAN_TIMEOUT_MS, useStageProgress } from '@/utils/useStageProgress'
 import { getLoginUser } from '@/api/userController'
 import { getDeployUrl } from '@/config/env'
 import AppCard from '@/components/AppCard.vue'
@@ -29,6 +32,16 @@ const creating = ref(false)
 // 方案预选：需求存在设计分歧时先让用户定方向，需求明确则直接生成
 const planModalOpen = ref(false)
 const planLoading = ref(false)
+// 方案生成期间给用户看得见的东西：阶段文案 + 已用秒数（详见 PlanProgressBar）
+const {
+  elapsed: planElapsed,
+  text: planPhase,
+  start: startPlanProgress,
+  stop: stopPlanProgress,
+} = useStageProgress(PLAN_STAGES)
+// 允许中途放弃：模型偶尔会卡到 30s 以上，没有取消就只能干等或者刷新页面
+let planAbort: AbortController | null = null
+const cancelPlan = () => planAbort?.abort()
 const planOptions = ref<AppPlanItem[]>([])
 const pendingPrompt = ref('')
 const useRag = ref(false)
@@ -160,8 +173,14 @@ const createApp = async () => {
   // 方案阶段失败绝不能阻断主流程：拿不到方案就按原始描述直接生成
   creating.value = true
   planLoading.value = true
+  startPlanProgress()
+  planAbort = new AbortController()
   try {
-    const res = await generateAppPlan({ initPrompt: prompt })
+    const res = await generateAppPlan(
+      { initPrompt: prompt },
+      // 45s 还没出方案就放弃，让用户至少能先拿到页面；默认 60s 等太久
+      { signal: planAbort.signal, timeout: PLAN_TIMEOUT_MS },
+    )
     const data = res.data?.data
     if (res.data?.code === 0) {
       // 描述与前端页面无关：给一次确认，而不是硬弹几个网页方案
@@ -183,10 +202,21 @@ const createApp = async () => {
       }
     }
   } catch (error) {
+    // 用户主动取消：连后面创建应用一起停掉，不能"取消"了还偷偷开始生成
+    if (axios.isCancel(error)) {
+      message.info('已取消方案生成')
+      return
+    }
+    // 超时 / 接口报错：说清楚为什么这次没有方案，而不是默默跳过
+    if ((error as { code?: string })?.code === 'ECONNABORTED') {
+      message.info('方案生成超时，已按你的描述直接开始生成')
+    }
     console.warn('方案生成失败，直接进入生成流程：', error)
   } finally {
+    stopPlanProgress()
     planLoading.value = false
     creating.value = false
+    planAbort = null
   }
 
   await doCreateApp(prompt)
@@ -363,6 +393,17 @@ onMounted(async () => {
           </button>
         </div>
 
+        <!-- 方案阶段要等十几秒，只转个圈用户会以为卡死了 -->
+        <div v-if="planLoading" class="plan-progress-slot">
+          <PlanProgressBar
+            :active="planLoading"
+            :text="planPhase"
+            :elapsed="planElapsed"
+            :slow-after="16"
+            @cancel="cancelPlan"
+          />
+        </div>
+
         <div class="type-selector">
           <div class="type-selector-item">
             <span class="type-selector-label">生成类型</span>
@@ -533,7 +574,7 @@ onMounted(async () => {
 <style scoped>
 #homePage {
   position: relative;
-  min-height: 100vh;
+  min-height: 100%;
   overflow: hidden;
   background: transparent;
 }
@@ -865,7 +906,7 @@ onMounted(async () => {
   padding: 0 5px;
   border-radius: 999px;
   background: var(--ai-primary);
-  color: #fffdf7;
+  color: var(--ai-surface);
   font-size: 10.5px;
   font-weight: 600;
   line-height: 16px;
@@ -1118,6 +1159,11 @@ onMounted(async () => {
   color: var(--ai-primary);
   border-color: rgba(var(--ai-accent-rgb), 0.2);
   font-weight: 500;
+}
+
+/* 方案生成状态条：夹在输入框和类型选择之间，只在等待时占位 */
+.plan-progress-slot {
+  margin: 10px 0 12px;
 }
 
 .type-selector {
@@ -1449,8 +1495,8 @@ onMounted(async () => {
 
 /* ───────── 生成框 = 一张贴上去的白纸 ───────── */
 #homePage .generator-panel {
-  background: #fffdf7;
-  border: 1.5px solid #ecdcbd;
+  background: var(--ai-surface);
+  border: 1.5px solid var(--ai-card-border);
   border-radius: 18px;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -1466,7 +1512,7 @@ onMounted(async () => {
 /* ───────── 输入区 = 纸上压出的凹槽 ───────── */
 #homePage :deep(.prompt-input.ant-input) {
   background: #faf3e3;
-  border: 1.5px solid #ecdcbd;
+  border: 1.5px solid var(--ai-card-border);
   border-radius: 14px;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -1480,7 +1526,7 @@ onMounted(async () => {
 
 #homePage :deep(.prompt-input.ant-input:focus),
 #homePage :deep(.prompt-input.ant-input-focused) {
-  background: #fffdf7;
+  background: var(--ai-surface);
   border-color: #d9a878;
   box-shadow: inset 2px 2px 0 rgba(184, 152, 104, 0.1), 0 0 0 3px rgba(201, 113, 62, 0.14);
 }
@@ -1493,7 +1539,7 @@ onMounted(async () => {
 #homePage .generate-button {
   background: #c9713e;
   background-image: none;
-  color: #fffdf7;
+  color: var(--ai-surface);
   box-shadow: 2px 3px 0 rgba(150, 92, 48, 0.36);
 }
 
@@ -1523,8 +1569,8 @@ onMounted(async () => {
 
 #homePage .upload-trigger,
 #homePage .skills-trigger {
-  background: #fffdf7;
-  border: 1.5px solid #ecdcbd;
+  background: var(--ai-surface);
+  border: 1.5px solid var(--ai-card-border);
   border-radius: 10px;
   color: var(--ai-title);
   box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.18);
@@ -1532,21 +1578,21 @@ onMounted(async () => {
 
 #homePage .upload-trigger:hover,
 #homePage .skills-trigger:hover {
-  background: #fdf6e6;
-  border-color: #dcc9a2;
+  background: var(--ai-surface-soft);
+  border-color: var(--ai-border);
   box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.26);
 }
 
 #homePage .template-chip {
-  background: #fffdf7;
-  border: 1.5px solid #ecdcbd;
+  background: var(--ai-surface);
+  border: 1.5px solid var(--ai-card-border);
   border-radius: 10px;
   box-shadow: 1px 1px 0 rgba(184, 152, 104, 0.14);
 }
 
 #homePage .template-chip:hover {
-  background: #fdf6e6;
-  border-color: #dcc9a2;
+  background: var(--ai-surface-soft);
+  border-color: var(--ai-border);
   color: var(--ai-title);
   box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.22);
 }
@@ -1566,12 +1612,12 @@ onMounted(async () => {
 }
 
 #homePage .type-selector-item:hover {
-  background: #f0e0bf;
+  background: var(--ai-surface-soft);
   box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.22);
 }
 
 #homePage .type-selector-item:focus-within {
-  background: #f0e0bf;
+  background: var(--ai-surface-soft);
   box-shadow: 0 0 0 3px rgba(201, 113, 62, 0.16);
 }
 
@@ -1582,7 +1628,7 @@ onMounted(async () => {
 
 /* ───────── 空状态也要纸片化 ───────── */
 #homePage .empty-state {
-  background: #fffdf7;
+  background: var(--ai-surface);
   border: 1.5px dashed #e3d2b0;
   border-radius: 16px;
 }

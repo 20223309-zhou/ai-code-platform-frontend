@@ -1,0 +1,81 @@
+# electron-builder 打包配置
+#
+# 产物：
+#   npm run desktop:dist  → release/iCodeAI-1.0.0-x64-setup.exe（NSIS 安装包）
+#   npm run desktop:pack  → release/win-unpacked/iCodeAI.exe（免安装目录，调试用）
+#
+# ⚠️ appId 必须和主进程的 app.setAppUserModelId('com.aicodeplatform.desktop') 一致。
+#    Windows 靠这个 ID 把「快捷方式 / 任务栏 / 通知 / 卸载项」认成同一个应用，
+#    对不上就会出现任务栏两个图标、通知不出、跳转列表失效。
+
+appId: com.aicodeplatform.desktop
+productName: iCodeAI
+copyright: Copyright © 2026 iCodeAI
+
+directories:
+  output: release
+  # 图标等打包资源放这里，win.icon 就能写相对路径
+  buildResources: electron/assets
+
+# 只打运行必需的三样东西。dist 是 vite 产物，运行时不再需要任何 node_modules
+# （main.cjs/proxy.cjs 全用 node: 内置模块），把 node_modules 排掉能省几百 MB。
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+  # 开发期工具不进包：图标生成器要 Electron API，自检脚本只跑代理断言
+  - '!electron/make-icons.cjs'
+  - '!electron/smoke-test.cjs'
+  # 非 Windows 平台才用 png，Windows 包只要 ico
+  - '!electron/assets/icon.png'
+  # NSIS 编译期脚本，不属于运行时代码
+  - '!electron/assets/installer.nsh'
+  - '!node_modules/**/*'
+  - '!**/*.map'
+
+asar: true
+compression: normal
+
+# 托盘/窗口图标复制到 resources/ 下的真实文件。
+# 主进程用 process.resourcesPath 读 —— 原生图片解码不走 fs 的 asar 补丁，
+# 直接把 ico 留在 asar 里，部分 Windows 版本上 Tray 会加载失败。
+extraResources:
+  - from: electron/assets/icon.ico
+    to: icon.ico
+  - from: electron/assets/icon.png
+    to: icon.png
+
+# 国内直连 GitHub 拉 electron 压缩包经常超时；命令行里还会额外设
+# ELECTRON_BUILDER_BINARIES_MIRROR（winCodeSign / nsis 走那个变量）
+electronDownload:
+  mirror: https://npmmirror.com/mirrors/electron/
+
+win:
+  icon: icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: ${productName}-${version}-${arch}-setup.${ext}
+
+nsis:
+  # 自定义脚本负责把默认安装目录固定到 %LOCALAPPDATA%\Programs\iCodeAI，
+  # 否则会落成 C:\Users\<用户>\ICodeAI（详见 installer.nsh 里的说明）
+  include: installer.nsh
+  # 助手式安装：可以选安装目录、可以取消，比一键装到 C 盘友好
+  oneClick: false
+  # 装到 %LOCALAPPDATA%\Programs\iCodeAI，不需要管理员权限、不弹 UAC
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: iCodeAI
+  uninstallDisplayName: iCodeAI
+  installerLanguages:
+    - zh_CN
+  # 2052 = 简体中文，安装向导默认中文
+  language: '2052'
+  # 卸载时保留 %APPDATA%\iCodeAI：登录态、主题、托盘设置都在这儿，
+  # 重装后不用重新登录；真要清干净让用户手动删目录
+  deleteAppDataOnUninstall: false
+  runAfterFinish: true

@@ -1,0 +1,138 @@
+/**
+ * 主题包。
+ *
+ * 只覆盖 App.vue `:root` 里那套 `--ai-*` 变量，不碰组件代码 ——
+ * 因为全站变量使用已经足够密集（App.vue 119 处、AuthShell 46 处…），
+ * 换一套变量值就能让背景、卡片、描边、文字、主色整体切换。
+ *
+ * 为什么三套都是浅色：
+ *   1. App.vue / AuthShell 里的纸雕插画（云朵、丘陵、小动物）是硬编码的 SVG 配色，
+ *      换深色底会把它们衬得又脏又假，需要重画插画才能救 —— 那是另一个量级的活
+ *   2. 组件里仍有约 300 处硬编码色值（HomePage 41、AuthShell 40 …），
+ *      深色主题下这些浅色硬编码会变成白块，暴露得非常明显
+ *
+ * 所以主题定位在「同一套纸雕语言下换色调」，而不是「换一套视觉风格」。
+ * 默认主题（paper）直接用 App.vue 的 :root 值，这里只写其他几套的覆盖。
+ * 选择器统一用 `:root[data-theme=...]`：:root 的特异性是 (0,1,0)，和
+ * [data-theme=x] 相同，只写属性选择器会退化成"谁后加载谁赢"，不可靠。
+ */
+
+/* ===================== 雾蓝 · 清冷中性 ===================== */
+:root[data-theme='mist'] {
+  --ai-primary: #4a6fa5;
+  --ai-primary-strong: #3a5a8a;
+  --ai-primary-glow: rgba(74, 111, 165, 0.18);
+  --ai-accent: #6b8fb8;
+  --ai-accent-soft: #a8bdd4;
+  --ai-accent-rgb: 74, 111, 165;
+  --ai-ink-rgb: 108, 126, 150;
+
+  --ai-bg: #eef2f7;
+  --ai-surface: #ffffff;
+  --ai-surface-soft: #e6ecf4;
+  --ai-card-bg: #ffffff;
+  --ai-glass: #ffffff;
+  --ai-glass-strong: #ffffff;
+  --ai-glass-border: #cfdae8;
+
+  --ai-card-surface: #ffffff;
+  --ai-card-surface-solid: #ffffff;
+  --ai-card-border: #cfdae8;
+  --ai-card-shadow: 2px 3px 0 rgba(140, 158, 180, 0.22), 0 16px 26px -22px rgba(60, 80, 105, 0.42);
+
+  --ai-title: #2c3a4d;
+  --ai-text: #4a5a6e;
+  --ai-muted: #8496a8;
+
+  --ai-border: #d3deea;
+  --ai-border-soft: #e6edf5;
+  --ai-overlay: rgba(44, 58, 77, 0.4);
+  --ai-chip-bg: rgba(74, 111, 165, 0.08);
+  --ai-chip-bg-hover: rgba(74, 111, 165, 0.14);
+
+  --ai-shadow: 2px 3px 0 rgba(140, 158, 180, 0.22), 0 16px 26px -22px rgba(60, 80, 105, 0.42);
+  --ai-shadow-hover: 3px 5px 0 rgba(140, 158, 180, 0.26), 0 22px 34px -24px rgba(60, 80, 105, 0.48);
+}
+
+/* ===================== 森绿 · 草木纸雕 ===================== */
+:root[data-theme='forest'] {
+  --ai-primary: #5b7f52;
+  --ai-primary-strong: #47663f;
+  --ai-primary-glow: rgba(91, 127, 82, 0.18);
+  --ai-accent: #8aa87c;
+  --ai-accent-soft: #b3c6a6;
+  --ai-accent-rgb: 91, 127, 82;
+  --ai-ink-rgb: 118, 134, 106;
+
+  --ai-bg: #f1f5ea;
+  --ai-surface: #fdfef9;
+  --ai-surface-soft: #eaf0e1;
+  --ai-card-bg: #fdfef9;
+  --ai-glass: #fdfef9;
+  --ai-glass-strong: #fdfef9;
+  --ai-glass-border: #d5e0c8;
+
+  --ai-card-surface: #fdfef9;
+  --ai-card-surface-solid: #fdfef9;
+  --ai-card-border: #d5e0c8;
+  --ai-card-shadow: 2px 3px 0 rgba(150, 168, 134, 0.24), 0 16px 26px -22px rgba(70, 92, 60, 0.42);
+
+  --ai-title: #333f2c;
+  --ai-text: #556349;
+  --ai-muted: #8d9a80;
+
+  --ai-border: #dbe5cd;
+  --ai-border-soft: #eaf0e0;
+  --ai-overlay: rgba(51, 63, 44, 0.4);
+  --ai-chip-bg: rgba(91, 127, 82, 0.08);
+  --ai-chip-bg-hover: rgba(91, 127, 82, 0.14);
+
+  --ai-shadow: 2px 3px 0 rgba(150, 168, 134, 0.24), 0 16px 26px -22px rgba(70, 92, 60, 0.42);
+  --ai-shadow-hover: 3px 5px 0 rgba(150, 168, 134, 0.28), 0 22px 34px -24px rgba(70, 92, 60, 0.48);
+}
+
+/* ===================== 暮橙 · 暖暮纸面（比默认更沉） ===================== */
+:root[data-theme='dusk'] {
+  --ai-primary: #b5633f;
+  --ai-primary-strong: #96492b;
+  --ai-primary-glow: rgba(181, 99, 63, 0.2);
+  --ai-accent: #a8785c;
+  --ai-accent-soft: #c9a68f;
+  --ai-accent-rgb: 181, 99, 63;
+  --ai-ink-rgb: 160, 128, 100;
+
+  --ai-bg: #f6ebdc;
+  --ai-surface: #fffaef;
+  --ai-surface-soft: #f0e2cd;
+  --ai-card-bg: #fffaef;
+  --ai-glass: #fffaef;
+  --ai-glass-strong: #fffaef;
+  --ai-glass-border: #e4cfb0;
+
+  --ai-card-surface: #fffaef;
+  --ai-card-surface-solid: #fffaef;
+  --ai-card-border: #e4cfb0;
+  --ai-card-shadow: 2px 3px 0 rgba(178, 146, 108, 0.26), 0 16px 26px -22px rgba(110, 80, 50, 0.5);
+
+  --ai-title: #453a2e;
+  --ai-text: #675a48;
+  --ai-muted: #9a8b76;
+
+  --ai-border: #e6d5b8;
+  --ai-border-soft: #f0e5cf;
+  --ai-overlay: rgba(69, 58, 46, 0.42);
+  --ai-chip-bg: rgba(181, 99, 63, 0.09);
+  --ai-chip-bg-hover: rgba(181, 99, 63, 0.15);
+
+  --ai-shadow: 2px 3px 0 rgba(178, 146, 108, 0.26), 0 16px 26px -22px rgba(110, 80, 50, 0.5);
+  --ai-shadow-hover: 3px 5px 0 rgba(178, 146, 108, 0.3), 0 22px 34px -24px rgba(110, 80, 50, 0.56);
+}
+
+/* 切换主题时给个短过渡，避免整体色块硬跳 */
+html.theme-switching,
+html.theme-switching * {
+  transition:
+    background-color 0.28s ease,
+    border-color 0.28s ease,
+    color 0.28s ease !important;
+}

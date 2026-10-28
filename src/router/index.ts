@@ -23,11 +23,15 @@ const router = createRouter({
     {
       path: '/user/login',
       name: '用户登录',
+      // 纯入口页：不套侧栏（见 BasicLayout 的 showSidebar）
+      meta: { bare: true },
       component: UserLoginPage,
     },
     {
       path: '/user/register',
       name: '用户注册',
+      // 纯入口页：不套侧栏（见 BasicLayout 的 showSidebar）
+      meta: { bare: true },
       component: UserRegisterPage,
     },
     {
