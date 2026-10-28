@@ -58,7 +58,7 @@
                   {{ item.label }}
                 </text>
                 <text :x="78 + idx * 72" :y="item.y - 8" text-anchor="middle" fill="var(--ai-title)" font-size="13" font-weight="600">
-                  {{ formatNum(stats[item.key]) }}
+                  {{ formatNum(item.value) }}
                 </text>
               </g>
             </svg>
@@ -217,6 +217,8 @@ const barData = computed(() => {
       key,
       label: barLabels[idx],
       color: barColors[idx],
+      // 数值在这里算好：模板里写 stats[item.key] 会因为 key 是 string 而索引不到具体字段
+      value: v,
       h,
       y,
     }

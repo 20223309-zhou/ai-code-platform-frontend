@@ -22,7 +22,7 @@
  *    改名后旧目录不会被读取，等于登录态清空一次 —— 这是预期行为，不是 bug。
  */
 
-const { app, BrowserWindow, Menu, Tray, dialog, shell, nativeImage } = require('electron')
+const { app, BrowserWindow, Menu, Tray, dialog, shell, nativeImage, ipcMain, session } = require('electron')
 const fs = require('node:fs')
 const path = require('node:path')
 
@@ -43,11 +43,22 @@ const ICON_ICO = path.join(ICON_DIR, 'icon.ico')
 const ICON_PNG = path.join(ICON_DIR, 'icon.png')
 const ICON_PATH = process.platform === 'win32' ? ICON_ICO : ICON_PNG
 
+/** 所有窗口共用：同一个 preload，同一套安全项 */
+const WEB_PREFERENCES = {
+  preload: path.join(__dirname, 'preload.cjs'),
+  contextIsolation: true,
+  nodeIntegration: false,
+  sandbox: true,
+  spellcheck: false,
+}
+
 app.setName(APP_TITLE)
 
 let mainWindow = null
 let localServer = null
 let appOrigin = ''
+/** appId → 独立窗口，避免同一个应用被开出多个窗口 */
+const appWindows = new Map()
 /** online = 直接加载线上站点；local = 壳内本地服务托管 dist（见 config.cjs） */
 const APP_MODE = config.mode
 /** OAuth 授权必须留在壳内完成，否则 Cookie 落在系统浏览器里，回来还是未登录 */
@@ -108,6 +119,24 @@ async function bootstrap() {
   createWindow()
   createTray()
 
+  // 主文档不缓存。
+  //
+  // online 模式走的是 nginx，缓存的 index.html 会指向旧的 assets/index-*.js，
+  // 结果是前端已经更新了，应用重开还是老界面（连新功能都看不到）。
+  // 只对 mainFrame 加 no-cache：静态资源带 hash，继续走缓存不影响。
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    if (details.resourceType === 'mainFrame') {
+      details.requestHeaders['Cache-Control'] = 'no-cache'
+      details.requestHeaders['Pragma'] = 'no-cache'
+    }
+    callback({ requestHeaders: details.requestHeaders })
+  })
+
+  // 侧栏「在新窗口打开」走这里：渲染进程不能直接建窗口
+  ipcMain.handle('desktop:open-app-window', (event, appId, appName) =>
+    createAppWindow(appId, appName),
+  )
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow()
@@ -118,36 +147,12 @@ async function bootstrap() {
 }
 
 function createWindow() {
-  mainWindow = new BrowserWindow({
+  mainWindow = createBaseWindow({
     width: 1440,
     height: 900,
     minWidth: 1100,
     minHeight: 720,
     title: APP_TITLE,
-    // 任务栏按钮和 Alt+Tab 缩略图取这里，不设就是 Electron 默认的原子图标
-    icon: ICON_PATH,
-    // 与前端浅色主题对齐，避免窗口出现瞬间闪白/闪黑
-    backgroundColor: '#f5f6f8',
-    show: false,
-    // Windows 原生标题栏和页内导航会形成上下两条顶栏，视觉上很厚。
-    // 隐藏原生标题栏，把最小化/最大化/关闭做成覆盖在内容右上角的浮层，
-    // 页内导航就是唯一的顶栏。透明底色让页面的氛围背景能透出来。
-    // 前端配套：GlobalHeader 加 -webkit-app-region: drag（否则窗口拖不动）
-    //          并留出 148px 右内边距（否则窗口按钮压住登录/头像）
-    titleBarStyle: 'hidden',
-    titleBarOverlay: {
-      color: '#00000000',
-      symbolColor: '#4b5563',
-      // 与 BasicLayout 的 .window-bar 同高，否则按钮会盖到内容区
-      height: 48,
-    },
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.cjs'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: true,
-      spellcheck: false,
-    },
   })
 
   // 页面里的 <title> 是「AI 零代码应用生成平台」，加载完会覆盖窗口标题，
@@ -165,54 +170,6 @@ function createWindow() {
   })
 
   mainWindow.loadURL(appOrigin)
-
-  mainWindow.webContents.on('did-finish-load', () => {
-    console.log('[desktop] 页面加载完成')
-  })
-
-  mainWindow.webContents.on('did-fail-load', (event, code, description, url, isMainFrame) => {
-    console.error(`[desktop] 页面加载失败 code=${code} ${description} ${url}`)
-    // -3 = ERR_ABORTED，重定向或打不开新窗口时的常见结果，不是真的失败
-    if (!isMainFrame || code === -3) {
-      return
-    }
-    showOfflinePage()
-  })
-
-  // 右键菜单：浏览器里"右键→粘贴"是系统给的，Electron 默认什么都不弹。
-  // 输入框里想粘贴密码却没有菜单，是最容易被吐槽的"这不像个应用"。
-  mainWindow.webContents.on('context-menu', (event, params) => {
-    const items = []
-    if (params.isEditable) {
-      items.push(
-        { role: 'undo', label: '撤销' },
-        { role: 'redo', label: '重做' },
-        { type: 'separator' },
-        { role: 'cut', label: '剪切' },
-        { role: 'copy', label: '复制' },
-        { role: 'paste', label: '粘贴' },
-        { role: 'selectAll', label: '全选' },
-      )
-    } else if (params.selectionText && params.selectionText.trim()) {
-      items.push({ role: 'copy', label: '复制' })
-    }
-    if (items.length > 0) {
-      Menu.buildFromTemplate(items).popup({ window: mainWindow })
-    }
-  })
-
-  // 站内链接留在壳里，站外的交给系统浏览器
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    openExternally(url)
-    return { action: 'deny' }
-  })
-
-  mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (!isInAppUrl(url)) {
-      event.preventDefault()
-      openExternally(url)
-    }
-  })
 
   // 关闭 = 隐藏到托盘（默认）。AI 生成是长任务，误关窗口把整轮对话打断很烦。
   // 想彻底关掉可以改托盘菜单的开关，或用托盘/菜单里的「退出」。
@@ -244,6 +201,142 @@ function createWindow() {
 }
 
 /**
+ * 创建窗口的公共部分（尺寸之外的都一样）。
+ *
+ * 主窗口和「应用独立窗口」共用这套配置：同一个 preload、同一套安全项、
+ * 同样的标题栏方案。差异只交给调用方处理（关闭行为、标题、是否隐藏启动）。
+ */
+function createBaseWindow(options) {
+  const win = new BrowserWindow({
+    ...options,
+    // 任务栏按钮和 Alt+Tab 缩略图取这里，不设就是 Electron 默认的原子图标
+    icon: ICON_PATH,
+    // 与前端浅色主题对齐，避免窗口出现瞬间闪白/闪黑
+    backgroundColor: '#f5f6f8',
+    show: false,
+    // Windows 原生标题栏和页内导航会形成上下两条顶栏，视觉上很厚。
+    // 隐藏原生标题栏，把最小化/最大化/关闭做成覆盖在内容右上角的浮层，
+    // 页内导航就是唯一的顶栏。透明底色让页面的氛围背景能透出来。
+    // 前端配套：GlobalHeader 加 -webkit-app-region: drag（否则窗口拖不动）
+    //          并留出 148px 右内边距（否则窗口按钮压住登录/头像）
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#00000000',
+      symbolColor: '#4b5563',
+      // 与 BasicLayout 的 .window-bar 同高，否则按钮会盖到内容区
+      height: 48,
+    },
+    webPreferences: WEB_PREFERENCES,
+  })
+
+  attachWebContentsHandlers(win)
+  return win
+}
+
+/** 所有窗口都要遵守的网页行为：链接外跳、右键菜单、加载失败兜底 */
+function attachWebContentsHandlers(win) {
+  win.webContents.on('did-finish-load', () => {
+    console.log('[desktop] 页面加载完成')
+  })
+
+  win.webContents.on('did-fail-load', (event, code, description, url, isMainFrame) => {
+    console.error(`[desktop] 页面加载失败 code=${code} ${description} ${url}`)
+    // -3 = ERR_ABORTED，重定向或打不开新窗口时的常见结果，不是真的失败
+    if (!isMainFrame || code === -3) {
+      return
+    }
+    showOfflinePage(win)
+  })
+
+  // 右键菜单：浏览器里"右键→粘贴"是系统给的，Electron 默认什么都不弹。
+  // 输入框里想粘贴密码却没有菜单，是最容易被吐槽的"这不像个应用"。
+  win.webContents.on('context-menu', (event, params) => {
+    const items = []
+    if (params.isEditable) {
+      items.push(
+        { role: 'undo', label: '撤销' },
+        { role: 'redo', label: '重做' },
+        { type: 'separator' },
+        { role: 'cut', label: '剪切' },
+        { role: 'copy', label: '复制' },
+        { role: 'paste', label: '粘贴' },
+        { role: 'selectAll', label: '全选' },
+      )
+    } else if (params.selectionText && params.selectionText.trim()) {
+      items.push({ role: 'copy', label: '复制' })
+    }
+    if (items.length > 0) {
+      Menu.buildFromTemplate(items).popup({ window: win })
+    }
+  })
+
+  // 站内链接留在壳里，站外的交给系统浏览器
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    openExternally(url)
+    return { action: 'deny' }
+  })
+
+  win.webContents.on('will-navigate', (event, url) => {
+    if (!isInAppUrl(url)) {
+      event.preventDefault()
+      openExternally(url)
+    }
+  })
+}
+
+/**
+ * 在独立窗口里打开某个应用。
+ *
+ * 这是"并行对话"的实现方式：每个窗口是独立渲染进程，
+ * 有自己的 SSE 连接和组件状态，一个窗口在生成不影响另一个。
+ * 页内切换做不到 —— 组件卸载会 abort 流并调取消接口。
+ */
+function createAppWindow(rawAppId, rawAppName) {
+  const appId = String(rawAppId || '').trim()
+  if (!/^[1-9]\d*$/.test(appId)) {
+    console.warn('[desktop] 非法 appId，拒绝打开窗口：', rawAppId)
+    return false
+  }
+
+  const existing = appWindows.get(appId)
+  if (existing && !existing.isDestroyed()) {
+    if (existing.isMinimized()) {
+      existing.restore()
+    }
+    existing.show()
+    existing.focus()
+    return true
+  }
+
+  const label = rawAppName ? `${APP_TITLE} · ${rawAppName}` : `${APP_TITLE} · 应用 ${appId}`
+  const win = createBaseWindow({
+    width: 1280,
+    height: 840,
+    minWidth: 1000,
+    minHeight: 680,
+    title: label,
+  })
+
+  // 标题同样要锁：页面 <title> 会把窗口标题覆盖成长中文
+  win.on('page-title-updated', (event) => {
+    event.preventDefault()
+    win.setTitle(label)
+  })
+
+  win.once('ready-to-show', () => win.show())
+  win.loadURL(`${appOrigin}/app/chat/${appId}`)
+
+  win.on('closed', () => {
+    appWindows.delete(appId)
+    console.log(`[desktop] 关闭应用窗口 appId=${appId}`)
+  })
+
+  appWindows.set(appId, win)
+  console.log(`[desktop] 打开应用窗口 appId=${appId} title=${label}`)
+  return true
+}
+
+/**
  * 判断一个地址该留在壳内还是交给系统浏览器。
  *
  * 两条例外规则都是踩过坑的：
@@ -272,7 +365,7 @@ function isInAppUrl(rawUrl) {
  * 不加这个，用户看到的是 Chromium 默认的 ERR_CONNECTION_REFUSED 白屏，
  * 会以为是应用坏了。
  */
-function showOfflinePage() {
+function showOfflinePage(win) {
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>连不上服务器</title>
 <style>
   html,body{height:100%;margin:0}
@@ -288,8 +381,8 @@ function showOfflinePage() {
   <p>桌面端直接加载线上站点，当前网络访问不到<br>${appOrigin}<br>请检查网络后重试。</p>
   <a href="${appOrigin}">重新加载</a>
 </div></body></html>`
-  if (mainWindow) {
-    mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
+  if (win && !win.isDestroyed()) {
+    win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
   }
 }
 

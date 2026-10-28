@@ -976,7 +976,7 @@ const fetchAppInfo = async () => {
       } else if (appInfo.value.initPrompt && !initialMessageSent.value) {
         // 回退回来先检查是否已有对话历史，有则加载不重新生成
         const historyRes = await listAppChatHistory({ appId: id as any, pageSize: 1 })
-        if (historyRes.data.data?.records?.length > 0) {
+        if ((historyRes.data.data?.records?.length ?? 0) > 0) {
           await loadInitialHistory(id)
         } else {
           // 真正的新应用才发送初始消息
@@ -1284,6 +1284,13 @@ const getInputPlaceholder = () => {
   return `请描述你想生成的网站，也可以搭配图片或文本文件，单个文件不超过 ${CHAT_UPLOAD_MAX_SIZE_MB}MB`
 }
 
+// 具名函数才能在卸载时移除。写成内联匿名函数的话，
+// 每切换一次应用（组件按 path 重建）就会多一个监听器，
+// 旧实例还会继续处理新 iframe 的消息，导致元素选中回调重复触发。
+const onWindowMessage = (event: MessageEvent) => {
+  visualEditor.handleIframeMessage(event)
+}
+
 // 页面加载时获取应用信息
 onMounted(() => {
   fetchAppInfo()
@@ -1297,14 +1304,13 @@ onMounted(() => {
   })
 
   // 监听 iframe 消息
-  window.addEventListener('message', (event) => {
-    visualEditor.handleIframeMessage(event)
-  })
+  window.addEventListener('message', onWindowMessage)
 })
 
 // 清理资源
 onUnmounted(() => {
-  // 组件卸载时取消后端生成的 token 流
+  window.removeEventListener('message', onWindowMessage)
+  // 组件卸载时取消后端生成的 token 流（换作品时旧应用不该继续烧 token）
   if (appId.value) {
     cancelAppGeneration({ appId: String(appId.value) }).catch(() => {})
   }

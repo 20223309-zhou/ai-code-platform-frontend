@@ -7,7 +7,16 @@
            浏览器里不渲染（display:none），网页端布局不受影响。 -->
       <div class="window-bar" aria-hidden="true"></div>
       <main class="app-main">
-        <router-view />
+        <!--
+          key 必须带 path：/app/chat/1 → /app/chat/2 命中同一个路由记录，
+          Vue Router 会复用组件实例 —— onMounted 只跑一次，
+          页面数据还是上一个应用的，表现就是"点了侧栏没反应"。
+          用 path 作 key 后，换应用等于换实例，消息、预览 iframe、
+          生成状态都跟着重建；同一页面只变 query 时不会误重建。
+        -->
+        <router-view v-slot="{ Component, route: viewRoute }">
+          <component :is="Component" :key="viewRoute.path" />
+        </router-view>
       </main>
     </div>
   </div>

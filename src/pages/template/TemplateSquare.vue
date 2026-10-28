@@ -71,7 +71,7 @@
               decoding="sync"
               fetchpriority="high"
               referrerpolicy="no-referrer"
-              @error="onCoverError"
+              @error="() => onCoverError(app)"
             />
             <div v-else class="card-placeholder">
               <svg viewBox="0 0 320 140" class="placeholder-illustration" aria-hidden="true">

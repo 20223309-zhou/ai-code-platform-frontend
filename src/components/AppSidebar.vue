@@ -38,16 +38,32 @@
           <span class="group-count">{{ myAppTotal }}</span>
         </header>
         <div class="app-list">
-          <RouterLink
+          <!--
+            右键「在新窗口打开」：桌面端才有意义（浏览器里开新窗口就是新标签页，
+            而且照样会打断当前页面的生成）。独立窗口 = 独立渲染进程 = 独立 SSE 连接，
+            两个作品可以同时生成互不影响。
+          -->
+          <a-dropdown
             v-for="app in myApps"
             :key="app.id"
-            :to="`/app/chat/${app.id}`"
-            class="nav-row app-row"
-            :class="{ 'is-active': isAppActive(app.id) }"
+            :trigger="['contextmenu']"
+            :disabled="!isDesktop"
+            placement="bottomLeft"
           >
-            <span class="app-dot" />
-            <span class="row-label app-label">{{ app.appName || '未命名应用' }}</span>
-          </RouterLink>
+            <template #overlay>
+              <a-menu @click="onAppMenuClick(String($event.key), app)">
+                <a-menu-item key="open-window">在新窗口打开</a-menu-item>
+              </a-menu>
+            </template>
+            <RouterLink
+              :to="`/app/chat/${app.id}`"
+              class="nav-row app-row"
+              :class="{ 'is-active': isAppActive(app.id) }"
+            >
+              <span class="app-dot" />
+              <span class="row-label app-label">{{ app.appName || '未命名应用' }}</span>
+            </RouterLink>
+          </a-dropdown>
           <p v-if="myApps.length === 0" class="group-empty">还没有作品，从「新建应用」开始</p>
         </div>
       </section>
@@ -192,6 +208,28 @@ const openGithub = () => {
 
 const myApps = ref<API.AppVO[]>([])
 const myAppTotal = ref(0)
+
+// 桌面壳通过 preload 注入 window.desktop；浏览器里没有这个对象
+const desktopApi = (window as any).desktop as
+  | { isDesktop?: boolean; openAppWindow?: (id: string | number, name: string) => Promise<boolean> }
+  | undefined
+const isDesktop = Boolean(desktopApi?.isDesktop)
+
+/** 在独立窗口打开某个作品：两个窗口各自持有 SSE 连接，可以并行生成 */
+const onAppMenuClick = (key: string, app: API.AppVO) => {
+  if (key !== 'open-window') {
+    return
+  }
+  const openAppWindow = desktopApi?.openAppWindow
+  if (!openAppWindow || app.id === undefined) {
+    message.warning('当前环境不支持独立窗口')
+    return
+  }
+  openAppWindow(app.id, app.appName || '').catch((error) => {
+    console.warn('打开独立窗口失败：', error)
+    message.error('打开独立窗口失败')
+  })
+}
 
 const loadMyApps = async () => {
   if (!loginUserStore.loginUser.id) {
