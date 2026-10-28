@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import { addApp, listMyAppVoByPage } from '@/api/appController'
+import { generateAppPlan, type AppPlanItem } from '@/api/appPlanController'
+import PlanChoiceModal from '@/components/PlanChoiceModal.vue'
 import { getLoginUser } from '@/api/userController'
 import { getDeployUrl } from '@/config/env'
 import AppCard from '@/components/AppCard.vue'
@@ -24,6 +26,11 @@ const loginUserStore = useLoginUserStore()
 
 const userPrompt = ref('')
 const creating = ref(false)
+// 方案预选：需求存在设计分歧时先让用户定方向，需求明确则直接生成
+const planModalOpen = ref(false)
+const planLoading = ref(false)
+const planOptions = ref<AppPlanItem[]>([])
+const pendingPrompt = ref('')
 const useRag = ref(false)
 const activeTemplate = ref('')
 // 生成类型（创建时指定，创建后不可更改）：默认“智能选择”，由 AI 自动路由
@@ -135,6 +142,7 @@ const onPromptPaste = (event: ClipboardEvent) => {
   result.errors.forEach((error) => message.error(error))
 }
 
+// 入口：先让 AI 给出设计方案；需求明确、只有 1 个方案或方案接口失败时，直接进入生成
 const createApp = async () => {
   if (!userPrompt.value.trim()) {
     message.warning('请输入应用描述')
@@ -147,10 +155,49 @@ const createApp = async () => {
     return
   }
 
+  const prompt = userPrompt.value.trim()
+
+  // 方案阶段失败绝不能阻断主流程：拿不到方案就按原始描述直接生成
+  creating.value = true
+  planLoading.value = true
+  try {
+    const res = await generateAppPlan({ initPrompt: prompt })
+    const data = res.data?.data
+    if (res.data?.code === 0) {
+      // 描述与前端页面无关：给一次确认，而不是硬弹几个网页方案
+      if (data?.irrelevant) {
+        Modal.confirm({
+          title: '这个描述看起来不是网页需求',
+          content: data.hint || '仍要按原描述生成一个页面吗？也可以返回修改，例如「做一个介绍它的页面」。',
+          okText: '仍然生成',
+          cancelText: '返回修改',
+          onOk: () => doCreateApp(prompt),
+        })
+        return
+      }
+      if (Array.isArray(data?.plans) && data.plans.length > 1 && !data.recommendSkip) {
+        planOptions.value = data.plans
+        pendingPrompt.value = prompt
+        planModalOpen.value = true
+        return
+      }
+    }
+  } catch (error) {
+    console.warn('方案生成失败，直接进入生成流程：', error)
+  } finally {
+    planLoading.value = false
+    creating.value = false
+  }
+
+  await doCreateApp(prompt)
+}
+
+// 真正创建应用并跳转
+const doCreateApp = async (finalPrompt: string) => {
   creating.value = true
   try {
     const res = await addApp({
-      initPrompt: userPrompt.value.trim(),
+      initPrompt: finalPrompt,
       codeGenType: selectedCodeGenType.value,
     })
 
@@ -176,6 +223,26 @@ const createApp = async () => {
   } finally {
     creating.value = false
   }
+}
+
+// 方案确认：选中的方案或自定义描述，拼进 prompt 一起交给生成链路
+const onPlanConfirm = async ({ plan, custom }: { plan: AppPlanItem | null; custom: string }) => {
+  planModalOpen.value = false
+  const base = pendingPrompt.value
+  const suffix = plan
+    ? `\n\n【已选设计方案】${plan.title}（${plan.style}）\n布局：${plan.layout}\n设计意图：${plan.desc}\n\n请严格按上述方案实现，不要自行改变整体布局结构。`
+    : `\n\n【补充设计要求】${custom}`
+  await doCreateApp(base + suffix)
+}
+
+// 跳过方案，用原始描述生成
+const onPlanSkip = async () => {
+  planModalOpen.value = false
+  await doCreateApp(pendingPrompt.value)
+}
+
+const onPlanCancel = () => {
+  planModalOpen.value = false
 }
 
 const loadMyApps = async () => {
@@ -451,6 +518,15 @@ onMounted(async () => {
         </div>
       </section>
     </div>
+
+    <PlanChoiceModal
+      :open="planModalOpen"
+      :plans="planOptions"
+      :loading="creating"
+      @confirm="onPlanConfirm"
+      @skip="onPlanSkip"
+      @cancel="onPlanCancel"
+    />
   </div>
 </template>
 

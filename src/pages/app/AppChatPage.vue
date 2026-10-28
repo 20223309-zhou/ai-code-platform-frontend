@@ -16,6 +16,17 @@
           应用详情
         </a-button>
         <a-button
+            type="default"
+            :disabled="!isOwner || isGenerating"
+            :loading="regenLoading"
+            @click="startChangePlan"
+        >
+          <template #icon>
+            <SwapOutlined />
+          </template>
+          换个方案
+        </a-button>
+        <a-button
             type="primary"
             ghost
             @click="downloadCode"
@@ -82,7 +93,7 @@
                     <MarkdownRenderer :content="message.thinking" />
                   </div>
                 </div>
-                <MarkdownRenderer v-if="message.content" :content="message.content" />
+                <MarkdownRenderer v-if="message.content" :content="message.content" :streaming="message.loading" />
                 <div v-if="message.loading" class="loading-indicator">
                   <a-spin size="small" />
                   <span>AI 正在思考...</span>
@@ -277,6 +288,20 @@
         @delete="deleteApp"
     />
 
+    <!-- 换方案：重新出一批设计方向，选定后清空代码重做 -->
+    <PlanChoiceModal
+        :open="regenPlanOpen"
+        :plans="regenPlans"
+        :loading="regenLoading"
+        title="换个方向"
+        description="下面是和当前方向不同的备选；选定后会清空已生成的代码，按新方案从头重做。"
+        hide-skip
+        confirm-text="用这个方案重做"
+        @confirm="onRegenPlanConfirm"
+        @skip="onRegenPlanCancel"
+        @cancel="onRegenPlanCancel"
+    />
+
     <!-- 部署成功弹窗 -->
     <DeploySuccessModal
         v-model:open="deployModalVisible"
@@ -289,7 +314,7 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import { getLoginUser } from '@/api/userController'
 import {
@@ -299,6 +324,7 @@ import {
   deleteApp as deleteAppApi,
 } from '@/api/appController'
 import { listAppChatHistory } from '@/api/chatHistoryController'
+import { generateAppPlan, restartGeneration, type AppPlanItem } from '@/api/appPlanController'
 import { CodeGenTypeEnum, formatCodeGenType } from '@/utils/codeGenTypes'
 import { DEFAULT_MODEL_NAME, loadModelOptions, pickDefaultModelName } from '@/utils/aiModels'
 import request from '@/request'
@@ -306,6 +332,7 @@ import request from '@/request'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import AppDetailModal from '@/components/AppDetailModal.vue'
 import DeploySuccessModal from '@/components/DeploySuccessModal.vue'
+import PlanChoiceModal from '@/components/PlanChoiceModal.vue'
 import aiAvatar from '@/assets/aiAvatar.png'
 import { API_BASE_URL, getStaticPreviewUrl } from '@/config/env'
 import { VisualEditor, type ElementInfo } from '@/utils/visualEditor'
@@ -327,6 +354,7 @@ import {
   DownloadOutlined,
   EditOutlined,
   CloseOutlined,
+  SwapOutlined,
 } from '@ant-design/icons-vue'
 
 const route = useRoute()
@@ -369,6 +397,13 @@ const initialMessageSent = ref(false)
 // 预览相关
 const previewUrl = ref('')
 const previewReady = ref(false)
+
+// 换方案相关：重新出几个设计方向，选定后清空代码从零重做
+const regenPlanOpen = ref(false)
+const regenPlans = ref<AppPlanItem[]>([])
+const regenLoading = ref(false)
+/** 已经看过或采用过的方案标题，传给模型避免它又给同一套方向 */
+const usedPlanTitles = ref<string[]>([])
 
 // 部署相关
 const deploying = ref(false)
@@ -535,11 +570,11 @@ const handleSendMessage = async () => {
 }
 
 // 发送初始消息
-const sendInitialMessage = async (prompt: string, files: File[] = []) => {
-  // 添加用户消息
+const sendInitialMessage = async (prompt: string, files: File[] = [], displayContent?: string) => {
+  // 添加用户消息（displayContent 只影响界面上显示什么，发给后端和入库的仍是 prompt）
   messages.value.push({
     type: 'user',
-    content: buildUserMessageContent(prompt, files),
+    content: displayContent || buildUserMessageContent(prompt, files),
   })
 
   // 添加AI消息占位符
@@ -560,6 +595,138 @@ const sendInitialMessage = async (prompt: string, files: File[] = []) => {
   // 开始生成
   isGenerating.value = true
   await generateCode(formData, aiMessageIndex)
+}
+
+// ===================== 换方案 =====================
+
+/** 从 initPrompt 里切掉方案后缀，还原成用户最初的需求 */
+const extractBasePrompt = (raw?: string) => {
+  if (!raw) {
+    return ''
+  }
+  const index = raw.search(/【(已选设计方案|补充设计要求)】/)
+  return (index > 0 ? raw.slice(0, index) : raw).trim()
+}
+
+/** 从文本里取出【已选设计方案】后面的标题 */
+const extractPlanTitle = (raw?: string) => {
+  const matched = raw?.match(/【已选设计方案】([^（(\n]+)/)
+  return matched ? matched[1].trim() : ''
+}
+
+/**
+ * 汇总「已经看过的方向」。
+ * <p>
+ * app.initPrompt 只保留最初那一次选择，所以还要扫一遍当前会话的消息。
+ * 刷新页面后历史会重新从 DB 加载，扫描依然有效，不需要为此新增字段。
+ */
+const collectUsedPlanTitles = () => {
+  const titles = new Set<string>(usedPlanTitles.value)
+  const fromInitPrompt = extractPlanTitle(appInfo.value?.initPrompt)
+  if (fromInitPrompt) {
+    titles.add(fromInitPrompt)
+  }
+  for (const item of messages.value) {
+    if (item.type !== 'user') {
+      continue
+    }
+    // 按分隔符切开，每段的第一个「（」或换行之前就是方案标题
+    for (const part of item.content.split('【已选设计方案】').slice(1)) {
+      const title = part.split(/[（(\n]/)[0].trim()
+      if (title) {
+        titles.add(title)
+      }
+    }
+    // 换方案时界面上只显示「换个方案：xxx」，这条也要认
+    for (const part of item.content.split('换个方案：').slice(1)) {
+      const title = part.split(/[（(\n]/)[0].trim()
+      if (title) {
+        titles.add(title)
+      }
+    }
+  }
+  // 只带最近 8 个，太多会挤占 prompt 且让模型混乱
+  return Array.from(titles).slice(-8)
+}
+
+// 打开「换个方案」：先让 AI 给几个和现有方向不同的选择
+const startChangePlan = async () => {
+  const basePrompt = extractBasePrompt(appInfo.value?.initPrompt)
+  if (!basePrompt) {
+    message.warning('找不到最初的描述，无法换方案')
+    return
+  }
+
+  regenLoading.value = true
+  try {
+    const res = await generateAppPlan({
+      initPrompt: basePrompt,
+      excludeTitles: collectUsedPlanTitles(),
+    })
+    const data = res.data?.data
+    const plans = Array.isArray(data?.plans) ? data.plans : []
+    if (res.data?.code !== 0 || plans.length === 0) {
+      message.warning(data?.hint || '这次没能给出新方案，稍后再试试')
+      return
+    }
+    regenPlans.value = plans
+    regenPlanOpen.value = true
+  } catch (error) {
+    console.error('换方案失败：', error)
+    message.error('获取新方案失败，请稍后再试')
+  } finally {
+    regenLoading.value = false
+  }
+}
+
+// 选定新方案：二次确认 → 清空生成目录 → 带着新方向重新生成
+const onRegenPlanConfirm = ({ plan, custom }: { plan: AppPlanItem | null; custom: string }) => {
+  regenPlanOpen.value = false
+  const basePrompt = extractBasePrompt(appInfo.value?.initPrompt)
+  const planText = plan
+    ? `【已选设计方案】${plan.title}（${plan.style}）\n布局：${plan.layout}\n设计意图：${plan.desc}\n\n请严格按上述方案实现，不要自行改变整体布局结构。`
+    : `【补充设计要求】${custom}`
+
+  const newPrompt = [
+    '【换个方案重新生成】请按下面的新设计方案从零开始重新实现，不要沿用当前代码的任何结构、命名和样式。',
+    `【原始需求】\n${basePrompt}`,
+    planText,
+  ].join('\n\n')
+
+  Modal.confirm({
+    title: '确认换个方案重做？',
+    content:
+      '会清空这个应用当前已生成的代码文件，然后按新方案重新生成。已部署的线上版本不受影响，需要重新部署才会更新。',
+    okText: '清空并重新生成',
+    okType: 'danger',
+    cancelText: '再想想',
+    onOk: async () => {
+      try {
+        await restartGeneration(appId.value)
+      } catch (error) {
+        console.error('清空生成目录失败：', error)
+        message.error('清空代码失败，已取消换方案')
+        return
+      }
+      if (plan?.title && !usedPlanTitles.value.includes(plan.title)) {
+        usedPlanTitles.value = [...usedPlanTitles.value, plan.title]
+      }
+      // 界面上只显示一句人话，实际发给模型的仍是完整 prompt
+      const display = plan
+        ? `换个方案：${plan.title}（${plan.style}）`
+        : `换个方案：${custom}`
+      // 🔴 这里不能 await：sendInitialMessage 内部会等 generateCode 读完整个 SSE 流
+      //（几十秒到几分钟），而 Modal.confirm 要等 onOk 的 Promise 落定才关闭，
+      // 一旦 await 就会让确认框一直挂到生成结束。清空目录成功后立刻放行，让弹窗关掉。
+      sendInitialMessage(newPrompt, [], display).catch((error) => {
+        console.error('换方案重新生成失败：', error)
+      })
+    },
+  })
+}
+
+const onRegenPlanCancel = () => {
+  regenPlanOpen.value = false
 }
 
 // 发送消息
