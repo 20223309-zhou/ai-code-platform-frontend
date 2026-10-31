@@ -19,6 +19,9 @@
         </router-view>
       </main>
     </div>
+
+    <!-- 进站公告：登录/注册页（bare）不弹，避免打断进入流程 -->
+    <AnnouncementModal v-if="showSidebar" />
   </div>
 </template>
 
@@ -26,6 +29,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
+import AnnouncementModal from '@/components/AnnouncementModal.vue'
 
 const route = useRoute()
 

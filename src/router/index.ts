@@ -11,6 +11,8 @@ import TemplateSquare from '@/pages/template/TemplateSquare.vue'
 import ChatManagePage from "@/pages/admin/ChatManagePage.vue";
 import LogManagePage from '@/pages/admin/LogManagePage.vue'
 import StatisticsPage from '@/pages/admin/StatisticsPage.vue'
+import AnnouncementManagePage from '@/pages/admin/AnnouncementManagePage.vue'
+import PointCenterPage from '@/pages/user/PointCenterPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,6 +65,16 @@ const router = createRouter({
       path: '/admin/statistics',
       name: '数据统计',
       component: StatisticsPage,
+    },
+    {
+      path: '/admin/announcement',
+      name: '公告管理',
+      component: AnnouncementManagePage,
+    },
+    {
+      path: '/point',
+      name: '签到积分',
+      component: PointCenterPage,
     },
     {
       path: '/app/chat/:id',

@@ -29,6 +29,22 @@
           <GithubOutlined class="row-icon" />
           <span class="row-label">GitHub</span>
         </a>
+        <!-- 公告常驻入口：进站弹窗只弹最新一条未读，关掉就看不到了 -->
+        <a class="nav-row" @click="announcementOpen = true">
+          <BellOutlined class="row-icon" />
+          <span class="row-label">公告</span>
+          <span v-if="unreadCount > 0" class="unread-badge">
+            {{ unreadCount > 99 ? '99+' : unreadCount }}
+          </span>
+        </a>
+        <RouterLink
+          to="/point"
+          class="nav-row"
+          :class="{ 'is-active': isActive('/point') }"
+        >
+          <TrophyOutlined class="row-icon" />
+          <span class="row-label">签到积分</span>
+        </RouterLink>
       </nav>
 
       <!-- 我的作品 -->
@@ -133,6 +149,9 @@
       </a-dropdown>
       <a-button v-else block @click="router.push('/user/login')">登录</a-button>
     </div>
+
+    <!-- 公告列表（a-modal 会 teleport 到 body，放这里只是就近管理状态） -->
+    <AnnouncementCenter v-model:open="announcementOpen" />
   </aside>
 </template>
 
@@ -143,6 +162,9 @@ import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import { userLogout } from '@/api/userController'
 import { listMyAppVoByPage } from '@/api/appController'
+import AnnouncementCenter from '@/components/AnnouncementCenter.vue'
+import { useAnnouncementFeed } from '@/utils/announcementFeed'
+import { useReadIds } from '@/utils/announcementRead'
 import { THEMES, applyTheme, getThemeId } from '@/utils/theme'
 import {
   PlusOutlined,
@@ -157,11 +179,22 @@ import {
   UserOutlined,
   LogoutOutlined,
   MoreOutlined,
+  NotificationOutlined,
+  BellOutlined,
+  TrophyOutlined,
 } from '@ant-design/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
+
+// 公告：数据源与已读状态都是共享单例，和进站弹窗看到的是同一份
+const { list: announcements, ensureLoaded } = useAnnouncementFeed()
+const readIds = useReadIds()
+const announcementOpen = ref(false)
+const unreadCount = computed(
+  () => announcements.value.filter((item) => !readIds.value.has(String(item.id))).length,
+)
 
 const isLoggedIn = computed(() => Boolean(loginUserStore.loginUser.id))
 const isAdmin = computed(() => loginUserStore.loginUser.userRole === 'admin')
@@ -179,6 +212,7 @@ const adminNav = [
   { path: '/admin/appManage', label: '应用管理', icon: AppstoreOutlined },
   { path: '/admin/chatManage', label: '对话管理', icon: MessageOutlined },
   { path: '/admin/logManage', label: '日志管理', icon: OrderedListOutlined },
+  { path: '/admin/announcement', label: '公告管理', icon: NotificationOutlined },
   { path: '/admin/statistics', label: '数据统计', icon: BarChartOutlined },
 ]
 
@@ -258,7 +292,11 @@ const loadMyApps = async () => {
 watch(() => route.path, loadMyApps)
 watch(() => loginUserStore.loginUser.id, loadMyApps)
 
-onMounted(loadMyApps)
+onMounted(() => {
+  loadMyApps()
+  // 公告数据也用于侧栏未读红点；与进站弹窗共用同一份缓存，不会重复请求
+  ensureLoaded()
+})
 
 // ---------------------------------------------------------------- 账户
 
@@ -399,6 +437,21 @@ const doLogout = async () => {
 .row-icon {
   font-size: 14px;
   flex-shrink: 0;
+}
+
+/* 未读公告数：贴右侧，小到不打扰但一眼能看到 */
+.unread-badge {
+  margin-left: auto;
+  flex: none;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #d9534f;
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
 }
 
 .row-label {

@@ -15,8 +15,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        //target: 'http://localhost:8082', //单体后端
-        target: 'http://localhost:8100', //微服务gateway地址
+        target: 'http://localhost:8082', //单体后端
+        //target: 'http://localhost:8100', //微服务gateway地址
         //target: 'http://192.168.100.100:8080', //微服务higress地址
         changeOrigin: true,
         secure: false,
