@@ -33,7 +33,8 @@ const DIST_DIR = path.join(__dirname, '..', 'dist')
 const APP_TITLE = 'iCodeAI'
 
 // 图标：Windows 用多尺寸 ico（任务栏 32 / 高 DPI 48 / Alt+Tab 64 各取一档），
-// 其他平台用 png。都由 npm run desktop:icons 从 src/assets/logo.png 生成。
+// 其他平台用 png。都由 npm run desktop:icons 从 src/assets/logo-mark-square.png
+// 合成（渐变圆角底 + 白色图标），不是直接拿网页 logo 缩放。
 //
 // ⚠️ 打包后必须走 resourcesPath：asar 里的文件 JS 层能读，但 Tray /
 //    BrowserWindow 的图标是原生解码，asar 内路径在部分 Windows 版本上加载失败。
