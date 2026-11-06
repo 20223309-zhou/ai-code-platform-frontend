@@ -119,24 +119,24 @@ const baseBtn: Record<string, string> = {
 }
 const btnStyle: Record<string, string> = {
   ...baseBtn,
-  border: '1.5px solid #ecdcbd',
-  background: '#fffdf7',
+  border: '1.5px solid var(--ai-border)',
+  background: 'var(--ai-card-surface)',
   color: '#6e6047',
   cursor: 'pointer',
 }
 const prevBtnStyle: Record<string, string> = {
   ...baseBtn,
-  border: '1.5px solid #ecdcbd',
-  background: '#f7eeda',
-  color: '#c4b39a',
+  border: '1.5px solid var(--ai-border)',
+  background: 'var(--ai-surface-soft)',
+  color: 'var(--ai-muted)',
   cursor: 'not-allowed',
   fontSize: '18px',
   fontWeight: '600',
 }
 const nextBtnStyle: Record<string, string> = {
   ...baseBtn,
-  border: '1.5px solid #ecdcbd',
-  background: '#fffdf7',
+  border: '1.5px solid var(--ai-border)',
+  background: 'var(--ai-card-surface)',
   color: '#6e6047',
   cursor: 'pointer',
   fontSize: '18px',
@@ -146,7 +146,7 @@ const activeBtnStyle: Record<string, string> = {
   ...baseBtn,
   border: '1.5px solid rgba(201,113,62,0.45)',
   background: 'rgba(201,113,62,0.14)',
-  color: '#a8612f',
+  color: 'var(--ai-primary-strong)',
   cursor: 'pointer',
   fontWeight: '600',
 }
@@ -154,10 +154,10 @@ const selectStyle: Record<string, string> = {
   marginLeft: '8px',
   height: '36px',
   padding: '0 28px 0 10px',
-  border: '1.5px solid #ecdcbd',
+  border: '1.5px solid var(--ai-border)',
   borderRadius: '10px',
   background:
-    "#fffdf7 url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6047' stroke-width='2.5' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>\") no-repeat right 8px center",
+    "var(--ai-card-surface) url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6047' stroke-width='2.5' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>\") no-repeat right 8px center",
   backgroundSize: '12px',
   color: '#6e6047',
   fontSize: '14px',
@@ -241,10 +241,10 @@ function onSizeChange(ev: Event) {
   font-family: inherit;
 }
 .cp-btn.cp-active {
-  background: rgba(201, 113, 62, 0.16) !important;
-  color: #a8612f !important;
+  background: rgba(var(--ai-accent-rgb), 0.16) !important;
+  color: var(--ai-primary-strong) !important;
   font-weight: 600 !important;
-  border-color: rgba(201, 113, 62, 0.45) !important;
+  border-color: rgba(var(--ai-accent-rgb), 0.45) !important;
 }
 .cp-nav {
   font-size: 18px;

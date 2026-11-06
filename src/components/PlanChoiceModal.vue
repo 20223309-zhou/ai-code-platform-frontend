@@ -165,7 +165,7 @@ const confirm = () => {
   padding: 16px;
   border: 1px solid rgba(31, 36, 48, 0.12);
   border-radius: 12px;
-  background: #fff;
+  background: var(--ai-surface);
   cursor: pointer;
   transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
 }

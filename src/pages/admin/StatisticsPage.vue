@@ -170,7 +170,7 @@ function formatNum(v: number | null | undefined): string {
 
 /* ───── 顶部卡片 ───── */
 const topCards = [
-  { key: 'todayCount' as const, label: '今日创作', icon: CalendarOutlined, color: '#c9713e', iconBg: 'rgba(201,113,62,0.12)' },
+  { key: 'todayCount' as const, label: '今日创作', icon: CalendarOutlined, color: 'var(--ai-primary)', iconBg: 'rgba(201,113,62,0.12)' },
   { key: 'weekCount' as const, label: '本周创作', icon: ClockCircleOutlined, color: '#34d399', iconBg: 'rgba(0,201,167,0.12)' },
   { key: 'monthCount' as const, label: '本月创作', icon: FileTextOutlined, color: '#fbbf24', iconBg: 'rgba(255,184,0,0.12)' },
   { key: 'totalCount' as const, label: '总创作', icon: FolderOpenOutlined, color: '#7e9b6b', iconBg: 'rgba(126,155,107,0.14)' },
@@ -192,7 +192,7 @@ function trendPercent(key: string): string {
 }
 
 /* ───── 柱状图 ───── */
-const barColors = ['#c9713e', '#34d399', '#fbbf24', '#b07a9b']
+const barColors = ['var(--ai-primary)', '#34d399', '#fbbf24', '#b07a9b']
 const barKeys = ['todayCount', 'weekCount', 'monthCount', 'totalCount']
 const barLabels = ['今日', '本周', '本月', '总创']
 
@@ -471,7 +471,7 @@ const activeUserPercent = computed(() => {
   font-weight: 700;
 }
 .user-value.highlight {
-  color: #c9713e;
+  color: var(--ai-primary);
 }
 .user-bar-wrap {
   display: flex;
@@ -488,7 +488,7 @@ const activeUserPercent = computed(() => {
 .user-bar-fill {
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, #c9713e, #34d399);
+  background: linear-gradient(90deg, var(--ai-primary), #34d399);
   transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .user-bar-text {
@@ -510,7 +510,7 @@ const activeUserPercent = computed(() => {
 }
 .user-meta-icon {
   font-size: 14px;
-  color: #c9713e;
+  color: var(--ai-primary);
 }
 
 /* ───── 响应式 ───── */

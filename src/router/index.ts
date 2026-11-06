@@ -13,6 +13,7 @@ import LogManagePage from '@/pages/admin/LogManagePage.vue'
 import StatisticsPage from '@/pages/admin/StatisticsPage.vue'
 import AnnouncementManagePage from '@/pages/admin/AnnouncementManagePage.vue'
 import PointCenterPage from '@/pages/user/PointCenterPage.vue'
+import ThemeGalleryPage from '@/pages/ThemeGalleryPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -75,6 +76,11 @@ const router = createRouter({
       path: '/point',
       name: '签到积分',
       component: PointCenterPage,
+    },
+    {
+      path: '/themes',
+      name: '主题风格',
+      component: ThemeGalleryPage,
     },
     {
       path: '/app/chat/:id',

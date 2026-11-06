@@ -200,7 +200,7 @@ async function onContentClick(event: MouseEvent) {
 }
 
 .markdown-content :deep(code) {
-  background: #f7eeda;
+  background: var(--ai-surface-soft);
   padding: 0.18em 0.42em;
   border-radius: 5px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -214,7 +214,7 @@ async function onContentClick(event: MouseEvent) {
   border: 1px solid rgba(var(--ai-ink-rgb), 0.09);
   border-left: 3px solid rgba(var(--ai-accent-rgb), 0.55);
   border-radius: 10px;
-  background: #f7eeda;
+  background: var(--ai-surface-soft);
   overflow: hidden;
   box-shadow: inset 0 1px 2px rgba(var(--ai-ink-rgb), 0.04);
 }
@@ -224,7 +224,7 @@ async function onContentClick(event: MouseEvent) {
   align-items: center;
   gap: 8px;
   padding: 5px 12px;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(var(--ai-surface-rgb), 0.55);
   border-bottom: 1px solid rgba(var(--ai-ink-rgb), 0.07);
 }
 
@@ -244,7 +244,7 @@ async function onContentClick(event: MouseEvent) {
   margin-left: 8px;
   font-size: 11px;
   line-height: 1;
-  color: #a0917a;
+  color: var(--ai-muted);
   transition: transform 0.18s ease;
 }
 
@@ -258,7 +258,7 @@ async function onContentClick(event: MouseEvent) {
   line-height: 1.4;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: #a0917a;
+  color: var(--ai-muted);
 }
 
 .markdown-content :deep(.code-block-meta) {
@@ -272,8 +272,8 @@ async function onContentClick(event: MouseEvent) {
   padding: 2px 8px;
   border: 1px solid rgba(var(--ai-ink-rgb), 0.12);
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.7);
-  color: #a0917a;
+  background: rgba(var(--ai-surface-rgb), 0.7);
+  color: var(--ai-muted);
   font-size: 11px;
   line-height: 1.5;
   cursor: pointer;
@@ -319,12 +319,12 @@ async function onContentClick(event: MouseEvent) {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.9em;
   line-height: 1.65;
-  color: #4a3f33;
+  color: var(--ai-title);
 }
 
 /* 兜底：未被 fence 包裹的裸 <pre>（如 markdown 内嵌 HTML）也给同款浅色底 */
 .markdown-content :deep(pre) {
-  background: #f7eeda !important;
+  background: var(--ai-surface-soft) !important;
   border: 1px solid rgba(var(--ai-ink-rgb), 0.09);
   border-radius: 10px;
   padding: 0.9em 1em;
@@ -338,7 +338,7 @@ async function onContentClick(event: MouseEvent) {
   border-radius: 0;
   font-size: 0.9em;
   line-height: 1.65;
-  color: #4a3f33;
+  color: var(--ai-title);
 }
 
 .markdown-content :deep(table) {
@@ -393,8 +393,8 @@ async function onContentClick(event: MouseEvent) {
    比纯白深一档的冷蓝底，既有代码块的可辨识度，又不会像深色块那样突兀。
    注意：<pre> 同时带 .hljs 类，此规则优先级高于 pre 规则，故两处都需给实色底。 */
 .markdown-content :deep(.hljs) {
-  background: #f7eeda !important;
-  color: #4a3f33 !important;
+  background: var(--ai-surface-soft) !important;
+  color: var(--ai-title) !important;
   border-radius: 10px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.9em;

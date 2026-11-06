@@ -380,7 +380,7 @@ onMounted(loadTemplates)
 .panel { stroke: rgba(var(--ai-accent-rgb), 0.18); fill: rgba(var(--ai-ink-rgb), 0.03); }
 .soft { stroke: rgba(var(--ai-ink-rgb), 0.16); }
 .accent { stroke: rgba(var(--ai-accent-rgb), 0.45); }
-.dot { fill: #d9a05b; }
+.dot { fill: var(--ai-primary); }
 
 .card-body {
   flex: 1;

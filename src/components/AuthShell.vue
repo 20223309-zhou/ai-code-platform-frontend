@@ -27,11 +27,18 @@ withDefaults(
     <!-- 左：品牌舞台。窄屏（<1080px）隐藏，此时卡片重新居中 -->
     <section class="auth-hero">
       <div class="hero-brand">
-        <img src="@/assets/logo.png" alt="iCodeAI" />
+        <img src="@/assets/logo-mark-square.png" alt="iCodeAI" />
         <span>iCodeAI</span>
       </div>
 
       <div class="hero-scene">
+        <pre class="hero-code" aria-hidden="true"><code><span class="hc-key">const</span> app = <span class="hc-key">await</span> icode.<span class="hc-fn">generate</span>({
+  <span class="hc-prop">prompt</span>: <span class="hc-str">"一个作品集网站"</span>,
+  <span class="hc-prop">stack</span>: [<span class="hc-str">"vue"</span>, <span class="hc-str">"vite"</span>]
+})
+
+app.<span class="hc-fn">deploy</span>()   <span class="hc-cmt">// 上线，拿到公网链接</span></code></pre>
+
         <div class="bn-scene" aria-hidden="true">
           <div class="bn-sky"></div>
 
@@ -240,7 +247,10 @@ withDefaults(
   opacity: 0.65;
 }
 
-/* 一张纸片：硬边偏移投影 + 暖色描边，和全站纸片卡面同一套语汇 */
+/* 登录 / 注册卡片
+   原来用的是纸雕语汇：3px 4px 0 的硬边偏移投影 —— 表现为卡片右下角露出
+   一道灰边，像一张纸片贴在另一张纸上。工具型主题下这种"厚度"是噪点，
+   改成常规的柔和投影；偏移量归零，四周均匀。 */
 .auth-card {
   position: relative;
   /* 460 而不是更窄：注册页有「账号 | 邮箱」「密码 | 确认密码」两组两列，
@@ -248,11 +258,11 @@ withDefaults(
   flex: 0 0 460px;
   width: 460px;
   border: 1px solid var(--ai-card-border);
-  border-radius: 18px;
+  border-radius: var(--ai-card-radius);
   background: var(--ai-surface);
-  box-shadow:
-    3px 4px 0 rgba(184, 152, 104, 0.26),
-    0 26px 44px -30px rgba(120, 92, 52, 0.55);
+  /* 投影色用 --ai-shadow-rgb 而不是 --ai-ink-rgb：
+     后者在深色主题里是浅色，做阴影会变成一圈白雾 */
+  box-shadow: 0 14px 44px -18px rgba(var(--ai-shadow-rgb), 0.16);
   overflow: hidden;
   animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -274,7 +284,7 @@ withDefaults(
 .bn-sky {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #fffaf0 0%, #fdf3e2 52%, #f6e8cd 100%);
+  background: linear-gradient(180deg, var(--ai-surface) 0%, var(--ai-surface-soft) 100%);
 }
 
 .bn-sun {
@@ -283,7 +293,7 @@ withDefaults(
   right: 13%;
   width: 34px;
   opacity: 0.92;
-  filter: drop-shadow(2px 3px 0 rgba(184, 152, 104, 0.22));
+  filter: drop-shadow(2px 3px 0 rgba(var(--ai-ink-rgb), 0.22));
 }
 
 .bn-cloud {
@@ -292,7 +302,7 @@ withDefaults(
   left: 9%;
   width: 46px;
   opacity: 0.85;
-  filter: drop-shadow(2px 3px 0 rgba(184, 152, 104, 0.2));
+  filter: drop-shadow(2px 3px 0 rgba(var(--ai-ink-rgb), 0.2));
 }
 
 /* 品牌标识：纸片小壳 + 顶栏那张 logo */
@@ -309,7 +319,7 @@ withDefaults(
   border: 1px solid var(--ai-card-border);
   border-radius: 12px;
   background: var(--ai-surface);
-  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.26);
+  box-shadow: var(--ai-shadow);
 }
 
 .bn-logo img {
@@ -336,7 +346,7 @@ withDefaults(
 }
 .bn-hill--back {
   height: 84%;
-  filter: drop-shadow(1px -2px 0 rgba(184, 152, 104, 0.14));
+  filter: drop-shadow(1px -2px 0 rgba(var(--ai-ink-rgb), 0.14));
 }
 /* 前层低而缓：地表高度可预期，站在固定 bottom 上的小动物才不会
    有的悬空、有的陷进地里 */
@@ -348,7 +358,7 @@ withDefaults(
 /* 小动物共用一条地面线，沿宽度铺开 */
 .bn-item {
   position: absolute;
-  filter: drop-shadow(2px 2px 0 rgba(184, 152, 104, 0.24));
+  filter: drop-shadow(2px 2px 0 rgba(var(--ai-ink-rgb), 0.24));
 }
 .bn-tree {
   left: 8%;
@@ -369,7 +379,7 @@ withDefaults(
   right: 7%;
   bottom: 6%;
   width: 30px;
-  filter: drop-shadow(1px 2px 0 rgba(184, 152, 104, 0.18));
+  filter: drop-shadow(1px 2px 0 rgba(var(--ai-ink-rgb), 0.18));
 }
 
 /* ───────── 表单面板 ───────── */
@@ -447,7 +457,7 @@ withDefaults(
   border: 1px solid var(--ai-border) !important;
   border-radius: var(--ai-control-radius);
   background: var(--ai-surface-soft) !important;
-  box-shadow: inset 0 1px 2px rgba(154, 126, 84, 0.1);
+  box-shadow: inset 0 1px 2px rgba(var(--ai-shadow-rgb), 0.06);
   color: var(--ai-title) !important;
   caret-color: var(--ai-primary);
   line-height: 42px;
@@ -462,7 +472,7 @@ withDefaults(
   border: 1px solid var(--ai-border) !important;
   border-radius: var(--ai-control-radius);
   background: var(--ai-surface-soft) !important;
-  box-shadow: inset 0 1px 2px rgba(154, 126, 84, 0.1);
+  box-shadow: inset 0 1px 2px rgba(var(--ai-shadow-rgb), 0.06);
   color: var(--ai-title) !important;
 }
 
@@ -485,7 +495,7 @@ withDefaults(
   border-color: rgba(var(--ai-accent-rgb), 0.55) !important;
   background: var(--ai-surface) !important;
   box-shadow:
-    inset 0 1px 2px rgba(154, 126, 84, 0.06),
+    inset 0 1px 2px rgba(var(--ai-shadow-rgb), 0.04),
     0 0 0 3px rgba(var(--ai-accent-rgb), 0.09);
 }
 
@@ -497,7 +507,9 @@ withDefaults(
   color: var(--ai-primary);
 }
 
-/* 主按钮：纸片按下去的手感 —— 悬停把纸抬起来，点击压回纸面 */
+/* 主按钮：跟随主题的实心按钮
+   原来是纸雕语言：「悬停把纸抬起来、点击压回纸面」+ 硬边阴影 + hover 变橙。
+   工具型主题不需要这些物理隐喻，改成只加深底色的常规交互。 */
 .auth-panel :deep(.auth-submit.ant-btn) {
   display: inline-flex;
   align-items: center;
@@ -511,32 +523,30 @@ withDefaults(
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.02em;
-  color: #fffdf7 !important;
+  color: #fff !important;
   background: var(--ai-primary) !important;
-  box-shadow: 3px 4px 0 rgba(173, 92, 47, 0.34);
+  box-shadow: var(--ai-shadow);
   transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    background-color 0.25s ease;
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .auth-panel :deep(.auth-submit.ant-btn:hover),
 .auth-panel :deep(.auth-submit.ant-btn:focus-visible) {
-  background: #d4824b !important;
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 6px 0 rgba(173, 92, 47, 0.36);
+  background: var(--ai-primary-strong) !important;
+  box-shadow: var(--ai-shadow-hover);
 }
 
 .auth-panel :deep(.auth-submit.ant-btn:active) {
-  transform: translate(2px, 3px);
-  box-shadow: 1px 1px 0 rgba(173, 92, 47, 0.34);
+  background: var(--ai-primary-strong) !important;
+  box-shadow: var(--ai-shadow);
 }
 
 .auth-panel :deep(.auth-submit.ant-btn:disabled),
 .auth-panel :deep(.auth-submit.ant-btn[disabled]:hover) {
-  background: #ddcdaa !important;
-  border-color: #d3c19c;
-  color: #fffdf7 !important;
+  background: var(--ai-surface-soft) !important;
+  border-color: var(--ai-border);
+  color: var(--ai-muted) !important;
   box-shadow: none;
   transform: none;
 }
@@ -572,7 +582,7 @@ withDefaults(
 
 .auth-panel :deep(.captcha-card:hover) {
   border-color: rgba(var(--ai-accent-rgb), 0.45);
-  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.24);
+  box-shadow: var(--ai-shadow-hover);
   transform: translateY(-1px);
 }
 
@@ -668,4 +678,61 @@ withDefaults(
   }
 }
 
+
+/* ===== 左栏随主题降级 =====
+   剪纸小景（太阳、云、兔子、蘑菇、草地）只在「温润中性」下保留。
+   工具型主题下换成一块干净的主色光斑，既不留空白也不喧宾夺主。 */
+:root:not([data-theme='warm']) .bn-scene {
+  display: none;
+}
+
+
+/* 代码预览：工具型主题的"视觉锚点"，替代剪纸小景
+   —— 与其放插画，不如直接展示产品在做什么 */
+.hero-code {
+  display: none;
+}
+
+:root:not([data-theme='warm']) .hero-code {
+  display: block;
+  margin: 0;
+  padding: 18px 20px;
+  height: 200px;
+  box-sizing: border-box;
+  overflow: hidden;
+  font-family: var(--font-mono, ui-monospace, "Cascadia Code", Consolas, monospace);
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--ai-text);
+  white-space: pre;
+  background: var(--ai-surface-soft);
+  border: 1px solid var(--ai-border-soft);
+  border-radius: var(--ai-card-radius);
+}
+
+.hero-code .hc-key {
+  color: var(--ai-primary);
+}
+
+.hero-code .hc-fn {
+  color: var(--ai-accent);
+}
+
+.hero-code .hc-prop {
+  color: var(--ai-text);
+  opacity: 0.85;
+}
+
+.hero-code .hc-str {
+  color: #16a34a;
+}
+
+.hero-code .hc-cmt {
+  color: var(--ai-muted);
+}
+
+/* 剪纸小景只在温润中性下出现，代码块负责其余主题 */
+:root[data-theme='warm'] .hero-code {
+  display: none;
+}
 </style>

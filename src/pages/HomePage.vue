@@ -653,15 +653,15 @@ onMounted(async () => {
   margin: 0 auto 52px;
   padding: 24px 24px 26px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  /* 整卡略降不透明度，和内部输入框形成玻璃层次，避免整体发白 */
-  background: rgba(255, 255, 255, 0.48);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--ai-border);
+  /* 实心卡片：深色主题下半透明会叠出一层灰，反而丢掉层次 */
+  background: var(--ai-card-surface);
+  /* 原来还有 backdrop-filter: blur(28px)，背景既已实心，它既不产生效果
+     又白白多一个合成层，一并去掉 */
   box-shadow:
-    0 1px 2px rgba(var(--ai-ink-rgb), 0.06),
-    0 24px 60px -12px rgba(var(--ai-ink-rgb), 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    0 1px 2px rgba(var(--ai-shadow-rgb), 0.06),
+    0 24px 60px -12px rgba(var(--ai-shadow-rgb), 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* 顶部柔和蓝紫描光，强化卡片从彩色底"浮起"的层次 */
@@ -673,7 +673,7 @@ onMounted(async () => {
   right: 18%;
   height: 1px;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--ai-ink-rgb), 0.28), transparent);
   pointer-events: none;
 }
 
@@ -706,8 +706,8 @@ onMounted(async () => {
   padding: 12px 60px 12px 14px;
   border: 1px solid rgba(var(--ai-ink-rgb), 0.12);
   border-radius: var(--ai-control-radius);
-  /* 半透明玻璃态：让底层彩色渐变透出来，避免纯白单调 */
-  background: rgba(255, 255, 255, 0.22);
+  /* 输入框比卡片亮一档，靠明度差区分边界（深色 UI 的通用做法） */
+  background: var(--ai-surface-soft);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow: inset 0 1px 2px rgba(var(--ai-ink-rgb), 0.03);
@@ -723,13 +723,13 @@ onMounted(async () => {
 }
 
 :deep(.prompt-input.ant-input:hover) {
-  background: rgba(255, 255, 255, 0.32);
+  background: var(--ai-surface-soft);
 }
 
 :deep(.prompt-input.ant-input:focus),
 :deep(.prompt-input.ant-input-focused) {
   border-color: rgba(var(--ai-accent-rgb), 0.45);
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(var(--ai-surface-rgb), 0.45);
   box-shadow:
     0 0 0 3px rgba(var(--ai-accent-rgb), 0.08),
     0 0 24px rgba(var(--ai-accent-rgb), 0.06);
@@ -849,7 +849,7 @@ onMounted(async () => {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(var(--ai-surface-rgb), 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1112,7 +1112,7 @@ onMounted(async () => {
 }
 
 .loader-ring-path {
-  stroke: #e8a33d;
+  stroke: var(--ai-primary);
   stroke-linecap: round;
   stroke-dasharray: 64;
   stroke-dashoffset: 20;
@@ -1488,148 +1488,151 @@ onMounted(async () => {
   width: 68px;
   height: 68px;
   transform: rotate(-8deg);
-  filter: drop-shadow(2px 3px 0 rgba(184, 152, 104, 0.32));
+  filter: drop-shadow(2px 3px 0 rgba(var(--ai-ink-rgb), 0.32));
   pointer-events: none;
   z-index: 3;
 }
 
 /* ───────── 生成框 = 一张贴上去的白纸 ───────── */
 #homePage .generator-panel {
-  background: var(--ai-surface);
-  border: 1.5px solid var(--ai-card-border);
-  border-radius: 18px;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.26), 0 22px 30px -26px rgba(120, 92, 52, 0.6);
+  /* 这一段原是纸雕语言：「一张贴上去的白纸」——
+     2px 3px 0 的硬边偏移、18px 大圆角、1.5px 粗边框、ink 色做阴影。
+     换主题后这些必须全部交给变量，否则深色下硬边阴影会变成一圈白光。 */
+  background: var(--ai-card-surface);
+  border: 1px solid var(--ai-border);
+  border-radius: var(--ai-card-radius);
+  box-shadow: var(--ai-shadow);
 }
 
 #homePage .generator-panel::before {
   left: 10%;
   right: 10%;
-  background: linear-gradient(90deg, transparent, rgba(201, 113, 62, 0.32), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--ai-accent-rgb), 0.32), transparent);
 }
 
-/* ───────── 输入区 = 纸上压出的凹槽 ───────── */
+/* ───────── 输入区 ───────── */
 #homePage :deep(.prompt-input.ant-input) {
-  background: #faf3e3;
-  border: 1.5px solid var(--ai-card-border);
-  border-radius: 14px;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: inset 2px 2px 0 rgba(184, 152, 104, 0.12);
+  background: var(--ai-surface-soft);
+  border: 1px solid var(--ai-border);
+  border-radius: var(--ai-control-radius);
   color: var(--ai-title);
 }
 
 #homePage :deep(.prompt-input.ant-input:hover) {
-  background: #fdf7ea;
+  background: var(--ai-surface-soft);
+  border-color: var(--ai-border);
 }
 
 #homePage :deep(.prompt-input.ant-input:focus),
 #homePage :deep(.prompt-input.ant-input-focused) {
-  background: var(--ai-surface);
-  border-color: #d9a878;
-  box-shadow: inset 2px 2px 0 rgba(184, 152, 104, 0.1), 0 0 0 3px rgba(201, 113, 62, 0.14);
+  background: var(--ai-surface-soft);
+  border-color: rgba(var(--ai-accent-rgb), 0.35);
+  /* 原来还有 inset 2px 2px 0 的凹槽阴影，深色下同样是白光，去掉 */
+  box-shadow: 0 0 0 3px rgba(var(--ai-accent-rgb), 0.12);
 }
 
 #homePage :deep(.prompt-input.ant-input::placeholder) {
   font-style: normal;
 }
 
-/* ───────── 生成按钮 = 陶土橘纸片圆片 ───────── */
+/* ───────── 生成按钮 ───────── */
 #homePage .generate-button {
-  background: #c9713e;
+  background: var(--ai-primary);
   background-image: none;
   color: var(--ai-surface);
-  box-shadow: 2px 3px 0 rgba(150, 92, 48, 0.36);
+  box-shadow: var(--ai-shadow);
 }
 
+/* hover 原本写死 #b9622f（陶土橘的暗版），换主题后会突然变橙 */
 #homePage .generate-button:hover {
-  background: #b9622f;
-  box-shadow: 3px 4px 0 rgba(150, 92, 48, 0.42);
+  background: var(--ai-primary-strong);
+  box-shadow: var(--ai-shadow-hover);
   transform: translateY(-1px) scale(1.03);
 }
 
 #homePage .generate-button:active {
   transform: translateY(1px) scale(0.97);
-  box-shadow: 1px 1px 0 rgba(150, 92, 48, 0.36);
+  box-shadow: var(--ai-shadow);
 }
 
-/* 呼吸动画是蓝色 box-shadow，纸雕下关掉 */
 #homePage .input-shell.is-creating .generate-button {
   animation: none;
 }
 
-/* ───────── 纸片 chip（徽标 / 上传 / Skills / 模板） ───────── */
+/* ───────── 胶囊按钮（徽标 / 上传 / Skills / 模板） ───────── */
 #homePage .hero-badge {
-  background: rgba(201, 113, 62, 0.1);
-  border: 1.5px solid rgba(201, 113, 62, 0.22);
-  border-radius: 10px;
-  color: #a8612f;
+  background: rgba(var(--ai-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--ai-accent-rgb), 0.22);
+  border-radius: 999px;
+  color: var(--ai-primary-strong);
 }
 
 #homePage .upload-trigger,
 #homePage .skills-trigger {
   background: var(--ai-surface);
-  border: 1.5px solid var(--ai-card-border);
-  border-radius: 10px;
+  border: 1px solid var(--ai-border);
+  border-radius: var(--ai-control-radius);
   color: var(--ai-title);
-  box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.18);
+  box-shadow: none;
 }
 
 #homePage .upload-trigger:hover,
 #homePage .skills-trigger:hover {
   background: var(--ai-surface-soft);
-  border-color: var(--ai-border);
-  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.26);
+  border-color: rgba(var(--ai-accent-rgb), 0.28);
+  box-shadow: none;
 }
 
 #homePage .template-chip {
   background: var(--ai-surface);
-  border: 1.5px solid var(--ai-card-border);
-  border-radius: 10px;
-  box-shadow: 1px 1px 0 rgba(184, 152, 104, 0.14);
+  border: 1px solid var(--ai-border);
+  border-radius: var(--ai-control-radius);
+  box-shadow: none;
 }
 
 #homePage .template-chip:hover {
   background: var(--ai-surface-soft);
-  border-color: var(--ai-border);
+  border-color: rgba(var(--ai-accent-rgb), 0.28);
   color: var(--ai-title);
-  box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.22);
+  box-shadow: none;
 }
 
 #homePage .template-chip.is-active {
-  background: rgba(201, 113, 62, 0.12);
-  border-color: rgba(201, 113, 62, 0.3);
-  color: #a8612f;
-  box-shadow: 1px 1px 0 rgba(184, 152, 104, 0.2);
+  background: rgba(var(--ai-accent-rgb), 0.12);
+  border-color: rgba(var(--ai-accent-rgb), 0.3);
+  color: var(--ai-primary-strong);
+  box-shadow: 1px 1px 0 rgba(var(--ai-ink-rgb), 0.2);
 }
 
-/* ───────── 生成类型 / 模型胶囊 = 纸片 ───────── */
+/* ───────── 生成类型 / 模型胶囊 ─────────
+   原来底色写死 #f6ead1（米黄纸片），换主题后这里是最后一块暖色残留 */
 #homePage .type-selector-item {
-  background: #f6ead1;
-  border: none;
+  background: var(--ai-surface-soft);
+  border: 1px solid var(--ai-border-soft);
   box-shadow: none;
 }
 
 #homePage .type-selector-item:hover {
   background: var(--ai-surface-soft);
-  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.22);
+  border-color: var(--ai-border);
+  box-shadow: var(--ai-shadow);
 }
 
 #homePage .type-selector-item:focus-within {
-  background: var(--ai-surface-soft);
-  box-shadow: 0 0 0 3px rgba(201, 113, 62, 0.16);
+  background: var(--ai-surface);
+  border-color: rgba(var(--ai-accent-rgb), 0.5);
+  box-shadow: 0 0 0 3px rgba(var(--ai-accent-rgb), 0.12);
 }
 
 #homePage .type-selector-label {
-  border-right-color: rgba(168, 138, 92, 0.4);
-  color: #8d7c60;
+  border-right-color: var(--ai-border);
+  color: var(--ai-muted);
 }
 
-/* ───────── 空状态也要纸片化 ───────── */
+/* ───────── 空状态 ───────── */
 #homePage .empty-state {
   background: var(--ai-surface);
-  border: 1.5px dashed #e3d2b0;
+  border: 1.5px dashed var(--ai-border);
   border-radius: 16px;
 }
 
@@ -1637,5 +1640,72 @@ onMounted(async () => {
   .paper-fox {
     display: none;
   }
+}
+
+/* 剪纸小狐狸只在「温润中性」下出现。
+   它贴在生成框右上角，是首页最显眼的卡通符号 —— 工具型主题下必须去掉，
+   否则冷灰底色上趴着一只橙色狐狸，整体气质立刻崩掉。 */
+:root:not([data-theme='warm']) .paper-fox {
+  display: none;
+}
+
+/* hero 区柔光：上半屏原本是一大片平铺点阵，视觉上仍然是"空"的。
+   在标题与生成框背后铺一层极淡的主色光，让这片区域成为视觉重心。
+   参数刻意压得很低（0.1），它只负责"有东西"，不负责"被看见"。 */
+#homePage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 900px;
+  height: 520px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(var(--ai-accent-rgb), 0.1), transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============ 深色主题 · 首页装饰 ============
+   纯黑底上"装饰"不能再靠浅色元素，会直接变成灰雾。
+   深色下能有效果的只有两样：主色光，和极细的线。 */
+
+/* ① hero 光斑加强并拉高：
+   浅色下 0.1 的主色光刚好（底本身就是浅的），纯黑上同样的值几乎看不见。
+   提高到 0.2 并把范围拉大，让标题区有一团"从后方打光"的感觉。 */
+:root[data-theme='terminal'] #homePage::before {
+  width: 1040px;
+  height: 620px;
+  background: radial-gradient(closest-side, rgba(var(--ai-accent-rgb), 0.2), transparent 70%);
+}
+
+/* ② 生成卡片：用主色微光替代投影。
+   深色下黑色投影在纯黑底上完全无效（没有更黑可去），
+   而 ink-rgb 做投影会变成一圈白雾 —— 这两个方向都不对。
+   正确做法是靠"边缘微光"把卡片从黑底上抬起来。 */
+:root[data-theme='terminal'] #homePage .generator-panel {
+  border-color: rgba(var(--ai-accent-rgb), 0.14);
+  box-shadow:
+    0 0 0 1px rgba(var(--ai-accent-rgb), 0.06),
+    0 32px 80px -32px rgba(var(--ai-accent-rgb), 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ③ 卡片顶部那道 1px 描光：浅色下是白色高光，深色下换成主色，
+   相当于给卡片"镶一条发光边"，成本极低但很出效果 */
+:root[data-theme='terminal'] #homePage .generator-panel::before {
+  left: 12%;
+  right: 12%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--ai-accent-rgb), 0.55),
+    transparent
+  );
+}
+
+/* ④ 示例按钮（个人博客网站 / 企业官网 …）：深色下给一点主色描边的 hover 期待感 */
+:root[data-theme='terminal'] #homePage .template-chip:hover {
+  border-color: rgba(var(--ai-accent-rgb), 0.35);
+  background: rgba(var(--ai-accent-rgb), 0.08);
 }
 </style>

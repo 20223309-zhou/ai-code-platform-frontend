@@ -1374,12 +1374,14 @@ onUnmounted(() => {
   flex: 2;
   display: flex;
   flex-direction: column;
-  /* 半透明玻璃：让页面彩色渐变透上来，避免大面积纯白 */
-  background: linear-gradient(180deg, rgba(247, 249, 254, 0.62) 0%, rgba(235, 239, 248, 0.46) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  /* 原先是 0.62/0.46 的浅蓝白渐变 + 24px 毛玻璃。
+     浅色下确实能让背景渐变透上来，但这是硬编码的浅色：
+     深色主题里 rgba(247,249,254,0.62) 压在纯黑上直接混成中灰，
+     整个对话面板就成了"银灰色"——这才是发灰的根源，不是底色。
+     改成实心表层色，深浅两套主题各自成立。 */
+  background: var(--ai-surface);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--ai-border);
   box-shadow: var(--ai-shadow);
   overflow: hidden;
   position: relative;
@@ -1392,7 +1394,7 @@ onUnmounted(() => {
   gap: 10px;
   padding: 14px 16px;
   border-bottom: 1px solid var(--ai-border-soft);
-  background: rgba(255, 255, 255, 0.34);
+  background: var(--ai-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -1453,10 +1455,10 @@ onUnmounted(() => {
 }
 
 .ai-message .message-content {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--ai-surface-soft);
   color: var(--ai-title);
   padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--ai-border);
   box-shadow: 0 2px 10px rgba(var(--ai-ink-rgb), 0.05);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -1547,8 +1549,8 @@ onUnmounted(() => {
   padding-bottom: 54px;
   border: 1px solid rgba(var(--ai-ink-rgb), 0.12);
   border-radius: 10px;
-  /* 半透明玻璃态：与首页输入框保持一致 */
-  background: rgba(255, 255, 255, 0.22);
+  /* 用 soft 而不是 surface：深色主题下输入框要比所在面板亮一档才看得出边界 */
+  background: var(--ai-surface-soft);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow: inset 0 1px 2px rgba(var(--ai-ink-rgb), 0.03);
@@ -1559,12 +1561,12 @@ onUnmounted(() => {
 }
 
 .input-wrapper :deep(.ant-input:hover) {
-  background: rgba(255, 255, 255, 0.32);
+  background: var(--ai-surface);
 }
 
 .input-wrapper :deep(.ant-input:focus) {
   border-color: rgba(var(--ai-accent-rgb), 0.2);
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--ai-surface);
   box-shadow: inset 0 0 0 1px rgba(var(--ai-accent-rgb), 0.08), 0 0 16px rgba(var(--ai-accent-rgb), 0.03);
 }
 
@@ -1733,7 +1735,7 @@ onUnmounted(() => {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--ai-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1805,11 +1807,11 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   /* 与左侧对话列保持一致的玻璃质感 */
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62) 0%, rgba(246, 249, 255, 0.5) 100%);
+  background: linear-gradient(180deg, var(--ai-surface) 0%, var(--ai-surface-soft) 100%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--ai-border);
   box-shadow: var(--ai-card-shadow);
   overflow: hidden;
 }
@@ -1839,7 +1841,7 @@ onUnmounted(() => {
   flex: 1;
   position: relative;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--ai-surface);
 }
 
 .preview-placeholder {

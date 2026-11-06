@@ -4,7 +4,7 @@
       <RouterLink to="/" class="brand-link">
         <div class="header-left">
           <div class="logo-shell">
-            <img class="logo" src="@/assets/logo.png" alt="Logo" />
+            <img class="logo" src="@/assets/logo-mark-square.png" alt="Logo" />
           </div>
           <h1 class="site-title">iCodeAI</h1>
         </div>
@@ -216,7 +216,7 @@ onUnmounted(() => {
 /* 性能：滚动态去掉 backdrop-filter（固定顶栏滚动时逐帧重模糊是主要卡顿源），
    用略高的不透明度白色替代，视觉基本一致但零模糊开销。 */
 .header--scrolled {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(var(--ai-surface-rgb), 0.9);
   border-bottom: 1px solid var(--ai-border-soft);
   box-shadow: 0 6px 24px rgba(35, 55, 130, 0.06);
 }
@@ -426,7 +426,7 @@ onUnmounted(() => {
 .login-button:hover,
 .login-button:focus {
   /* 纸雕主题：原来是写死的蓝色渐变，点击/聚焦时会刺眼 */
-  background: linear-gradient(135deg, #d4824b, var(--ai-primary-strong)) !important;
+  background: var(--ai-primary-strong) !important;
   transform: translateY(-1px);
   box-shadow: 0 10px 28px rgba(var(--ai-accent-rgb), 0.3);
 }

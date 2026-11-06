@@ -2,7 +2,7 @@
   <aside class="app-aside">
     <!-- 品牌区：桌面端这一条同时是窗口拖动区域 -->
     <div class="aside-brand">
-      <img class="brand-logo" src="@/assets/logo.png" alt="iCodeAI" />
+      <img class="brand-logo" src="@/assets/logo-mark-square.png" alt="iCodeAI" />
       <span class="brand-name">iCodeAI</span>
     </div>
 
@@ -44,6 +44,14 @@
         >
           <TrophyOutlined class="row-icon" />
           <span class="row-label">签到积分</span>
+        </RouterLink>
+        <RouterLink
+          to="/themes"
+          class="nav-row"
+          :class="{ 'is-active': isActive('/themes') }"
+        >
+          <BgColorsOutlined class="row-icon" />
+          <span class="row-label">主题风格</span>
         </RouterLink>
       </nav>
 
@@ -165,7 +173,7 @@ import { listMyAppVoByPage } from '@/api/appController'
 import AnnouncementCenter from '@/components/AnnouncementCenter.vue'
 import { useAnnouncementFeed } from '@/utils/announcementFeed'
 import { useReadIds } from '@/utils/announcementRead'
-import { THEMES, applyTheme, getThemeId } from '@/utils/theme'
+import { THEMES, applyTheme, currentThemeId } from '@/utils/theme'
 import {
   PlusOutlined,
   HomeOutlined,
@@ -182,6 +190,7 @@ import {
   NotificationOutlined,
   BellOutlined,
   TrophyOutlined,
+  BgColorsOutlined,
 } from '@ant-design/icons-vue'
 
 const route = useRoute()
@@ -223,7 +232,7 @@ const isAppActive = (appId?: string | number) =>
 
 // ---------------------------------------------------------------- 主题
 
-const currentTheme = ref(getThemeId())
+const currentTheme = currentThemeId
 
 const changeTheme = (id: string) => {
   applyTheme(id)
@@ -576,7 +585,7 @@ const doLogout = async () => {
   font-style: normal;
   border-radius: 4px;
   background: rgba(232, 180, 140, 0.28);
-  color: #a9662f;
+  color: var(--ai-primary-strong);
 }
 
 .account-more {

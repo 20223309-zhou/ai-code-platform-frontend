@@ -1,35 +1,40 @@
 /**
  * 主题切换。
  *
- * 实现方式是给 <html> 挂 `data-theme`，由 `styles/themes.css` 里
- * `:root[data-theme=...]` 覆盖那套 `--ai-*` 变量 —— 组件代码一行都不用改。
+ * 数据驱动：每套主题的完整变量定义在 `styles/themes.ts`，
+ * 切换时把这些变量写到 <html> 的行内 style 上。
  *
- * 默认主题 paper 不写覆盖块，直接沿用 App.vue 的 `:root` 原值，
- * 这样以后调默认配色只改一个地方。
+ * 为什么不用 `:root[data-theme=...]` 的 CSS 覆盖块：
+ * 主题展示页需要「同时预览多套」—— CSS 类做不到局部作用域，
+ * 而行内变量可以按卡片单独注入，预览和真实效果完全一致。
+ *
+ * 切换前会先清空所有主题变量，让它们回落到 App.vue 的 :root 基线（石墨），
+ * 避免上一套的圆角 / 阴影残留。
  */
 
-export interface AppTheme {
-  id: string
-  label: string
-  /** 切换器上的色点，取该主题的主色 */
-  swatch: string
-}
+import { ref } from 'vue'
+import { ALL_THEME_VAR_NAMES, THEME_LIST, type AppTheme } from '@/styles/themes'
 
-export const THEMES: AppTheme[] = [
-  { id: 'paper', label: '原纸', swatch: '#c9713e' },
-  { id: 'dusk', label: '暮橙', swatch: '#b5633f' },
-  { id: 'mist', label: '雾蓝', swatch: '#4a6fa5' },
-  { id: 'forest', label: '森绿', swatch: '#5b7f52' },
-]
+export type { AppTheme }
 
-export const DEFAULT_THEME_ID = 'paper'
+/** 侧栏等处只需要 id / label / swatch，这里保持原样导出 */
+export const THEMES = THEME_LIST.map(({ id, label, swatch }) => ({ id, label, swatch }))
+
+export const DEFAULT_THEME_ID = 'graphite'
+
+/** 当前主题的响应式副本：侧栏色点和主题页共用，避免两处状态不同步 */
+export const currentThemeId = ref(DEFAULT_THEME_ID)
 
 const STORAGE_KEY = 'ai-code:theme'
 
 let transitionTimer: number | undefined
 
+export function getTheme(id?: string | null): AppTheme {
+  return THEME_LIST.find((theme) => theme.id === id) ?? THEME_LIST[0]
+}
+
 function normalize(id?: string | null): string {
-  return THEMES.some((theme) => theme.id === id) ? (id as string) : DEFAULT_THEME_ID
+  return THEME_LIST.some((theme) => theme.id === id) ? (id as string) : DEFAULT_THEME_ID
 }
 
 export function getThemeId(): string {
@@ -41,11 +46,28 @@ export function getThemeId(): string {
   }
 }
 
+/** 把一套主题的变量注入到任意元素（主题展示页的预览卡用） */
+export function applyThemeVars(el: HTMLElement | null, theme: AppTheme): void {
+  if (!el) {
+    return
+  }
+  Object.entries(theme.vars).forEach(([name, value]) => {
+    el.style.setProperty(name, value)
+  })
+}
+
 /**
  * 首屏应用主题。不加过渡动画，否则刷新瞬间会看到一次颜色渐变。
  */
 export function initTheme(): void {
-  document.documentElement.setAttribute('data-theme', getThemeId())
+  const root = document.documentElement
+  const theme = getTheme(getThemeId())
+  currentThemeId.value = theme.id
+  root.setAttribute('data-theme', theme.id)
+  applyColorScheme(theme.id)
+  if (theme.id !== DEFAULT_THEME_ID) {
+    Object.entries(theme.vars).forEach(([name, value]) => root.style.setProperty(name, value))
+  }
 }
 
 /**
@@ -53,20 +75,39 @@ export function initTheme(): void {
  */
 export function applyTheme(id: string): void {
   const themeId = normalize(id)
+  const theme = getTheme(themeId)
   const root = document.documentElement
 
-  // 切换的这一刻才加过渡，平时不加 —— 否则所有 hover 都会被强行拖慢 280ms
+  // 切换的这一刻才加过渡，平时不加 —— 否则所有 hover 都会被强行拖慢
   root.classList.add('theme-switching')
-  root.setAttribute('data-theme', themeId)
+  root.setAttribute('data-theme', theme.id)
+  currentThemeId.value = theme.id
+
+  // 先清空，再写目标值：没被覆盖的变量自动回落到 :root 基线（石墨）
+  ALL_THEME_VAR_NAMES.forEach((name) => root.style.removeProperty(name))
+  if (theme.id !== DEFAULT_THEME_ID) {
+    Object.entries(theme.vars).forEach(([name, value]) => root.style.setProperty(name, value))
+  }
 
   try {
-    localStorage.setItem(STORAGE_KEY, themeId)
+    localStorage.setItem(STORAGE_KEY, theme.id)
   } catch {
     // 存不下就只在本次会话生效，不影响使用
   }
 
+  applyColorScheme(theme.id)
+
   window.clearTimeout(transitionTimer)
   transitionTimer = window.setTimeout(() => {
     root.classList.remove('theme-switching')
-  }, 320)
+  }, 400)
+}
+
+/**
+ * 同步浏览器 UI 的明暗（滚动条、表单控件、地址栏）。
+ * 不设的话深色主题下滑动条还是白的，很割裂。
+ */
+function applyColorScheme(themeId: string): void {
+  const dark = themeId === 'terminal'
+  document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
 }

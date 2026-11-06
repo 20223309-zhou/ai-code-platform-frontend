@@ -386,7 +386,7 @@ const handleSubmit = async () => {
   transition: all 0.3s;
 }
 .save-btn:hover {
-  background: linear-gradient(135deg, #d4824b, var(--ai-primary-strong)) !important;
+  background: var(--ai-primary-strong) !important;
   transform: translateY(-1px);
   box-shadow: 0 10px 28px rgba(var(--ai-accent-rgb), 0.3) !important;
 }

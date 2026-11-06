@@ -164,49 +164,47 @@ import BasicLayout from '@/layouts/BasicLayout.vue'
 
 <style>
 :root {
-  /* ===== 纸雕主题 · 温柔纸雕 / 淡黄纸片（全站） ===== */
-  /* 品牌色：陶土橘 */
-  --ai-primary: #c9713e;
-  --ai-primary-strong: #ad5c2f;
-  --ai-primary-glow: rgba(201, 113, 62, 0.18);
-  --ai-accent: #7e9b6b;
-  --ai-accent-soft: #b0b89c;
-  /* 强调色 RGB 分量（供 rgba(var(--ai-accent-rgb), α) 使用）：整站换主题只需改这里 */
-  --ai-accent-rgb: 201, 113, 62;
-  /* 中性墨色 RGB 分量：用于阴影 / 描边等中性色，保持纸雕的暖调 */
-  --ai-ink-rgb: 154, 126, 84;
+  /* ===== 石墨专业（默认主题） =====
+     与 src/styles/themes.ts 里的 graphite 保持一致，改这里要同步那边。
+     其他主题在切换时通过行内变量覆盖，没覆盖到的都回落到这里。 */
+  --ai-primary: #4f46e5;
+  --ai-primary-strong: #4338ca;
+  --ai-primary-glow: rgba(79, 70, 229, 0.14);
+  --ai-accent: #0ea5e9;
+  --ai-accent-soft: #7dd3fc;
+  --ai-accent-rgb: 79, 70, 229;
+  --ai-surface-rgb: 255, 255, 255;
+  --ai-ink-rgb: 17, 24, 39;
+  /* 投影专用：任何主题下都应该是深的。
+     不能用 --ai-ink-rgb，它在深色主题里是浅色，拿来做阴影会变成发光 */
+  --ai-shadow-rgb: 16, 24, 40;
 
-  /* 纸料背景 / 纸面 */
-  --ai-bg: #fbf3e1;
-  --ai-surface: #fffdf7;
-  --ai-surface-soft: #f7eeda;
-  --ai-card-bg: #fffdf7;
-  --ai-glass: #fffdf7;
-  --ai-glass-strong: #fffdf7;
-  --ai-glass-border: #ecdcbd;
+  --ai-bg: #fafafa;
+  --ai-surface: #ffffff;
+  --ai-surface-soft: #f4f4f5;
+  --ai-card-bg: #ffffff;
+  --ai-glass: rgba(255, 255, 255, 0.72);
+  --ai-glass-strong: rgba(255, 255, 255, 0.92);
+  --ai-glass-border: rgba(228, 228, 231, 0.9);
+  --ai-card-surface: #ffffff;
+  --ai-card-surface-solid: #ffffff;
+  --ai-card-border: #e5e7eb;
+  --ai-card-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 
-  /* 纸片卡面：不透明，靠暖色描边 + 硬边偏移投影区分层次 */
-  --ai-card-surface: #fffdf7;
-  --ai-card-surface-solid: #fffdf7;
-  --ai-card-border: #ecdcbd;
-  --ai-card-shadow: 2px 3px 0 rgba(184, 152, 104, 0.24), 0 16px 26px -22px rgba(120, 92, 52, 0.5);
+  --ai-title: #111827;
+  --ai-text: #4b5563;
+  --ai-muted: #5f6673;
 
-  /* 暖墨文字三档 */
-  --ai-title: #4a3f33;
-  --ai-text: #6e6047;
-  --ai-muted: #a0917a;
-
-  /* 边框 / 遮罩 / 阴影 */
-  --ai-border: #e8d9bb;
-  --ai-border-soft: #f2e8d2;
-  --ai-overlay: rgba(74, 63, 51, 0.4);
-  --ai-chip-bg: rgba(201, 113, 62, 0.08);
-  --ai-chip-bg-hover: rgba(201, 113, 62, 0.14);
-  --ai-card-radius: 16px;
-  --ai-control-radius: 12px;
-  --ai-shadow: 2px 3px 0 rgba(184, 152, 104, 0.24), 0 16px 26px -22px rgba(120, 92, 52, 0.5);
-  --ai-shadow-hover: 3px 5px 0 rgba(184, 152, 104, 0.28), 0 22px 34px -24px rgba(120, 92, 52, 0.55);
-  --ai-transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  --ai-border: #e5e7eb;
+  --ai-border-soft: #f1f2f4;
+  --ai-overlay: rgba(17, 24, 39, 0.36);
+  --ai-chip-bg: rgba(79, 70, 229, 0.07);
+  --ai-chip-bg-hover: rgba(79, 70, 229, 0.12);
+  --ai-card-radius: 8px;
+  --ai-control-radius: 6px;
+  --ai-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+  --ai-shadow-hover: 0 4px 12px rgba(16, 24, 40, 0.08);
+  --ai-transition: all 0.16s ease;
 }
 
 /* 纸雕主题：全站不再使用毛玻璃。
@@ -262,7 +260,7 @@ body::before {
   z-index: 0;
   pointer-events: none;
   /* 纸面底：暖米黄纸 + 斜向纤维 + 纸浆云斑 + 上下柔和晕染（静止，只栅格化一次） */
-  background-color: #fbf3e1;
+  background-color: var(--ai-bg);
   background-image:
     /* 纸浆云斑：大尺度、极低透明的不规则斑块，打破大面积单色 */
     radial-gradient(ellipse 42% 30% at 18% 22%, rgba(255, 252, 242, 0.85), transparent 70%),
@@ -430,13 +428,13 @@ button, input, textarea,
   position: absolute;
   pointer-events: none;
   /* 纸片厚度感 */
-  filter: drop-shadow(2px 3px 0 rgba(184, 152, 104, 0.26));
+  filter: drop-shadow(2px 3px 0 rgba(var(--ai-ink-rgb), 0.26));
 }
 
 /* 远景：更小、更淡、投影更弱 —— 制造纵深，避免所有元素"一样近" */
 .deco--far {
   opacity: 0.55;
-  filter: drop-shadow(1px 2px 0 rgba(184, 152, 104, 0.14));
+  filter: drop-shadow(1px 2px 0 rgba(var(--ai-ink-rgb), 0.14));
 }
 .deco--cloud1   { top: 6%; left: 9%; width: 112px; }
 .deco--cloud2   { top: 11%; right: 7%; width: 94px; }
@@ -474,17 +472,17 @@ button, input, textarea,
 .scene-item {
   position: absolute;
   pointer-events: none;
-  filter: drop-shadow(2px 3px 0 rgba(184, 152, 104, 0.2));
+  filter: drop-shadow(2px 3px 0 rgba(var(--ai-ink-rgb), 0.2));
 }
 /* 左岸：树 + 兔 + 蘑菇 + 草丛 */
 .scene--tree1     { left: 4%;  bottom: 96px; width: 88px; }
 .scene--bunny     { left: 12%; bottom: 88px; width: 76px; }
-.scene--grass1    { left: 20%; bottom: 66px; width: 82px; filter: drop-shadow(1px 2px 0 rgba(184, 152, 104, 0.16)); }
+.scene--grass1    { left: 20%; bottom: 66px; width: 82px; filter: drop-shadow(1px 2px 0 rgba(var(--ai-ink-rgb), 0.16)); }
 .scene--mushroom1 { left: 27%; bottom: 78px; width: 40px; }
 /* 右岸：猫 + 熊 + 蘑菇 + 草丛 */
 .scene--kitty     { right: 20%; bottom: 84px; width: 74px; }
 .scene--bear      { right: 7%;  bottom: 94px; width: 82px; }
-.scene--grass2    { right: 3%;  bottom: 62px; width: 86px; filter: drop-shadow(1px 2px 0 rgba(184, 152, 104, 0.16)); }
+.scene--grass2    { right: 3%;  bottom: 62px; width: 86px; filter: drop-shadow(1px 2px 0 rgba(var(--ai-ink-rgb), 0.16)); }
 .scene--mushroom2 { right: 29%; bottom: 72px; width: 38px; }
 
 /* 中等宽度：收掉散落小纸片，避免视觉碎屑过多 */
@@ -512,9 +510,9 @@ button, input, textarea,
   border-radius: 8px !important;
 }
 .ant-tag-blue {
-  color: #a8612f !important;
-  background: rgba(201, 113, 62, 0.08) !important;
-  border-color: rgba(201, 113, 62, 0.28) !important;
+  color: var(--ai-primary-strong) !important;
+  background: rgba(var(--ai-accent-rgb), 0.08) !important;
+  border-color: rgba(var(--ai-accent-rgb), 0.28) !important;
 }
 
 /* Table */
@@ -629,7 +627,8 @@ textarea::placeholder,
 .ant-btn-primary:hover,
 .ant-btn-primary:focus,
 .ant-btn-primary:focus-visible {
-  background: linear-gradient(135deg, #d4824b, var(--ai-primary-strong)) !important;
+  /* 之前这里写死了 #d4824b（陶土橘），换主题后 hover 会突然变橙 */
+  background: var(--ai-primary-strong) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 12px 30px rgba(var(--ai-accent-rgb), 0.3) !important;
 }
@@ -640,7 +639,7 @@ textarea::placeholder,
 }
 .ant-btn-primary:disabled,
 .ant-btn-primary[disabled]:hover {
-  background: #ddcdaa !important;
+  background: var(--ai-surface-soft) !important;
   color: #fffdf7 !important;
   box-shadow: none !important;
   transform: none !important;
@@ -854,7 +853,7 @@ textarea::placeholder,
 
 /* Message */
 .ant-message-notice-content {
-  background: rgba(255, 255, 255, 0.92) !important;
+  background: rgba(var(--ai-surface-rgb), 0.92) !important;
   border: 1px solid var(--ai-glass-border) !important;
   border-radius: 10px !important;
   backdrop-filter: blur(28px) !important;
@@ -893,7 +892,7 @@ textarea::placeholder,
 
 /* Preview iframe */
 iframe.preview-iframe {
-  background: #ffffff !important;
+  background: var(--ai-surface) !important;
 }
 
 /* Popover */
@@ -922,5 +921,63 @@ iframe.preview-iframe {
 }
 .ant-popconfirm .ant-btn-primary {
   color: #fff !important;
+}
+
+/* ===== 装饰层随主题降级 =====
+   卡通剪纸（云朵、山丘、兔子、猫、熊、蘑菇）只在「温润中性」下保留。
+   石墨 / 终端 / 瑞士是工具型视觉，画面里飘着插画会直接破坏气质 ——
+   这类装饰对「AI 生成代码」的产品是有害的，它把注意力从内容上带走。 */
+:root:not([data-theme='warm']) .bg-dynamic-global .deco,
+:root:not([data-theme='warm']) .bg-dynamic-global .hill,
+:root:not([data-theme='warm']) .bg-dynamic-global .scene-item {
+  display: none;
+}
+
+/* 点阵网格：工具类产品的「画布」暗示。
+   全站单色底会显得空，但又不能回到插画 —— 一组极淡的点阵既填了空间，
+   又不抢内容（Linear / Figma / Vercel 都是这个路子）。
+   用 mask 让点阵集中在上半屏并向下淡出：整屏均匀噪点会显脏。 */
+:root:not([data-theme='warm']) .bg-dynamic-global::after {
+  content: '';
+  display: block;
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(var(--ai-ink-rgb), 0.09) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 130% 72% at 50% 6%, #000 18%, transparent 76%);
+  mask-image: radial-gradient(ellipse 130% 72% at 50% 6%, #000 18%, transparent 76%);
+}
+
+/* 光晕保留，但只做氛围 —— 太强会把点阵盖住，也太像装饰画 */
+:root:not([data-theme='warm']) .bg-dynamic-global::before {
+  opacity: 0.55;
+}
+
+/* ===== 深色主题：装饰语言换一套，不是把浅色调暗 =====
+   浅色靠「点阵 + 暗角」暗示一张纸；深色靠「光」——深底上色光才有存在感。
+   上一轮把点阵压到 0.03 治好了"银色"，代价是背景彻底空了。
+   正确做法是换元素，不是调透明度。
+
+   ① 点阵 → 细网格（64px）
+      圆点在纯黑上会糊成颗粒（就是之前的银灰噪点），1px 直线不会；
+      64px 的大格读起来是"工程蓝图"，22px 的小点读起来是"噪点"。 */
+:root[data-theme='terminal'] .bg-dynamic-global::after {
+  background-image:
+    linear-gradient(rgba(var(--ai-ink-rgb), 0.058) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--ai-ink-rgb), 0.058) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 115% 72% at 50% 0%, #000 6%, transparent 70%);
+  mask-image: radial-gradient(ellipse 115% 72% at 50% 0%, #000 6%, transparent 70%);
+}
+
+/* ② 光晕：深色下的主力氛围。
+      顶部一团主色光（模拟"从上方打光"）+ 右上冷蓝 + 左下补光，
+      有了方向性才有立体感；均匀铺一层只会变成雾。 */
+:root[data-theme='terminal'] .bg-dynamic-global::before {
+  opacity: 0.9;
+  background:
+    radial-gradient(ellipse 72% 44% at 50% -8%, rgba(var(--ai-accent-rgb), 0.17), transparent 68%),
+    radial-gradient(circle at 86% 8%, rgba(59, 130, 246, 0.1), transparent 42%),
+    radial-gradient(circle at 6% 74%, rgba(var(--ai-accent-rgb), 0.06), transparent 46%);
 }
 </style>

@@ -80,10 +80,10 @@ const handleViewWork = () => {
   flex-direction: column;
   min-height: 100%;
   /* 纸雕：奶白纸片 + 暖色描边 + 硬边偏移投影 */
-  background: #fffdf7;
-  border: 1.5px solid #ecdcbd;
+  background: var(--ai-card-surface);
+  border: 1.5px solid var(--ai-card-border);
   border-radius: 16px;
-  box-shadow: 2px 3px 0 rgba(184, 152, 104, 0.24), 0 18px 26px -24px rgba(120, 92, 52, 0.5);
+  box-shadow: var(--ai-card-shadow);
   overflow: hidden;
   cursor: pointer;
   transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
@@ -92,8 +92,8 @@ const handleViewWork = () => {
 
 .app-card:hover {
   transform: translateY(-3px);
-  border-color: #dfc9a2;
-  box-shadow: 3px 6px 0 rgba(184, 152, 104, 0.28), 0 24px 32px -26px rgba(120, 92, 52, 0.55);
+  border-color: var(--ai-card-border);
+  box-shadow: var(--ai-shadow-hover);
 }
 
 .app-card--featured:hover {
@@ -104,7 +104,7 @@ const handleViewWork = () => {
   position: relative;
   height: 160px;
   padding: 8px;
-  background: #f7eeda;
+  background: var(--ai-surface-soft);
   overflow: hidden;
 }
 
@@ -112,7 +112,7 @@ const handleViewWork = () => {
   width: 100%;
   height: 100%;
   border-radius: 8px;
-  border: 1px solid #eadfc6;
+  border: 1px solid var(--ai-border-soft);
   object-fit: cover;
 }
 
@@ -123,8 +123,8 @@ const handleViewWork = () => {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1px solid #eadfc6;
-  background: #fffdf7;
+  border: 1px solid var(--ai-border-soft);
+  background: var(--ai-card-surface);
 }
 
 .placeholder-illustration {
@@ -140,20 +140,20 @@ const handleViewWork = () => {
 }
 
 .panel {
-  stroke: rgba(201, 113, 62, 0.3);
-  fill: rgba(201, 113, 62, 0.06);
+  stroke: rgba(var(--ai-accent-rgb), 0.3);
+  fill: rgba(var(--ai-accent-rgb), 0.06);
 }
 
 .soft {
-  stroke: rgba(120, 96, 62, 0.28);
+  stroke: rgba(var(--ai-ink-rgb), 0.28);
 }
 
 .accent {
-  stroke: rgba(201, 113, 62, 0.55);
+  stroke: rgba(var(--ai-accent-rgb), 0.55);
 }
 
 .dot {
-  fill: #d9a05b;
+  fill: var(--ai-primary);
 }
 
 .app-badge {
@@ -162,13 +162,13 @@ const handleViewWork = () => {
   left: 12px;
   padding: 2px 10px;
   border-radius: 8px;
-  background: #fffdf7;
-  border: 1.5px solid rgba(201, 113, 62, 0.3);
-  color: #a8612f;
+  background: var(--ai-card-surface);
+  border: 1.5px solid rgba(var(--ai-accent-rgb), 0.3);
+  color: var(--ai-primary-strong);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.03em;
-  box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.22);
+  box-shadow: var(--ai-shadow);
 }
 
 .app-overlay {
@@ -178,7 +178,7 @@ const handleViewWork = () => {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  background: rgba(255, 253, 247, 0.88);
+  background: var(--ai-card-surface);
   opacity: 0;
   transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -193,21 +193,21 @@ const handleViewWork = () => {
   border-radius: 8px;
   font-weight: 500;
   font-size: 13px;
-  background: #c9713e;
-  box-shadow: 2px 2px 0 rgba(150, 92, 48, 0.35);
+  background: var(--ai-primary);
+  box-shadow: var(--ai-shadow);
 }
 
 .overlay-button--ghost {
-  background: #fffdf7;
+  background: var(--ai-card-surface);
   color: var(--ai-title);
-  border: 1.5px solid #ecdcbd;
-  box-shadow: 2px 2px 0 rgba(184, 152, 104, 0.2);
+  border: 1.5px solid var(--ai-card-border);
+  box-shadow: var(--ai-shadow);
 }
 
 .overlay-button--ghost:hover {
-  background: #fdf6e6 !important;
-  border-color: #dcc9a2;
-  color: #a8612f;
+  background: var(--ai-surface-soft) !important;
+  border-color: var(--ai-card-border);
+  color: var(--ai-primary-strong);
 }
 
 .app-info {
