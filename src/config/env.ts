@@ -17,6 +17,13 @@ export const getDeployUrl = (deployKey: string) => {
   return `${DEPLOY_DOMAIN}/${deployKey}`
 }
 
+// 工程模式（Vue / React）都是 vite 构建，产物统一在 dist/ 下，预览要指向 dist/index.html；
+// HTML / MULTI_FILE 是直接落盘的静态文件，没有构建步骤，不能加 dist 前缀
+const PROJECT_CODE_GEN_TYPES: string[] = [
+  CodeGenTypeEnum.VUE_PROJECT,
+  CodeGenTypeEnum.REACT_PROJECT,
+]
+
 // 获取静态资源预览URL
 export const getStaticPreviewUrl = (codeGenType: string, appId: string) => {
   // 开发环境下走 Vite 代理，保证 iframe 同源（编辑模式需要访问 contentDocument）
@@ -24,8 +31,7 @@ export const getStaticPreviewUrl = (codeGenType: string, appId: string) => {
     ? '/api/static'
     : STATIC_BASE_URL
   const baseUrl = `${staticBaseUrl}/${codeGenType}_${appId}/`
-  // 如果是 Vue 项目，浏览地址需要添加 dist 后缀
-  if (codeGenType === CodeGenTypeEnum.VUE_PROJECT) {
+  if (PROJECT_CODE_GEN_TYPES.includes(codeGenType)) {
     return `${baseUrl}dist/index.html`
   }
   return baseUrl

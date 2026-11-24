@@ -258,6 +258,12 @@ declare namespace API {
     operation?: string
     durationMs?: number
     status?: string
+    modelName?: string
+    inputTokens?: number
+    outputTokens?: number
+    totalTokens?: number
+    modelRounds?: number
+    usagePartial?: boolean
     startTime?: string
     endTime?: string
     createTime?: string

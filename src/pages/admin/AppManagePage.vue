@@ -36,7 +36,7 @@
       :data-source="data"
       :pagination="pagination"
       @change="doTableChange"
-      :scroll="{ x: 1200 }"
+      :scroll="{ x: 1450 }"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'cover'">
@@ -65,7 +65,16 @@
           {{ formatTime(record.createTime) }}
         </template>
         <template v-else-if="column.dataIndex === 'user'">
-          <UserInfo :user="record.user" size="small" />
+          <!-- 默认用户名都是「无名」，光看名字认不出人，所以把账号一起放出来 -->
+          <div class="creator-cell">
+            <a-avatar :src="record.user?.userAvatar" size="small">
+              {{ record.user?.userName?.charAt(0) || 'U' }}
+            </a-avatar>
+            <div class="creator-meta">
+              <div class="creator-name">{{ record.user?.userName || '未知用户' }}</div>
+              <div class="creator-account">{{ record.user?.userAccount || '-' }}</div>
+            </div>
+          </div>
         </template>
         <template v-else-if="column.key === 'action'">
           <a-space>
@@ -95,7 +104,6 @@ import { message } from 'ant-design-vue'
 import { listAppVoByPageByAdmin, deleteAppByAdmin, updateAppByAdmin } from '@/api/appController'
 import { CODE_GEN_TYPE_OPTIONS, formatCodeGenType } from '@/utils/codeGenTypes'
 import { formatTime } from '@/utils/time'
-import UserInfo from '@/components/UserInfo.vue'
 
 const router = useRouter()
 
@@ -139,7 +147,7 @@ const columns = [
   {
     title: '创建者',
     dataIndex: 'user',
-    width: 120,
+    width: 170,
   },
   {
     title: '创建时间',
@@ -312,5 +320,33 @@ const deleteApp = async (id: string | undefined) => {
 
 :deep(.ant-table-tbody > tr > td) {
   vertical-align: middle;
+}
+
+/* 创建者：头像 + 用户名 + 账号 */
+.creator-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.creator-meta {
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.creator-name {
+  font-size: 13px;
+  color: var(--ai-title);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.creator-account {
+  font-size: 12px;
+  color: var(--ai-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

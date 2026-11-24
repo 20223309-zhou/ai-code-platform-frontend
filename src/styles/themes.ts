@@ -30,6 +30,7 @@ export interface AppTheme {
 const graphite: ThemeVars = {
   '--ai-primary': '#4f46e5',
   '--ai-primary-strong': '#4338ca',
+  '--ai-on-primary': '#ffffff',
   '--ai-primary-glow': 'rgba(79, 70, 229, 0.14)',
   '--ai-accent': '#0ea5e9',
   '--ai-accent-soft': '#7dd3fc',
@@ -71,6 +72,8 @@ const graphite: ThemeVars = {
 const terminal: ThemeVars = {
   '--ai-primary': '#22d3a6',
   '--ai-primary-strong': '#34e0b4',
+  // 终端青是亮底，白字/白图标对比度只有 1.9:1，必须用深色前景
+  '--ai-on-primary': '#052b23',
   '--ai-primary-glow': 'rgba(34, 211, 166, 0.16)',
   '--ai-accent': '#3b82f6',
   '--ai-accent-soft': '#93c5fd',
@@ -112,6 +115,7 @@ const terminal: ThemeVars = {
 const warm: ThemeVars = {
   '--ai-primary': '#c2410c',
   '--ai-primary-strong': '#9a3412',
+  '--ai-on-primary': '#ffffff',
   '--ai-primary-glow': 'rgba(194, 65, 12, 0.14)',
   '--ai-accent': '#78716c',
   '--ai-accent-soft': '#a8a29e',
@@ -153,6 +157,7 @@ const warm: ThemeVars = {
 const swiss: ThemeVars = {
   '--ai-primary': '#ff4d2e',
   '--ai-primary-strong': '#e63a1d',
+  '--ai-on-primary': '#ffffff',
   '--ai-primary-glow': 'rgba(255, 77, 46, 0.14)',
   '--ai-accent': '#0a0a0a',
   '--ai-accent-soft': '#525252',

@@ -86,6 +86,12 @@
             >
               <span class="app-dot" />
               <span class="row-label app-label">{{ app.appName || '未命名应用' }}</span>
+              <!-- 这个作品正在流式生成：名字后面挂一个转圈标记，切到别的页面也能看见 -->
+              <LoadingOutlined
+                v-if="generationStore.isActive(app.id)"
+                class="row-generating"
+                aria-label="正在生成"
+              />
             </RouterLink>
           </a-dropdown>
           <p v-if="myApps.length === 0" class="group-empty">还没有作品，从「新建应用」开始</p>
@@ -168,6 +174,7 @@ import { computed, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
+import { useGenerationStore } from '@/stores/generation'
 import { userLogout } from '@/api/userController'
 import { listMyAppVoByPage } from '@/api/appController'
 import AnnouncementCenter from '@/components/AnnouncementCenter.vue'
@@ -191,11 +198,13 @@ import {
   BellOutlined,
   TrophyOutlined,
   BgColorsOutlined,
+  LoadingOutlined,
 } from '@ant-design/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
+const generationStore = useGenerationStore()
 
 // 公告：数据源与已读状态都是共享单例，和进站弹窗看到的是同一份
 const { list: announcements, ensureLoaded } = useAnnouncementFeed()
@@ -299,6 +308,13 @@ const loadMyApps = async () => {
 
 // 每次切页都刷一次：新建应用后会跳到 /app/chat/{id}，列表要能看到新的那一条
 watch(() => route.path, loadMyApps)
+// 生成结束时再拉一次作品列表：应用名是后端异步回填的，此时才是最终名称
+watch(
+  () => generationStore.count,
+  (next, prev) => {
+    if (next < prev) loadMyApps()
+  },
+)
 watch(() => loginUserStore.loginUser.id, loadMyApps)
 
 onMounted(() => {
@@ -389,6 +405,21 @@ const doLogout = async () => {
 }
 
 /* 分组 */
+.row-generating {
+  flex-shrink: 0;
+  /* 行是 flex 容器，auto 会把剩余空间全吃掉，标记因此贴到行尾 */
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ai-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .aside-group {
   display: flex;
   flex-direction: column;

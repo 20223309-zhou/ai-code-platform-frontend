@@ -88,7 +88,7 @@ const wrapStyle: Record<string, string> = {
   isolation: 'isolate',
 }
 const totalStyle: Record<string, string> = {
-  color: '#6e6047',
+  color: 'var(--ai-text)',
   fontSize: '13px',
   marginRight: '8px',
   lineHeight: '36px',
@@ -121,7 +121,7 @@ const btnStyle: Record<string, string> = {
   ...baseBtn,
   border: '1.5px solid var(--ai-border)',
   background: 'var(--ai-card-surface)',
-  color: '#6e6047',
+  color: 'var(--ai-text)',
   cursor: 'pointer',
 }
 const prevBtnStyle: Record<string, string> = {
@@ -137,7 +137,7 @@ const nextBtnStyle: Record<string, string> = {
   ...baseBtn,
   border: '1.5px solid var(--ai-border)',
   background: 'var(--ai-card-surface)',
-  color: '#6e6047',
+  color: 'var(--ai-text)',
   cursor: 'pointer',
   fontSize: '18px',
   fontWeight: '600',
@@ -159,7 +159,7 @@ const selectStyle: Record<string, string> = {
   background:
     "var(--ai-card-surface) url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6047' stroke-width='2.5' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>\") no-repeat right 8px center",
   backgroundSize: '12px',
-  color: '#6e6047',
+  color: 'var(--ai-text)',
   fontSize: '14px',
   fontFamily: 'inherit',
   cursor: 'pointer',
@@ -217,13 +217,13 @@ function onSizeChange(ev: Event) {
   white-space: nowrap;
   margin: 24px 0 0;
   font-family: inherit;
-  color: #6e6047;
+  color: var(--ai-text);
   font-size: 14px;
   visibility: visible !important;
   opacity: 1 !important;
 }
 .cp-total {
-  color: #6e6047;
+  color: var(--ai-text);
   font-size: 13px;
   margin-right: 8px;
   line-height: 36px;

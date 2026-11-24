@@ -170,6 +170,10 @@ import BasicLayout from '@/layouts/BasicLayout.vue'
   --ai-primary: #4f46e5;
   --ai-primary-strong: #4338ca;
   --ai-primary-glow: rgba(79, 70, 229, 0.14);
+  /* 主色底上的前景色（按钮文字 / 加载图标）。
+     终端青的主色很亮，白字只有 1.9:1 对比度，所以在 themes.ts 里被覆盖成深色；
+     这里兜底成白色，保证主题 JS 还没跑时的首屏也有值可用 */
+  --ai-on-primary: #ffffff;
   --ai-accent: #0ea5e9;
   --ai-accent-soft: #7dd3fc;
   --ai-accent-rgb: 79, 70, 229;
@@ -620,6 +624,8 @@ textarea::placeholder,
   border: none !important;
   border-radius: 8px !important;
   background: linear-gradient(135deg, var(--ai-primary), var(--ai-primary-strong)) !important;
+  /* 亮色主色（终端青）上白字看不清，前景色跟主题走 */
+  color: var(--ai-on-primary) !important;
   box-shadow: 0 8px 22px rgba(var(--ai-accent-rgb), 0.22) !important;
 }
 /* 交互态必须单独覆盖：antd 内部默认主色仍是蓝色，

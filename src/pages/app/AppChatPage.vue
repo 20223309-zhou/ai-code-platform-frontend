@@ -82,7 +82,7 @@
               加载更多历史消息
             </a-button>
           </div>
-          <div v-for="(message, index) in messages" :key="index" class="message-item">
+          <div v-for="(message, index) in messages" :key="index" :id="`msg-${index}`" class="message-item">
             <div v-if="message.type === 'user'" class="user-message">
               <div class="message-content">{{ message.content }}</div>
               <div class="message-avatar">
@@ -91,13 +91,14 @@
             </div>
             <div v-else class="ai-message">
               <div class="message-avatar">
-                <a-avatar :src="aiAvatar" />
+                <a-avatar :src="aiAvatar" class="ai-avatar-chip" />
               </div>
               <div class="message-content">
                 <div v-if="message.thinking" class="thinking-bubble">
                   <div class="thinking-header" @click="message.thinkingExpanded = !message.thinkingExpanded">
                     <svg t="1778761273516" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5798" width="16" height="16"><path d="M592.8448 426.5984l47.104-47.104c8.7552 8.8576 17.408 17.7152 25.7536 26.624l-48.2816 45.7216a1274.88 1274.88 0 0 0-24.576-25.2416zM847.36 857.7024c-25.1904 25.2416-60.5696 31.232-95.232 28.0064-34.8672-3.2768-74.24-16.384-115.2-36.0448-82.2272-39.5776-177.6128-109.4144-267.7248-199.5264a1370.0096 1370.0096 0 0 1-16.2304-16.5376l24.0128-23.0912 23.8592-23.1424c5.12 5.2736 10.24 10.4448 15.4624 15.6672 86.272 86.272 175.616 151.0912 249.4464 186.624 37.0688 17.8688 68.5056 27.4944 92.672 29.7984 24.3712 2.304 36.2496-3.2256 41.8816-8.8576 7.168-7.168 13.824-24.832 5.4784-62.4128-7.9872-35.9936-28.3136-81.92-60.4672-133.4272l56.4224-35.2768c34.4064 55.04 58.7776 108.1344 69.0176 154.2144 9.9328 44.544 8.4992 92.16-23.3472 124.0064zM208.8448 219.0336c-7.5264 7.5264-14.336 26.5728-4.4544 66.9696 9.472 38.5536 32.256 87.5008 67.7376 141.9264l-27.904 18.1248-27.8528 18.176C178.688 406.3744 151.6544 350.3104 139.776 301.824c-11.4688-46.592-11.1104-96.7168 22.016-129.8432 25.2416-25.2416 60.6208-31.232 95.232-28.0064 34.9184 3.2768 74.3424 16.384 115.2512 36.0448 82.2272 39.5776 177.5104 109.4144 267.6224 199.5264l-47.104 47.104c-86.2208-86.272-175.5648-151.04-249.344-186.624-37.12-17.8176-68.5568-27.4944-92.672-29.7984-24.4224-2.304-36.352 3.1744-41.9328 8.8064z" p-id="5799" fill="#cdcdcd"></path><path d="M416.3584 426.5984l-47.104-47.104c8.8576-8.8064 17.7152-17.408 26.624-25.8048l45.7728 48.3328c-8.448 7.9872-16.896 16.2304-25.2928 24.576zM847.5648 172.032c25.2416 25.1904 31.232 60.5696 28.0064 95.232-3.328 34.8672-16.384 74.24-36.096 115.2-39.5776 82.2272-109.4144 177.6128-199.5264 267.7248-5.4784 5.4784-10.9568 10.9056-16.4864 16.2304l-23.1424-24.0128-23.0912-23.8592 15.6672-15.4624c86.2208-86.272 151.04-175.616 186.624-249.4464 17.8176-37.0688 27.4944-68.4544 29.7984-92.672 2.2528-24.3712-3.2256-36.2496-8.8576-41.8816-7.168-7.168-24.8832-13.824-62.4128-5.4784-35.9936 7.9872-81.92 28.3136-133.4784 60.4672l-35.2256-56.4224c54.9888-34.4064 108.0832-58.7776 154.2144-69.0176 44.544-9.9328 92.16-8.4992 124.0064 23.3472z" p-id="5800" fill="#cdcdcd"></path><path d="M208.8448 810.5984c7.5264 7.5264 26.5728 14.336 66.9696 4.4544 38.5536-9.4208 87.5008-32.256 141.9264-67.7376l18.1248 27.904 18.176 27.8528c-57.856 37.7344-113.92 64.7168-162.4064 76.6464-46.592 11.4176-96.7168 11.1104-129.8432-22.016-25.2416-25.2416-31.2832-60.672-28.0064-95.232 3.2768-34.9696 16.384-74.3424 36.0448-115.3024 39.5776-82.176 109.4144-177.5104 199.5264-267.6224l47.0528 47.104c-86.272 86.2208-151.04 175.616-186.5728 249.3952-17.8176 37.0688-27.5456 68.5056-29.7984 92.672-2.304 24.3712 3.1744 36.3008 8.8064 41.8816zM554.0864 554.752A60.928 60.928 0 1 1 467.968 468.5312a60.928 60.928 0 0 1 86.1696 86.2208z" p-id="5801" fill="#cdcdcd"></path><path d="M522.1888 522.752a15.8208 15.8208 0 1 0-22.3744 0l-31.9488 32-4.096-4.608a60.928 60.928 0 1 1 90.368 4.608l-4.6592 4.1984a60.9792 60.9792 0 0 1-81.6128-4.1984l31.9488-31.9488c6.144 6.144 16.1792 6.144 22.3744 0z" p-id="5802" fill="#cdcdcd"></path></svg>
                     <span>深度思考</span>
+                    <span v-if="message.loading && !message.content" class="thinking-hint">思考中…</span>
                     <span class="thinking-toggle">{{ message.thinkingExpanded ? '收起 ▲' : '展开 ▼' }}</span>
                   </div>
                   <div v-if="message.thinkingExpanded" class="thinking-body">
@@ -113,12 +114,53 @@
             </div>
           </div>
         </div>
-        <!-- 滚动到底部按钮 -->
-        <transition name="fade">
-          <button v-if="showScrollDown" class="scroll-down-btn" @click="scrollToBottom">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-        </transition>
+        <!-- 浮动工具：对话目录 / 回到顶部 / 回到底部 -->
+        <div class="chat-tools">
+          <a-popover
+            v-model:open="outlineOpen"
+            placement="left"
+            trigger="click"
+            :overlay-style="{ padding: '8px' }"
+          >
+            <template #content>
+              <div class="outline-list">
+                <p v-if="chatOutline.length === 0" class="outline-empty">还没有对话内容</p>
+                <button
+                  v-for="item in chatOutline"
+                  :key="item.index"
+                  type="button"
+                  class="outline-item"
+                  @click="jumpToMessage(item.index)"
+                >
+                  <span class="outline-index">{{ item.round }}</span>
+                  <span class="outline-text">{{ item.label }}</span>
+                </button>
+              </div>
+            </template>
+            <button class="chat-tool-btn" title="对话目录">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="8" y1="6" x2="20" y2="6" />
+                <line x1="8" y1="12" x2="20" y2="12" />
+                <line x1="8" y1="18" x2="20" y2="18" />
+                <circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none" />
+                <circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none" />
+                <circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none" />
+              </svg>
+            </button>
+          </a-popover>
+
+          <transition name="fade">
+            <button v-if="showScrollTop" class="chat-tool-btn" title="回到顶部" @click="scrollToTop">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 15 12 9 18 15"/></svg>
+            </button>
+          </transition>
+
+          <transition name="fade">
+            <button v-if="showScrollDown" class="chat-tool-btn" title="回到底部" @click="scrollToBottom">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </transition>
+        </div>
 
         <!-- 选中元素信息展示 -->
         <a-alert
@@ -323,10 +365,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, onUnmounted, computed } from 'vue'
+// 显式命名：BasicLayout 里的 keep-alive 用 include=['AppChatPage'] 匹配这个名字
+defineOptions({ name: 'AppChatPage' })
+
+import { ref, onMounted, nextTick, onUnmounted, onActivated, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message, Modal } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
+import { useGenerationStore } from '@/stores/generation'
 import { getLoginUser } from '@/api/userController'
 import {
   cancelAppGeneration,
@@ -374,6 +420,7 @@ import {
 const route = useRoute()
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
+const generationStore = useGenerationStore()
 
 // 应用信息
 const appInfo = ref<API.AppVO>()
@@ -582,7 +629,8 @@ const handleSendMessage = async () => {
     type: 'ai',
     content: '',
     loading: true,
-    thinkingExpanded: true,
+    // 深度思考默认为收起状态，用户想看点「展开」
+    thinkingExpanded: false,
   })
 
   await nextTick()
@@ -606,7 +654,8 @@ const sendInitialMessage = async (prompt: string, files: File[] = [], displayCon
     type: 'ai',
     content: '',
     loading: true,
-    thinkingExpanded: true,
+    // 深度思考默认为收起状态，用户想看点「展开」
+    thinkingExpanded: false,
   })
 
   await nextTick()
@@ -778,6 +827,13 @@ const generateCode = async (formData: FormData, aiMessageIndex: number) => {
   const url = `${baseURL}/app/chat/gen/code`
   let streamCompleted = false
 
+  // 登记到全局 store（侧栏作品名旁的旋转标记靠它），并开始轮询异步生成的应用名。
+  // 不用 watch(isGenerating)：那条链路依赖实例存活顺序，实例被 keep-alive 缓存后容易漏触发。
+  if (appId.value) {
+    generationStore.start(String(appId.value), appInfo.value?.appName)
+    startAppNamePolling()
+  }
+
   abortController.value = new AbortController()
 
   try {
@@ -926,6 +982,11 @@ const generateCode = async (formData: FormData, aiMessageIndex: number) => {
     }
     console.error('流式请求失败:', error)
     handleError(error, aiMessageIndex)
+  } finally {
+    // 正常结束 / 报错 / 中断都会走到；组件被 keep-alive 淘汰后这段闭包仍会执行，
+    // 不会在侧边栏留下"永远在生成"的僵尸项
+    generationStore.finish(appId.value)
+    stopAppNamePolling()
   }
 }
 
@@ -995,6 +1056,48 @@ const fetchAppInfo = async () => {
 }
 
 // 加载初始聊天历史
+// 后端生成过程中每隔 1.5 秒会写一次"检查点"，内容末尾带「生成中…」。
+// 刷新后拿到的是这种快照，这里轻量轮询把它刷新成最新内容，直到标记消失。
+const STREAMING_HINT = '生成中…'
+let snapshotTimer: ReturnType<typeof setInterval> | null = null
+
+const stopSnapshotPolling = () => {
+  if (snapshotTimer) {
+    clearInterval(snapshotTimer)
+    snapshotTimer = null
+  }
+}
+
+const refreshStreamingSnapshot = async () => {
+  const id = appId.value ? String(appId.value) : ''
+  if (!id) return
+  try {
+    const res = await listAppChatHistory({ appId: id as any, pageSize: 10 })
+    const records = res.data.data?.records
+    if (res.data.code !== 0 || !records || records.length === 0) return
+    const lastAi = [...records].reverse().find((r) => r.messageType === 'ai')
+    if (!lastAi) return
+    const index = messages.value.map((m) => m.type).lastIndexOf('ai')
+    if (index < 0) return
+    const content = parseHistoryMessageContent(lastAi.message) || ''
+    messages.value[index].content = content
+    if (!content.includes(STREAMING_HINT)) {
+      stopSnapshotPolling()
+    }
+    await nextTick()
+    autoScrollIfNearBottom()
+  } catch {
+    /* 轮询失败不打扰用户 */
+  }
+}
+
+const startSnapshotPollingIfNeeded = () => {
+  const lastAi = [...messages.value].reverse().find((m) => m.type === 'ai')
+  if (!lastAi || !lastAi.content.includes(STREAMING_HINT)) return
+  stopSnapshotPolling()
+  snapshotTimer = setInterval(refreshStreamingSnapshot, 3000)
+}
+
 const loadInitialHistory = async (appIdStr: string) => {
   try {
     const res = await listAppChatHistory({ appId: appIdStr as any, pageSize: 50 })
@@ -1016,6 +1119,8 @@ const loadInitialHistory = async (appIdStr: string) => {
       updatePreview()
       await nextTick()
       scrollToBottom()
+      // 历史里最后一条是"生成中"的快照时，继续轮询跟踪进度
+      startSnapshotPollingIfNeeded()
     }
   } catch (error) {
     console.error('加载聊天历史失败：', error)
@@ -1091,14 +1196,45 @@ const isNearBottom = () => {
 
 // 是否显示"滚动到底部"按钮
 const showScrollDown = ref(false)
+// 是否显示"回到顶部"按钮（往下翻过一屏才出现，避免和底部按钮同时挤在一起）
+const showScrollTop = ref(false)
+const outlineOpen = ref(false)
+
+// 会话目录：每轮用户提问作为一条，点击跳到对应的那轮
+const chatOutline = computed(() =>
+  messages.value
+    .map((message, index) => ({ message, index }))
+    .filter(({ message }) => message.type === 'user' && message.content?.trim())
+    .map(({ message, index }, order) => ({
+      index,
+      round: order + 1,
+      label: message.content.replace(/\s+/g, ' ').trim().slice(0, 40),
+    })),
+)
 
 // 消息区域滚动事件
 const onMessagesScroll = () => {
-  if (isNearBottom()) {
-    showScrollDown.value = false
-  } else {
-    showScrollDown.value = true
-  }
+  const el = messagesContainer.value
+  showScrollDown.value = !isNearBottom()
+  showScrollTop.value = !!el && el.scrollTop > 240
+}
+
+// 回到顶部
+const scrollToTop = () => {
+  messagesContainer.value?.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// 跳到某一轮：用相对位移而不是 scrollIntoView，避免连带把整个页面滚走
+const jumpToMessage = (index: number) => {
+  outlineOpen.value = false
+  const container = messagesContainer.value
+  const target = container?.querySelector<HTMLElement>(`#msg-${index}`)
+  if (!container || !target) return
+  const delta = target.getBoundingClientRect().top - container.getBoundingClientRect().top
+  container.scrollTo({ top: container.scrollTop + delta - 12, behavior: 'smooth' })
+  // 短暂高亮，帮助确认跳到了哪一轮
+  target.classList.add('is-jump-highlight')
+  window.setTimeout(() => target.classList.remove('is-jump-highlight'), 1200)
 }
 
 // 改良版：只有用户在底部时才自动滚动（使用 nextTick 确保 DOM 已更新）
@@ -1307,13 +1443,63 @@ onMounted(() => {
   window.addEventListener('message', onWindowMessage)
 })
 
-// 清理资源
+// 应用名是"创建后异步生成"的（后端虚拟线程调模型取名再回填），前端不会收到通知。
+// 生成期间轻量轮询一次应用信息，把侧边栏"正在生成"里显示的首句占位名换成正式名称。
+let appNameTimer: ReturnType<typeof setInterval> | null = null
+
+const refreshAppNameQuietly = async () => {
+  const id = appId.value ? String(appId.value) : ''
+  if (!id) return
+  try {
+    const res = await getAppVoById({ id })
+    if (res.data.code === 0 && res.data.data) {
+      // 只换 appInfo，appName 的 watch 会顺手把 store 里的名字也更新掉
+      appInfo.value = res.data.data
+    }
+  } catch {
+    /* 轮询失败不打扰用户 */
+  }
+}
+
+const stopAppNamePolling = () => {
+  if (appNameTimer) {
+    clearInterval(appNameTimer)
+    appNameTimer = null
+  }
+}
+
+const startAppNamePolling = () => {
+  stopAppNamePolling()
+  // 取名通常 1~3 秒完成，先补一次，之后每 5 秒兜底
+  setTimeout(refreshAppNameQuietly, 3000)
+  appNameTimer = setInterval(refreshAppNameQuietly, 5000)
+}
+
+// 应用信息晚于生成开始拿到时，补一次名称
+watch(
+  () => appInfo.value?.appName,
+  (name) => {
+    if (name && isGenerating.value && appId.value) {
+      generationStore.start(String(appId.value), name)
+    }
+  },
+)
+
+// keep-alive 恢复：期间可能又追加了大量流式内容，把视图拉回底部
+onActivated(() => {
+  nextTick(() => scrollToBottom())
+})
+
+// 清理资源。
+// 注意：这里**不再取消生成**。对话页被 keep-alive 缓存，切页面只是 deactivate，
+// 用户切回来要继续看到流式输出；真正的取消只由「停止生成」按钮触发。
 onUnmounted(() => {
   window.removeEventListener('message', onWindowMessage)
-  // 组件卸载时取消后端生成的 token 流（换作品时旧应用不该继续烧 token）
-  if (appId.value) {
-    cancelAppGeneration({ appId: String(appId.value) }).catch(() => {})
-  }
+  stopAppNamePolling()
+  stopSnapshotPolling()
+  // 这里绝不取消生成：keep-alive 达到上限淘汰旧实例时，
+  // 曾经的"兜底取消"会把用户正在跑的应用中断掉（现象：连续新建几个应用，前面几个全变成"已被用户中断"）。
+  // 生成交给流自己跑完，真正的取消只由「停止生成」按钮触发。
 })
 </script>
 
@@ -1423,6 +1609,21 @@ onUnmounted(() => {
 
 .message-item {
   margin-bottom: 14px;
+  border-radius: 12px;
+}
+
+/* 跳转后的短暂高亮，帮助定位到具体某一轮 */
+.message-item.is-jump-highlight {
+  animation: jump-flash 1.2s ease-out;
+}
+
+@keyframes jump-flash {
+  0% {
+    background: rgba(var(--ai-accent-rgb), 0.14);
+  }
+  100% {
+    background: transparent;
+  }
 }
 
 .user-message {
@@ -1490,6 +1691,23 @@ onUnmounted(() => {
 
 .thinking-icon {
   font-size: 14px;
+}
+
+.thinking-hint {
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--ai-muted);
+  animation: thinking-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes thinking-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .thinking-toggle {
@@ -1783,8 +2001,15 @@ onUnmounted(() => {
 
 .send-button :deep(.ant-btn-loading-icon .anticon) {
   display: inline-flex;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--ai-on-primary);
   animation: spin-ring 0.9s linear infinite;
+}
+
+/* AI 头像是一张"黑色线条 + 透明底"的 PNG，深色主题下会整个消失，
+   所以统一垫一层浅底；浅色主题里它和卡片同色，看不出多余的东西 */
+.ai-avatar-chip {
+  background: #ffffff;
+  border: 1px solid var(--ai-border-soft);
 }
 
 .send-button {
@@ -1928,11 +2153,19 @@ onUnmounted(() => {
   margin: 0 16px;
 }
 
-/* ───── 滚动到底部按钮 ───── */
-.scroll-down-btn {
+/* ───── 对话区浮动工具（目录 / 回到顶部 / 回到底部） ───── */
+.chat-tools {
   position: absolute;
-  bottom: 160px;
   right: 16px;
+  bottom: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.chat-tool-btn {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -1944,15 +2177,68 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
   box-shadow: var(--ai-shadow);
   transition: all 0.25s;
 }
-.scroll-down-btn:hover {
+
+.chat-tool-btn:hover {
   background: rgba(var(--ai-accent-rgb), 0.15);
   border-color: rgba(var(--ai-accent-rgb), 0.3);
   color: var(--ai-primary);
   box-shadow: 0 6px 24px rgba(var(--ai-accent-rgb), 0.15);
+}
+
+/* 会话目录弹层 */
+.outline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 260px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.outline-empty {
+  margin: 0;
+  padding: 8px;
+  font-size: 13px;
+  color: var(--ai-muted);
+}
+
+.outline-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ai-text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.16s, color 0.16s;
+}
+
+.outline-item:hover {
+  background: var(--ai-chip-bg);
+  color: var(--ai-primary);
+}
+
+.outline-index {
+  flex-shrink: 0;
+  width: 16px;
+  font-size: 12px;
+  color: var(--ai-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.outline-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .fade-enter-active,

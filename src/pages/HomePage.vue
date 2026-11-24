@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { message, Modal } from 'ant-design-vue'
@@ -123,9 +123,24 @@ const uploadHint = computed(
 )
 
 const setPrompt = (prompt: string, label: string) => {
+  // 再点一次当前选中的示例：取消常亮并把输入框清空
+  if (activeTemplate.value === label) {
+    activeTemplate.value = ''
+    userPrompt.value = ''
+    return
+  }
   userPrompt.value = prompt
   activeTemplate.value = label
 }
+
+// 手动改过内容后不再保持常亮，否则按钮状态和输入框对不上
+watch(userPrompt, (value) => {
+  if (!activeTemplate.value) return
+  const picked = templates.find((item) => item.label === activeTemplate.value)
+  if (picked && value !== picked.prompt) {
+    activeTemplate.value = ''
+  }
+})
 
 const onFileChange = (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -753,7 +768,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--ai-primary), var(--ai-primary-strong));
-  color: #fff;
+  color: var(--ai-on-primary);
   box-shadow: 0 6px 18px rgba(var(--ai-accent-rgb), 0.28);
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
@@ -1108,11 +1123,13 @@ onMounted(async () => {
 }
 
 .loader-ring-track {
-  stroke: rgba(255, 255, 255, 0.15);
+  /* 轨道与旋转弧都要和"按钮底色"拉开对比：之前弧用的是 --ai-primary，
+     而按钮底色也是 --ai-primary，等于在主色上画主色，完全看不见 */
+  stroke: color-mix(in srgb, var(--ai-on-primary) 28%, transparent);
 }
 
 .loader-ring-path {
-  stroke: var(--ai-primary);
+  stroke: var(--ai-on-primary);
   stroke-linecap: round;
   stroke-dasharray: 64;
   stroke-dashoffset: 20;

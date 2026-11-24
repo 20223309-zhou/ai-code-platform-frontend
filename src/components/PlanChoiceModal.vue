@@ -135,6 +135,9 @@ const confirm = () => {
 </template>
 
 <style scoped>
+/* 所有颜色一律走主题变量。
+   这里原来写死了 #1f2430 / #6b7280 这类浅色主题专用值，
+   切到终端青（深色）时正文和描述就变成了"深灰字压在深底上"。 */
 .plan-choice {
   padding: 4px 2px;
 }
@@ -143,13 +146,13 @@ const confirm = () => {
   margin: 0 0 6px;
   font-size: 18px;
   font-weight: 600;
-  color: #1f2430;
+  color: var(--ai-title);
 }
 
 .plan-head p {
   margin: 0 0 18px;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--ai-text);
 }
 
 .plan-grid {
@@ -163,7 +166,7 @@ const confirm = () => {
   width: 100%;
   text-align: left;
   padding: 16px;
-  border: 1px solid rgba(31, 36, 48, 0.12);
+  border: 1px solid var(--ai-border);
   border-radius: 12px;
   background: var(--ai-surface);
   cursor: pointer;
@@ -171,13 +174,13 @@ const confirm = () => {
 }
 
 .plan-card:hover {
-  border-color: rgba(79, 124, 255, 0.45);
+  border-color: rgba(var(--ai-accent-rgb), 0.45);
   transform: translateY(-1px);
 }
 
 .plan-card.is-active {
-  border-color: #4f7cff;
-  box-shadow: 0 0 0 2px rgba(79, 124, 255, 0.14);
+  border-color: var(--ai-primary);
+  box-shadow: 0 0 0 2px rgba(var(--ai-accent-rgb), 0.16);
 }
 
 .plan-card-top {
@@ -194,8 +197,8 @@ const confirm = () => {
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: rgba(79, 124, 255, 0.1);
-  color: #4f7cff;
+  background: rgba(var(--ai-accent-rgb), 0.12);
+  color: var(--ai-primary);
   font-size: 12px;
   font-weight: 600;
 }
@@ -204,35 +207,35 @@ const confirm = () => {
   font-size: 11px;
   padding: 1px 6px;
   border-radius: 999px;
-  background: rgba(79, 124, 255, 0.12);
-  color: #4f7cff;
+  background: rgba(var(--ai-accent-rgb), 0.14);
+  color: var(--ai-primary);
 }
 
 .plan-title {
   margin: 0 0 2px;
   font-size: 15px;
   font-weight: 600;
-  color: #1f2430;
+  color: var(--ai-title);
 }
 
 .plan-style {
   margin: 0 0 10px;
   font-size: 12px;
-  color: #8a8f9c;
+  color: var(--ai-muted);
 }
 
 .plan-layout {
   margin: 0 0 8px;
   font-size: 12.5px;
   line-height: 1.6;
-  color: #4b5563;
+  color: var(--ai-text);
 }
 
 .plan-desc {
   margin: 0;
   font-size: 12px;
   line-height: 1.6;
-  color: #8a8f9c;
+  color: var(--ai-muted);
 }
 
 .plan-tags {
@@ -246,8 +249,8 @@ const confirm = () => {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: rgba(31, 36, 48, 0.05);
-  color: #6b7280;
+  background: var(--ai-chip-bg);
+  color: var(--ai-text);
 }
 
 .plan-custom {
@@ -258,7 +261,7 @@ const confirm = () => {
   display: block;
   margin-bottom: 6px;
   font-size: 12.5px;
-  color: #6b7280;
+  color: var(--ai-text);
 }
 
 .plan-actions {
@@ -278,16 +281,16 @@ const confirm = () => {
   background: transparent;
   padding: 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--ai-text);
   cursor: pointer;
 }
 
 .btn-ghost:hover {
-  color: #4f7cff;
+  color: var(--ai-primary);
 }
 
 .plan-actions-hint {
   font-size: 12.5px;
-  color: #b45309;
+  color: #e6a23c;
 }
 </style>

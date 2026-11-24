@@ -15,7 +15,16 @@
           生成状态都跟着重建；同一页面只变 query 时不会误重建。
         -->
         <router-view v-slot="{ Component, route: viewRoute }">
-          <component :is="Component" :key="viewRoute.path" />
+          <!--
+            只缓存对话页（include 按组件名匹配）：
+            用户在生成过程中切到别的页面时，对话页不会被销毁，fetch 的流继续读、
+            消息继续累积，切回来直接看到最新内容。不缓存其它页面，避免无谓占内存。
+            max=8 是"同时记住几个作品"，超出时最久未访问的被销毁。
+            别调小：上限太小会让用户连续开几个作品时相互挤掉。
+          -->
+          <keep-alive :include="['AppChatPage']" :max="8">
+            <component :is="Component" :key="viewRoute.path" />
+          </keep-alive>
         </router-view>
       </main>
     </div>

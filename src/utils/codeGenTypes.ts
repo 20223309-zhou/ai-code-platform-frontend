@@ -5,6 +5,7 @@ export enum CodeGenTypeEnum {
   HTML = 'html',
   MULTI_FILE = 'multi_file',
   VUE_PROJECT = 'vue_project',
+  REACT_PROJECT = 'react_project',
   /** 智能选择：创建时由 AI 根据提示词自动路由，不存入库（库里只存具体类型） */
   AUTO = 'auto',
 }
@@ -24,6 +25,10 @@ export const CODE_GEN_TYPE_CONFIG = {
   [CodeGenTypeEnum.VUE_PROJECT]: {
     label: 'Vue 项目模式',
     value: CodeGenTypeEnum.VUE_PROJECT,
+  },
+  [CodeGenTypeEnum.REACT_PROJECT]: {
+    label: 'React 项目模式',
+    value: CodeGenTypeEnum.REACT_PROJECT,
   },
 } as const
 
@@ -53,6 +58,11 @@ export const CODE_GEN_TYPE_CREATE_OPTIONS = [
     label: 'Vue 项目模式',
     value: CodeGenTypeEnum.VUE_PROJECT,
     desc: '完整 Vue 工程，适合组件化复杂应用',
+  },
+  {
+    label: 'React 项目模式',
+    value: CodeGenTypeEnum.REACT_PROJECT,
+    desc: '完整 React 工程（Hooks + JSX），适合组件化复杂应用',
   },
   {
     label: '智能选择',
